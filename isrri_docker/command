@@ -1,0 +1,6 @@
+// docker 컨테이너 내부로 접속
+docker exec -it irssi bash
+// irssi가 기본 6667 포트로 열려 있기 때문에 6667 포트로 송수신하는 통신을 감시하고 출력
+tcpflow -i lo port 6667 -c
+// 서버에 접속
+irssi -c 127.0.0.1 -n gyyu

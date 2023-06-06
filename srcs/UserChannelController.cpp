@@ -53,11 +53,11 @@ void UserChannelController::RemoveUser(int id)
 	_users.erase(id);
 }
 
-void UserChannelController::AddChannel(std::string channelName, t_ChannelMode mode)
+void UserChannelController::AddChannel(std::string channelName/*, t_ChannelMode mode*/)
 {
 	_channelID++;
-	Channel Channel(_channelID, channelName);
-	_users.insert(std::pair<int, User>(_userID, Channel));
+	Channel channel(_channelID, channelName);
+	_channels.insert(std::pair<int, Channel>(_userID, channel));
 }
 
 void UserChannelController::RemoveChannel(int id)

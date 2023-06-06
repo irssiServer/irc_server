@@ -23,7 +23,7 @@ class UserChannelController
 		// add, remove Method
 		void AddUser(int fd, std::string nickname, std::string username, std::string hostname);
 		void RemoveUser(int id);
-		void AddChannel(std::string channelName, t_ChannelMode mode);
+		void AddChannel(std::string channelName/*, t_ChannelMode mode*/);
 		void RemoveChannel(int id);
 
 	private:

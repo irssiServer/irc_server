@@ -5,7 +5,7 @@
 # include <string>
 # include "UserChannelController.hpp"
 
-struct s_UserInfo // 좀 더 확인해봐야할듯
+struct s_ChannelMode // 좀 더 확인해봐야할듯
 {
 	bool Invite;
 	std::string Topic;

@@ -3,22 +3,27 @@
 
 # include <iostream>
 # include <string>
+# include <vector>
 # include "UserChannelController.hpp"
 
 struct s_ChannelMode // 좀 더 확인해봐야할듯
 {
-	bool Invite;
-	std::string Topic;
+	bool operatorFlag;
+	bool inviteFlag;
+	bool topicSetFlag;
+	bool keyFlag;
+	bool limiteFlag;
+	std::vector<std::string> operatorUser;
+	std::vector<std::string> invitedUser;
+	std::string topic;
 	std::string key;
-	std::string _operator;
-	std::string limite;
+	int limite;
 } typedef t_ChannelMode;
 
 class Channel
 {
 
 	public:
-
 		Channel();
 		Channel(int id, std::string channelName);
 		Channel( Channel const & src );

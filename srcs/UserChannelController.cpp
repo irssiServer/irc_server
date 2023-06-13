@@ -53,8 +53,9 @@ void UserChannelController::RemoveUser(int id)
 	_users.erase(id);
 }
 
-void UserChannelController::AddChannel(std::string channelName/*, t_ChannelMode mode*/)
+void UserChannelController::AddChannel(std::string channelName, t_ChannelMode mode)
 {
+	(void)mode;
 	_channelID++;
 	Channel channel(_channelID, channelName);
 	_channels.insert(std::pair<int, Channel>(_userID, channel));

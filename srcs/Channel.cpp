@@ -61,7 +61,7 @@ void Channel::LeaveUser(int id)
 {
 	for (std::vector<User *>::iterator iter = _users.begin(); iter != _users.end(); iter++)
 	{
-		if ((*iter)->getId() == id)
+		if ((*iter)->GetFd() == id)
 		{
 			_users.erase(iter);
 			break;

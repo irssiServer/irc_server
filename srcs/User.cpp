@@ -13,9 +13,8 @@ User::User( const User & src )
 	*this = src;
 }
 
-User::User(int id, int fd, std::string nickname, std::string username, std::string hostname)
+User::User(int fd, std::string nickname, std::string username, std::string hostname)
 {
-	_userInfo.id = id;
 	_userInfo.fd = fd;
 	_userInfo.nickname = nickname;
 	_userInfo.username = username;

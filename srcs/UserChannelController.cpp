@@ -43,9 +43,8 @@ UserChannelController &				UserChannelController::operator=( UserChannelControll
 
 void UserChannelController::AddUser(int fd, std::string nickname, std::string username, std::string hostname)
 {
-	_userID++;
-	User user(_userID, fd, nickname, username, hostname);
-	_users.insert(std::pair<int, User>(_userID, user));
+	User user(fd, nickname, username, hostname);
+	_users.insert(std::pair<int, User>(fd, user));
 }
 
 void UserChannelController::RemoveUser(int id)
@@ -58,7 +57,7 @@ void UserChannelController::AddChannel(std::string channelName, t_ChannelMode mo
 	(void)mode;
 	_channelID++;
 	Channel channel(_channelID, channelName);
-	_channels.insert(std::pair<int, Channel>(_userID, channel));
+	_channels.insert(std::pair<int, Channel>(_channelID, channel));
 }
 
 void UserChannelController::RemoveChannel(int id)

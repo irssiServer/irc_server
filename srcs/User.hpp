@@ -8,7 +8,6 @@
 
 struct s_UserInfo
 {
-	int id;
 	int fd;
 	std::string nickname;
 	std::string username;
@@ -20,15 +19,13 @@ class User
 {
 	public:
 		User();
-		User(int id, int fd, std::string nickname, std::string username, std::string hostname);
+		User(int fd, std::string nickname, std::string username, std::string hostname);
 		User( User const & src );
 		~User();
 		User &operator=( User const & rhs );
 
-		void SetId(int id) { _userInfo.id = id; };
-		int getId() { return _userInfo.id; };
 		void SetFd(int fd) { _userInfo.fd = fd; };
-		int getFd() { return _userInfo.fd; };
+		int GetFd() { return _userInfo.fd; };
 		void SetNickname(int nickname) { _userInfo.nickname = nickname; };
 		std::string getNickname() { return _userInfo.nickname; };
 		void SetUsername(int username) { _userInfo.username = username; };

@@ -33,7 +33,6 @@ class UserChannelController
 		void RemoveChannel(int id);
 
 	private:
-		int _userID;
 		int _channelID;
 		std::map<int, User> _users;
 		std::map<int, Channel> _channels;

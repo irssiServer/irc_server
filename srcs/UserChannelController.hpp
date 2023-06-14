@@ -21,11 +21,7 @@ class UserChannelController
 
 	public:
 
-		UserChannelController();
-		UserChannelController( UserChannelController const & src );
-		~UserChannelController();
-		UserChannelController &operator=( UserChannelController const & rhs );
-
+		UserChannelController &Instance();
 		// add, remove Method
 		void AddUser(int fd, std::string nickname, std::string username, std::string hostname);
 		void RemoveUser(int id);
@@ -36,6 +32,11 @@ class UserChannelController
 		int _channelID;
 		std::map<int, User> _users;
 		std::map<int, Channel> _channels;
+
+		UserChannelController();
+		UserChannelController( UserChannelController const & src );
+		UserChannelController &operator=( UserChannelController const & rhs );
+		~UserChannelController();
 };
 
 

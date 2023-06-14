@@ -14,7 +14,6 @@ struct s_UserInfo
 	std::string hostname;
 } typedef t_UserInfo;
 
-
 class User
 {
 	public:
@@ -22,18 +21,20 @@ class User
 		User(int fd, std::string nickname, std::string username, std::string hostname);
 		User( User const & src );
 		~User();
+
 		User &operator=( User const & rhs );
+		bool operator==(const User& rhs) const;
 
 		void SetFd(int fd) { _userInfo.fd = fd; };
-		int GetFd() { return _userInfo.fd; };
+		int GetFd() const { return _userInfo.fd; };
 		void SetNickname(int nickname) { _userInfo.nickname = nickname; };
-		std::string getNickname() { return _userInfo.nickname; };
+		std::string GetNickname() const { return _userInfo.nickname; };
 		void SetUsername(int username) { _userInfo.username = username; };
-		std::string getUsername() { return _userInfo.username; };
+		std::string GetUsername() const { return _userInfo.username; };
 		void SetHostname(int hostname) { _userInfo.hostname = hostname; };
-		std::string getHostname() { return _userInfo.hostname; };
+		std::string GetHostname() const { return _userInfo.hostname; };
 
-		void JoinChannel(Channel *channel);
+		void JoinChannel(Channel *channel, std::string password);
 		void leaveChannel(int id);
 
 	private:

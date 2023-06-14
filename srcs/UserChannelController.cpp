@@ -4,42 +4,25 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-UserChannelController::UserChannelController()
-{
-}
-
-UserChannelController::UserChannelController( const UserChannelController & src )
-{
-	*this = src;
-}
-
-
-/*
-** -------------------------------- DESTRUCTOR --------------------------------
-*/
-
-UserChannelController::~UserChannelController()
-{
-}
-
-
-/*
-** --------------------------------- OVERLOAD ---------------------------------
-*/
-
-UserChannelController &				UserChannelController::operator=( UserChannelController const & rhs )
+UserChannelController::UserChannelController() {}
+UserChannelController::UserChannelController( const UserChannelController & src ) { *this = src; }
+UserChannelController::~UserChannelController() {}
+UserChannelController &UserChannelController::operator=( UserChannelController const & rhs )
 {
 	if ( this != &rhs )
-	{
-	}
+		*this = rhs;
 	return *this;
 }
-
-
 
 /*
 ** --------------------------------- METHODS ----------------------------------
 */
+
+UserChannelController &UserChannelController::Instance()
+{
+	static UserChannelController _userChannelController;
+	return _userChannelController;	
+}
 
 void UserChannelController::AddUser(int fd, std::string nickname, std::string username, std::string hostname)
 {
@@ -54,13 +37,12 @@ void UserChannelController::RemoveUser(int id)
 
 void UserChannelController::AddChannel(std::string channelName, t_ChannelMode mode)
 {
-	(void)mode;
 	_channelID++;
-	Channel channel(_channelID, channelName);
+	Channel channel(_channelID, channelName, mode);
 	_channels.insert(std::pair<int, Channel>(_channelID, channel));
 }
 
-void UserChannelController::RemoveChannel(int id)
+void UserChannelController::RemoveChannel(int id) 
 {
 	_channels.erase(id);
 }

@@ -19,10 +19,8 @@ class User
 	public:
 		User();
 		User(int fd, std::string nickname, std::string username, std::string hostname);
-		User( User const & src );
 		~User();
 
-		User &operator=( User const & rhs );
 		bool operator==(const User& rhs) const;
 
 		void SetFd(int fd) { _userInfo.fd = fd; };

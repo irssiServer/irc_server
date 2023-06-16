@@ -4,7 +4,7 @@ CXX = c++
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98
 RM= rm -f
 
-SOURCE=	main.cpp Channel.cpp User.cpp UserChannelController.cpp
+SOURCE=	main.cpp Channel.cpp User.cpp UserChannelController.cpp CommandHandler.cpp
 SRCDIR= ./srcs
 
 SOURCES = $(addprefix $(SRCDIR)/,$(SOURCE))

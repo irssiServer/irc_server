@@ -13,6 +13,7 @@ typedef struct s_UserInfo t_UserInfo;
 # include <iostream>
 # include <string>
 # include <map>
+# include <vector>
 # include "User.hpp"
 # include "Channel.hpp"
 
@@ -21,12 +22,13 @@ class UserChannelController
 
 	public:
 
-		UserChannelController &Instance();
+		static UserChannelController &Instance();
 		// add, remove Method
 		void AddUser(int fd, std::string nickname, std::string username, std::string hostname);
 		void RemoveUser(int id);
 		void AddChannel(std::string channelName, t_ChannelMode mode);
 		void RemoveChannel(int id);
+		bool isNick(std::string nick);
 
 	private:
 		int _channelID;

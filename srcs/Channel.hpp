@@ -56,7 +56,6 @@ class Channel
 	public:
 		Channel(int id, std::string channelName);
 		Channel(int id, std::string channelName, t_ChannelMode mode);
-		Channel( Channel const & src );
 		~Channel();
 
 		void SetId(int id) { _id = id; };
@@ -67,7 +66,6 @@ class Channel
 
 	private:
 		Channel();
-		Channel &operator=( Channel const & rhs );
 		bool operator==(const Channel& rhs) const;
 
 		int _id;

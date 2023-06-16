@@ -5,14 +5,8 @@
 */
 
 UserChannelController::UserChannelController() {}
-UserChannelController::UserChannelController( const UserChannelController & src ) { *this = src; }
 UserChannelController::~UserChannelController() {}
-UserChannelController &UserChannelController::operator=( UserChannelController const & rhs )
-{
-	if ( this != &rhs )
-		*this = rhs;
-	return *this;
-}
+
 
 /*
 ** --------------------------------- METHODS ----------------------------------
@@ -47,6 +41,15 @@ void UserChannelController::RemoveChannel(int id)
 	_channels.erase(id);
 }
 
+bool UserChannelController::isNick(std::string nick)
+{
+	for (std::map<int, User>::iterator iter = _users.begin(); iter != _users.end(); iter++)
+	{
+		if (!iter->second.GetNickname().compare(nick))
+			return true;
+	}
+	return false;
+}
 
 
 /*

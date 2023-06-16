@@ -5,7 +5,6 @@
 */
 
 User::User() {}
-User::User( const User & src ) { *this = src; }
 User::~User() {}
 User::User(int fd, std::string nickname, std::string username, std::string hostname) 
 {
@@ -15,12 +14,7 @@ User::User(int fd, std::string nickname, std::string username, std::string hostn
 	_userInfo.hostname = hostname;
 }
 
-User &User::operator=( User const & rhs )
-{
-	if ( this != &rhs )
-		*this = rhs;
-	return *this;
-}
+
 
 bool User::operator==( User const & rhs) const
 {

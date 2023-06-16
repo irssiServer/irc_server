@@ -5,18 +5,11 @@
 */
 
 Channel::Channel() {}
-Channel::Channel( const Channel & src ) { *this = src; }
 Channel::~Channel() {}
 Channel::Channel(int id, std::string channelName) : _id(id), _channelName(channelName), _mode(t_ChannelMode()) {}
 Channel::Channel(int id, std::string channelName, t_ChannelMode mode) : _id(id), _channelName(channelName), _mode(mode) {}
 
 
-Channel &Channel::operator=( Channel const & rhs ) 
-{
-	if ( this != &rhs )
-		*this = rhs;
-	return *this;
-}
 
 bool Channel::operator==(const Channel& rhs) const
 {

@@ -39,7 +39,7 @@ struct s_MandatoryClientInit
     std::string nickname;
     std::string hostname;
     std::string realname;
-
+    std::string data;
     s_MandatoryClientInit() : userFlag(0), nickFlag(0), passwordFlag(0), username(""), nickname(""), hostname(""), realname("") {}
 } typedef t_MandatoryClientInit;
 

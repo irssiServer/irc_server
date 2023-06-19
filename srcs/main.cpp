@@ -40,7 +40,28 @@ struct s_MandatoryClientInit
     std::string hostname;
     std::string realname;
     std::string data;
-    s_MandatoryClientInit() : userFlag(0), nickFlag(0), passwordFlag(0), username(""), nickname(""), hostname(""), realname("") {}
+    
+	void    Push_data(std::string str)
+    {
+        data = data + str;
+    }
+    std::string Get_command()
+    {
+        std::size_t len = data.find("\r\n");
+		int size = data.size();
+        if (len == std::string::npos)
+			return (NULL);
+		std::string tmp;
+		tmp.resize(len);
+		
+        for(int i = 0; i < len; i++)
+            tmp[i] = data[i];
+		for(int i = 0; i < size; i++)
+			data[i] = data[i + len + 2];
+		data.resize(size - len - 2);
+		return (tmp);
+    }
+    s_MandatoryClientInit() : userFlag(0), nickFlag(0), passwordFlag(0), username(""), nickname(""), hostname(""), realname(""), data("") {}
 } typedef t_MandatoryClientInit;
 
 int main(int argc, char **argv)
@@ -204,7 +225,10 @@ int main(int argc, char **argv)
                             ss >> tmp;
                             if (!tmp.compare("NICK"))
                             {
-                                if (!CommandHandler::NICK(tmp))
+                                ss >> tmp;
+                                if (ss.fail() || !ss.eof())
+                                    std::cout << "check commad\n";
+                                else if (!CommandHandler::NICK(tmp))
                                 {
                                     clients[currEvent->ident].nickFlag = true;
                                     clients[currEvent->ident].nickname = tmp;
@@ -214,10 +238,26 @@ int main(int argc, char **argv)
                             }
                             else if (!tmp.compare("USER"))
                             {
+                                ss >> tmp;
+                                if (ss.fail() || !ss.eof())
+                                    std::cout << "check commad\n";
+                                else if (!CommandHandler::NICK(tmp))
+                                {
+                                    clients[currEvent->ident].nickFlag = true;
+                                    clients[currEvent->ident].nickname = tmp;
+                                }
+                                else
+                                    write(currEvent->ident, "nickname is already", strlen("nickname is already"));
                             }
                             else if (!tmp.compare("PASS"))
                             {
-
+                                ss >> tmp;
+                                if (ss.fail() || !ss.eof())
+                                    std::cout << "check commad\n";
+                                else if (tmp == password)
+                                    clients[currEvent->ident].passwordFlag = true;
+                                else
+                                    write(currEvent->ident, "Password incorrect", strlen("Password incorrect"));
                             }
                             // 기본적인 id를 지정할 정보를 주지않은 상태임으로 NICK, USER, PASS 이외의 어떤 명령어도 처리하지 않아야된다.
                             // 

@@ -25,6 +25,7 @@ bool CommandHandler::NICK(std::string str)
     return true;
 }
 
+
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */

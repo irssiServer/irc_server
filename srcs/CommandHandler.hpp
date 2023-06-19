@@ -13,7 +13,6 @@ class CommandHandler
 
 		static bool NICK(std::string str);
 
-
 	private:
 		CommandHandler();
 		~CommandHandler();

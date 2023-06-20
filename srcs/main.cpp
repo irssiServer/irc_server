@@ -217,8 +217,11 @@ int main(int argc, char **argv)
                                             clients[currEvent->ident].username = tmp;
                                             ss >> tmp;
                                             clients[currEvent->ident].hostname = tmp;
-                                            ss >> tmp;
-                                            clients[currEvent->ident].realname = tmp;
+                                            while (!ss.eof() || !ss.fail())
+                                            {
+                                                ss >> tmp;
+                                                clients[currEvent->ident].realname = clients[currEvent->ident].realname + tmp;
+                                            }
                                         }
                                         else if (commandNum == PASSNUM)
                                         {

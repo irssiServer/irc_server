@@ -25,12 +25,11 @@ CommandHandler::~CommandHandler() {}
 void CommandHandler::CommandInit(std::map<std::string, void(*)(std::vector<std::string> &param)> &commandMap)
 {
     commandMap["NICK"] = CommandHandler::NICK;
-    commandMap["PASS"] = CommandHandler::NICK;  
+    commandMap["PASS"] = CommandHandler::PASS;  
     commandMap["USER"] = CommandHandler::NICK; 
-//    -----------------------------------------
     commandMap["JOIN"] = CommandHandler::NICK;
     commandMap["PART"] = CommandHandler::NICK;
-    commandMap["PRIVMSG"] = CommandHandler::NICK; 
+    commandMap["PRIVMSG"] = CommandHandler::PRIVMSG;
     commandMap["KICK"] = CommandHandler::NICK;   
     commandMap["MODE"] = CommandHandler::NICK; 
     commandMap["INVITE"] = CommandHandler::NICK; 
@@ -74,6 +73,17 @@ int CommandHandler::CommandRun(std::string str)
     {
         std::cerr << str << '\n';
     }
+    return (1);
+}
+
+void CommandHandler::USER(std::vector<std::string> &params)
+{
+    if (params.size() < 4)
+        throw "Insufficient argvs";
+    // if (params[2] != server_name)
+    //     throw "check server";
+    if (params[3][0] != ':')
+        throw "check realname";
 }
 
 void CommandHandler::NICK(std::vector<std::string> &params)
@@ -84,6 +94,18 @@ void CommandHandler::NICK(std::vector<std::string> &params)
         throw "already nickname";
 }
 
+void CommandHandler::PASS(std::vector<std::string> &params)
+{
+    if (params.size() != 1)
+        throw "check PASS arg";
+}
+
+void CommandHandler::PRIVMSG(std::vector<std::string> &params)
+{
+    if (params.size() < 1)
+        throw ""
+
+}
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */

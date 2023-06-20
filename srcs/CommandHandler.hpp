@@ -17,6 +17,10 @@ class CommandHandler
 
 		static int CommandRun(std::string str);
 		static void NICK(std::vector<std::string> &params);
+		static void PASS(std::vector<std::string> &params);
+		static void USER(std::vector<std::string> &params);
+		static void PRIVMSG(std::vector<std::string> &params);
+
 
 	private:
 		CommandHandler();

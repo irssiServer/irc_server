@@ -195,8 +195,16 @@ int main(int argc, char **argv)
                         std::cout << "client " << currEvent->ident << " : "  << str;
                         if (clients[currEvent->ident].nickFlag && clients[currEvent->ident].userFlag && clients[currEvent->ident].userFlag)
                         {
-                            // 메시지처리 진행
-                        }
+                            try
+                            {
+                                if (!str.empty())
+                                    CommandHandler::CommandRun(str);
+                            }
+                            catch (const std::string& str)
+                            {
+                                std::cerr << str << std::endl;
+                            }
+                        }       
                         else
                         {
                             std::stringstream ss(str);
@@ -204,13 +212,17 @@ int main(int argc, char **argv)
                             ss >> tmp;
                             if (!tmp.compare("NICK"))
                             {
-                                if (!CommandHandler::NICK(tmp))
+                                try
                                 {
+                                    CommandHandler::NICK(tmp);
                                     clients[currEvent->ident].nickFlag = true;
                                     clients[currEvent->ident].nickname = tmp;
                                 }
-                                else
+                                catch(const std::string& str) // 수정중 어느 부분에서 write를 할지 아직 정하지 못함
+                                {
+                                    std::cout << str << std::endl;
                                     write(currEvent->ident, "nickname is already", strlen("nickname is already"));
+                                }
                             }
                             else if (!tmp.compare("USER"))
                             {

@@ -11,12 +11,17 @@ class CommandHandler
 
 	public:
 
-		static bool NICK(std::string str);
-
+		static void CommandRun(std::string str);
+		static void NICK(std::vector<std::string> &params);
 
 	private:
 		CommandHandler();
 		~CommandHandler();
+
+		// map과 함수포인터를 결합해서 사용
+		void CommandInit(std::map<std::string, void(*)(std::vector<std::string> &param)> &commandMap);
+		static std::map<std::string, void(*)(std::vector<std::string> &param)> _commandMap;
+
 };
 
 #endif /* ************************************************** COMMANDHANDLER_H */

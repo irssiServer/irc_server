@@ -14,16 +14,13 @@ CommandHandler::~CommandHandler() {}
 
 bool CommandHandler::NICK(std::string str)
 {
-    std::stringstream ss(str);
-    std::string tmp;
-
-    ss >> tmp;
-    tmp.clear();
-    ss >> tmp;
-    if (ss.fail() && tmp.empty() && UserChannelController::Instance().isNick(tmp))
+    std::cout << "check |" << str <<"|" << "\n"; 
+    std::cout <<  UserChannelController::Instance().isNick(str) << "\n";
+    if (!UserChannelController::Instance().isNick(str))
         return false;
     return true;
 }
+
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

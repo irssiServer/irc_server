@@ -6,9 +6,9 @@
 # include <sstream>
 # include "UserChannelController.hpp"
 
-#define NICKNUM 1;
-#define USERNUM 2;
-#define PASSNUM 3;
+#define NICKNUM 1
+#define USERNUM 2
+#define PASSNUM 3
 
 class CommandHandler
 {

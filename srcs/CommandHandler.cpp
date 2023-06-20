@@ -25,6 +25,27 @@ CommandHandler::~CommandHandler() {}
 void CommandHandler::CommandInit(std::map<std::string, void(*)(std::vector<std::string> &param)> &commandMap)
 {
     commandMap["NICK"] = CommandHandler::NICK;
+    commandMap["PASS"] = CommandHandler::NICK;  
+    commandMap["USER"] = CommandHandler::NICK; 
+//    -----------------------------------------
+    commandMap["JOIN"] = CommandHandler::NICK;
+    commandMap["PART"] = CommandHandler::NICK;
+    commandMap["PRIVMSG"] = CommandHandler::NICK; 
+    commandMap["KICK"] = CommandHandler::NICK;   
+    commandMap["MODE"] = CommandHandler::NICK; 
+    commandMap["INVITE"] = CommandHandler::NICK; 
+    commandMap["TOPIC"] = CommandHandler::NICK; 
+    commandMap["QUIT"] = CommandHandler::NICK; 
+    commandMap["PING"] = CommandHandler::NICK; 
+    commandMap["PONG"] = CommandHandler::NICK;
+    commandMap["WHO"] = CommandHandler::NICK; 
+    commandMap["LIST"] = CommandHandler::NICK; 
+    commandMap["ERROR"] = CommandHandler::NICK; 
+   
+    
+
+
+
 }
 
 int CommandHandler::CommandRun(std::string str)
@@ -40,7 +61,7 @@ int CommandHandler::CommandRun(std::string str)
         throw "command not found";
     try
     {
-        while (!ss.fail())
+        while (!ss.fail() || !ss.eof())
         {
             std::string tmp;
             ss >> tmp;

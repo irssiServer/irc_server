@@ -64,6 +64,14 @@ struct s_MandatoryClientInit
     s_MandatoryClientInit() : userFlag(0), nickFlag(0), passwordFlag(0), username(""), nickname(""), hostname(""), realname(""), data("") {}
 } typedef t_MandatoryClientInit;
 
+
+
+
+
+
+
+
+
 int main(int argc, char **argv)
 {
     std::string password;
@@ -213,58 +221,73 @@ int main(int argc, char **argv)
                     }
                     else
                     {
-                        clients[currEvent->ident].Push_data(str);
-                        str = clients[currEvent->ident].Get_command();
-                        if (!str.empty())
+                        std::cout << "client " << currEvent->ident << " : "  << str;
+                        if (clients[currEvent->ident].nickFlag && clients[currEvent->ident].userFlag && clients[currEvent->ident].userFlag)
                         {
-                            std::cout << "client " << currEvent->ident << " : |"  << str <<"|"<< std::endl;
-                            if (clients[currEvent->ident].nickFlag && clients[currEvent->ident].userFlag && clients[currEvent->ident].userFlag)
+                            try
                             {
-                                // 메시지처리 진행
+                                if (!str.empty())
+                                    CommandHandler::CommandRun(str);
                             }
-                            else
+                            catch (const std::string& str)
                             {
-                                std::stringstream ss(str);
-                                std::string tmp;
-                                ss >> tmp;
-                                if (!tmp.compare("NICK"))
+                                std::cerr << str << std::endl;
+                            }
+                        }       
+                        else
+                        {
+                            clients[currEvent->ident].Push_data(str);
+                            str = clients[currEvent->ident].Get_command();
+                            if (!str.empty())
+                            {
+
+                                std::cout << "client " << currEvent->ident << " : |"  << str <<"|"<< std::endl;
+                                if (clients[currEvent->ident].nickFlag && clients[currEvent->ident].userFlag && clients[currEvent->ident].userFlag)
                                 {
-                                    ss >> tmp;
-                                    if (ss.fail() || !ss.eof())
-                                        std::cout << "check commad\n";
-                                    else if (!CommandHandler::NICK(tmp))
+                                    try
                                     {
-                                        clients[currEvent->ident].nickFlag = true;
-                                        clients[currEvent->ident].nickname = tmp;
+                                        CommandHandler::CommandRun(str);
                                     }
-                                    else
-                                        write(currEvent->ident, "nickname is already\n", strlen("nickname is already\n"));
-                                }
-                                else if (!tmp.compare("USER"))
-                                {
-                                    ss >> tmp;
-                                    if (ss.fail() || !ss.eof())
-                                        std::cout << "check commad\n";
-                                    else if (!CommandHandler::NICK(tmp))
+                                    catch(const std::string& str) // 수정중 어느 부분에서 write를 할지 아직 정하지 못함
                                     {
-                                        clients[currEvent->ident].nickFlag = true;
-                                        clients[currEvent->ident].nickname = tmp;
+                                        std::cout << str << std::endl;
+                                        write(currEvent->ident, "nickname is already", strlen("nickname is already"));
                                     }
-                                    else
-                                        write(currEvent->ident, "username is already\n", strlen("username is already\n"));
                                 }
-                                else if (!tmp.compare("PASS"))
+                                else
                                 {
-                                    ss >> tmp;
-                                    if (ss.fail() || !ss.eof())
-                                        std::cout << "check commad\n";
-                                    else if (tmp == password)
-                                        clients[currEvent->ident].passwordFlag = true;
-                                    else
-                                        write(currEvent->ident, "Password incorrect\n", strlen("Password incorrect\n"));
+
+                                        try
+                                        {
+                                            int commandNum = CommandHandler::CommandRun(str);
+
+                                            if (commandNum == (int)NICKNUM)
+                                            {
+                                                clients[currEvent->ident].nickFlag = true;
+                                                clients[currEvent->ident].nickname = tmp;
+                                            }
+                                            else if (commandNum == USERNUM)
+                                            {
+                                                clients[currEvent->ident].nickFlag = true;
+                                                clients[currEvent->ident].nickname = tmp;
+                                            }
+                                            else if (commandNum == PASSNUM)
+                                            {
+                                                ss >> tmp;
+                                                if (ss.fail() || !ss.eof())
+                                                    std::cout << "check commad\n";
+                                                else if (tmp == password)
+                                                    clients[currEvent->ident].passwordFlag = true;
+                                                else
+                                                    write(currEvent->ident, "Password incorrect\n", strlen("Password incorrect\n"));
+                                            }
+                                        }
+                                        catch(const std::string& str)
+                                        {
+                                            write(currEvent->ident, str.c_str(), str.size());
+                                        }
+                                    }
                                 }
-                                // 기본적인 id를 지정할 정보를 주지않은 상태임으로 NICK, USER, PASS 이외의 어떤 명령어도 처리하지 않아야된다.
-                                // 
                             }
                         }
                     }

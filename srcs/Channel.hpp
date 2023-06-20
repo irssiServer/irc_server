@@ -72,6 +72,7 @@ class Channel
 		std::string _channelName;
 		t_ChannelMode _mode;
 		std::vector<User *> _users;
+		std::string _topic;
 
 };
 

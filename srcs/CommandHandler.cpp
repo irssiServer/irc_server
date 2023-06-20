@@ -27,7 +27,7 @@ void CommandHandler::CommandInit(std::map<std::string, void(*)(std::vector<std::
     commandMap["NICK"] = CommandHandler::NICK;
 }
 
-void CommandHandler::CommandRun(std::string str)
+int CommandHandler::CommandRun(std::string str)
 {
     std::stringstream ss(str);
     std::vector<std::string> params;
@@ -57,12 +57,11 @@ void CommandHandler::CommandRun(std::string str)
 
 void CommandHandler::NICK(std::vector<std::string> &params)
 {
-    if (ss.fail() && tmp.empty())
+    if (params.size() != 1)
         throw "not found nickname";
-    if (UserChannelController::Instance().isNick(tmp))
+    if (UserChannelController::Instance().isNick(params[0]))
         throw "already nickname";
 }
-
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

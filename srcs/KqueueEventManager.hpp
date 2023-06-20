@@ -18,12 +18,12 @@ class KqueueEventManager
 
 	public:
 		KqueueEventManager();
-		KqueueEventManager( KqueueEventManager const & src );
 		~KqueueEventManager();
-		KqueueEventManager &operator=( KqueueEventManager const & rhs );
 
 	private:
 
 };
+void	Init_socket(int port, int &connectSocket);
+void	Init_event(std::vector<struct kevent> changeList, int &kq, int &connectSocket);
 
 #endif /* ********************************************** KQUEUEEVENTMANAGER_H */

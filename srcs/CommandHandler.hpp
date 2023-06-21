@@ -5,6 +5,7 @@
 # include <string>
 # include <sstream>
 # include "UserChannelController.hpp"
+# include "Utility.hpp"
 
 #define NICKNUM 1
 #define USERNUM 2

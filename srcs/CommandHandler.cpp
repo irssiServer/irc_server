@@ -86,17 +86,6 @@ void CommandHandler::NICK(std::vector<std::string> &params)
         throw "already nickname";
 }
 
-std::vector<std::string> Split(const std::string &str, const char &delimiter)
-{
-    std::vector<std::string> ret;
-    std::stringstream ss(str);
-    std::string token;
-    while (std::getline(ss, token, delimiter))
-    {
-        ret.push_back(token);
-    }
-    return ret;
-}
 
 // 주체설정
 void CommandHandler::JOIN(std::vector<std::string> &params)
@@ -108,16 +97,25 @@ void CommandHandler::JOIN(std::vector<std::string> &params)
     std::vector<std::string> channelPass = Split(params[1], ',');
     std::map<std::string, std::string> channelMap;
 
+    std::vector<std::string>::iterator passIter = channelPass.begin();
+    for (std::vector<std::string>::iterator iter = channelName.begin(); iter != channelName.end(); iter++)
+    {
+        if (passIter != channelPass.end())
+        {
+            channelMap[*iter];
+            passIter++;
+        }
+        else
+    }
     if (channelName.empty())
         throw "paramiter is short";
-    for (std::vector<std::string>::iterator iter = channelName.begin(); 
-            iter != channelName.end(); iter++)
+    for (std::map<std::string, std::string>::iterator iter = channelMap.begin(); 
+            iter != channelMap.end(); iter++)
     {
-        if (UserChannelController::Instance().isChannel(*iter))
+        if (UserChannelController::Instance().isChannel(iter->first()))
         {
             // 생성된 방에 입장
         }
-        else
         {
             UserChannelController::Instance().AddChannel(*iter, t_ChannelMode());
             user.JoinChannel(&UserChannelController::Instance().FindChannel(*iter),)

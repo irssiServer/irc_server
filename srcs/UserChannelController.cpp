@@ -18,9 +18,9 @@ UserChannelController &UserChannelController::Instance()
 	return _userChannelController;	
 }
 
-void UserChannelController::AddUser(int fd, std::string nickname, std::string username, std::string hostname)
+void UserChannelController::AddUser(int fd, std::string nickname, std::string username, std::string hostname, std::string realname)
 {
-	User user(fd, nickname, username, hostname);
+	User user(fd, nickname, username, hostname, realname);
 	_users.insert(std::pair<int, User>(fd, user));
 }
 
@@ -49,6 +49,30 @@ bool UserChannelController::isNick(std::string nick)
 			return true;
 	}
 	return false;
+}
+
+bool UserChannelController::isChannel(std::string channel)
+{
+	for (std::map<int, Channel>::iterator iter = _channels.begin(); iter != _channels.end(); iter++)
+	{
+		if (!iter->second.GetName().compare(channel))
+			return true;
+	}
+	return false;
+}
+
+User &UserChannelController::FindUser(int fd)
+{
+	return _users[fd];
+}
+
+Channel &UserChannelController::FindChannel(std::string channel)
+{
+	for (std::map<int, Channel>::iterator iter = _channels.begin(); iter != _channels.end(); iter++)
+	{
+		if (!iter->second.GetName().compare(channel))
+			return iter->second;
+	}
 }
 
 

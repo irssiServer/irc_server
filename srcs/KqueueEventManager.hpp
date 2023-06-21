@@ -24,6 +24,6 @@ class KqueueEventManager
 
 };
 void	Init_socket(int port, int &connectSocket);
-void	Init_event(std::vector<struct kevent> changeList, int &kq, int &connectSocket);
+void	Init_event(std::vector<struct kevent> &changeList, int &kq, int &connectSocket);
 
 #endif /* ********************************************** KQUEUEEVENTMANAGER_H */

@@ -51,6 +51,30 @@ bool UserChannelController::isNick(std::string nick)
 	return false;
 }
 
+bool UserChannelController::isChannel(std::string channel)
+{
+	for (std::map<int, Channel>::iterator iter = _channels.begin(); iter != _channels.end(); iter++)
+	{
+		if (!iter->second.GetName().compare(channel))
+			return true;
+	}
+	return false;
+}
+
+User &UserChannelController::FindUser(int fd)
+{
+	return _users[fd];
+}
+
+Channel &UserChannelController::FindChannel(std::string channel)
+{
+	for (std::map<int, Channel>::iterator iter = _channels.begin(); iter != _channels.end(); iter++)
+	{
+		if (!iter->second.GetName().compare(channel))
+			return iter->second;
+	}
+}
+
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

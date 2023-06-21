@@ -17,6 +17,7 @@ class CommandHandler
 
 		static int CommandRun(std::string str);
 		static void NICK(std::vector<std::string> &params);
+		static void JOIN(std::vector<std::string> &params);
 
 	private:
 		CommandHandler();
@@ -25,6 +26,7 @@ class CommandHandler
 		// map과 함수포인터를 결합해서 사용
 		void CommandInit(std::map<std::string, void(*)(std::vector<std::string> &param)> &commandMap);
 		static std::map<std::string, void(*)(std::vector<std::string> &param)> _commandMap;
+		static std::map<std::string, int> _commandNumbers;
 		// static std::map<std::string, int> _messageNumbers;
 
 };

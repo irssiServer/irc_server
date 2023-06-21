@@ -29,6 +29,9 @@ class UserChannelController
 		void AddChannel(std::string channelName, t_ChannelMode mode);
 		void RemoveChannel(int id);
 		bool isNick(std::string nick);
+		bool isChannel(std::string channel);
+		User &FindUser(int fd);
+		Channel &FindChannel(std::string channel);
 
 	private:
 		int _channelID;
@@ -37,7 +40,6 @@ class UserChannelController
 
 		UserChannelController();
 		UserChannelController( UserChannelController const & src );
-		UserChannelController &operator=( UserChannelController const & rhs );
 		~UserChannelController();
 };
 

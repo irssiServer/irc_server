@@ -90,7 +90,7 @@ void CommandHandler::NICK(std::vector<std::string> &params)
 // 주체설정
 void CommandHandler::JOIN(std::vector<std::string> &params)
 {
-    User user;
+    User user; // 임시생성 매개변수로 받아올것
     if (params.size() < 1)
         throw "paramiter is short";
     std::vector<std::string> channelName = Split(params[0], ',');
@@ -102,24 +102,26 @@ void CommandHandler::JOIN(std::vector<std::string> &params)
     {
         if (passIter != channelPass.end())
         {
-            channelMap[*iter];
-            passIter++;
+            channelMap[*iter] = *passIter++;
         }
         else
+            channelMap[*iter];
     }
     if (channelName.empty())
         throw "paramiter is short";
-    for (std::map<std::string, std::string>::iterator iter = channelMap.begin(); 
-            iter != channelMap.end(); iter++)
-    {
-        if (UserChannelController::Instance().isChannel(iter->first()))
+
+    for (std::map<std::string, std::string>::iterator iter = channelMap.begin(); iter != channelMap.end(); iter++)
         {
-            // 생성된 방에 입장
-        }
-        {
-            UserChannelController::Instance().AddChannel(*iter, t_ChannelMode());
-            user.JoinChannel(&UserChannelController::Instance().FindChannel(*iter),)
-            // 방을 생성후 입장(운영자 권한부여)
+            if (UserChannelController::Instance().isChannel(iter->first))
+            {
+                // 생성된 방에 입장
+            }
+            else
+            {
+                // 방을 생성후 입장(운영자 권한부여)
+                UserChannelController::Instance().AddChannel(iter->first, t_ChannelMode());
+                user.JoinChannel(&UserChannelController::Instance().FindChannel(iter->first), iter->second);
+            }
         }
     }
 }

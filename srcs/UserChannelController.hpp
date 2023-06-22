@@ -40,7 +40,6 @@ class UserChannelController
 
 		UserChannelController();
 		UserChannelController( UserChannelController const & src );
-		UserChannelController &operator=( UserChannelController const & rhs );
 		~UserChannelController();
 };
 

@@ -6,6 +6,7 @@
 # include <sstream>
 # include "User.hpp"
 # include "UserChannelController.hpp"
+# include "Utility.hpp"
 
 #define NICKNUM 1
 #define USERNUM 2
@@ -16,28 +17,28 @@ class CommandHandler
 {
 
 	public:
+
 		CommandHandler();
 		~CommandHandler();
 		
-		static int CommandRun(std::string str, User &user);
-		static void NICK(std::vector<std::string> &params, User &user);
-		static void PASS(std::vector<std::string> &params, User &user);
-		static void USER(std::vector<std::string> &params, User &user);
-		static void PRIVMSG(std::vector<std::string> &params, User &user);
-		
-		
+		// parsing
+		static void NICK(User &user, std::vector<std::string> &params);
+		static void PASS(User &user, std::vector<std::string> &params);
+		static void USER(User &user, std::vector<std::string> &params);
+		static void PRIVMSG(User &user, std::vector<std::string> &params);
+		static void JOIN(User &user, std::vector<std::string> &params);
+		// excute
+		static int CommandRun(User &user, std::string str);
 		static void PRIVMSG();
-		
-		
-
 
 	private:
+		
 		// map과 함수포인터를 결합해서 사용
-		void CommandInit(std::map<std::string, void(*)(std::vector<std::string> &param, User &user)> &commandMap);
+		void CommandInit(std::map<std::string, void(*)(User &user, std::vector<std::string> &param)> &commandMap);
 		void CommandNumInit(std::map<std::string, int> &commandNum);
-		static std::map<std::string, void(*)(std::vector<std::string> &param, User &user)> _commandMap;
+		static std::map<std::string, void(*)(User &user, std::vector<std::string> &param)> _commandMap;
 		static std::map<std::string, int> _commandNum;
-		// static std::map<std::string, int> _messageNumbers;
+		
 
 };
 

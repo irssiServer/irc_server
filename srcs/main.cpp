@@ -173,7 +173,7 @@ int main(int argc, char **argv)
                             try
                             {
                                 if (!str.empty())
-                                    CommandHandler::CommandRun(str, UserChannelController::Instance().findUser(currEvent->ident));
+                                    CommandHandler::CommandRun(UserChannelController::Instance().FindUser(currEvent->ident), str);
                             }
                             catch (const char *str)
                             {
@@ -191,8 +191,9 @@ int main(int argc, char **argv)
                                 std::string tmp;
                                 try
                                 {
+                                    CommandHandler::CommandRun(UserChannelController::Instance().FindUser(currEvent->ident), str);
                                     User test;
-                                    int commandNum = CommandHandler::CommandRun(str, );
+                                    int commandNum = CommandHandler::CommandRun(test, str);
                                     ss >> tmp;
                                     if (commandNum == NICKNUM)
                                     {
@@ -203,6 +204,7 @@ int main(int argc, char **argv)
                                     }
                                     else if (commandNum == USERNUM)
                                     {
+                                        int commandNum = CommandHandler::CommandRun(UserChannelController::Instance().FindUser(currEvent->ident), str);
                                         ss >> tmp;
                                         clients[currEvent->ident].userFlag = true;
                                         clients[currEvent->ident].username = tmp;

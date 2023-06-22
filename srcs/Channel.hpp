@@ -5,6 +5,8 @@
 # include <string>
 # include <vector>
 # include "UserChannelController.hpp"
+#include <unistd.h>
+
 
 struct s_ChannelMode
 {

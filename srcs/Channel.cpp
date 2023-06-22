@@ -57,6 +57,7 @@ void Channel::KickUser(User &user, std::string username, std::string comment)
 		if (*iter == &user)
 		{
 			(*iter)->leaveChannel(_channelName);
+			write(user.GetFd(), comment.c_str(),comment.size());
 			return;
 		}
 	}

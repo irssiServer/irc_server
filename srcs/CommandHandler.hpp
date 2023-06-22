@@ -27,6 +27,10 @@ class CommandHandler
 		static void USER(User &user, std::vector<std::string> &params);
 		static void PRIVMSG(User &user, std::vector<std::string> &params);
 		static void JOIN(User &user, std::vector<std::string> &params);
+		static void PART(User &user, std::vector<std::string> &params);
+		static void KICK(User &user, std::vector<std::string> &params);
+
+
 		// excute
 		static int CommandRun(User &user, std::string str);
 		static void PRIVMSG();

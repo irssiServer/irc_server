@@ -56,10 +56,10 @@ void CommandHandler::CommandInit(std::map<std::string, void(*)(User &user, std::
     commandMap["NICK"] = CommandHandler::NICK;
     commandMap["PASS"] = CommandHandler::PASS;  
     commandMap["USER"] = CommandHandler::USER;
-    // commandMap["JOIN"] = CommandHandler::NICK;
-    // commandMap["PART"] = CommandHandler::NICK;
+    commandMap["JOIN"] = CommandHandler::JOIN;
+    commandMap["PART"] = CommandHandler::PART;
     commandMap["PRIVMSG"] = CommandHandler::PRIVMSG;
-    // commandMap["KICK"] = CommandHandler::NICK;
+    commandMap["KICK"] = CommandHandler::NICK;
     // commandMap["MODE"] = CommandHandler::NICK;
     // commandMap["INVITE"] = CommandHandler::NICK;
     // commandMap["TOPIC"] = CommandHandler::NICK;
@@ -70,11 +70,6 @@ void CommandHandler::CommandInit(std::map<std::string, void(*)(User &user, std::
     // commandMap["LIST"] = CommandHandler::NICK;
     // commandMap["ERROR"] = CommandHandler::NICK;
     
-   
-    
-
-
-
 }
 
 int CommandHandler::CommandRun(User &user, std::string str)
@@ -195,6 +190,34 @@ void CommandHandler::PRIVMSG(User &user, std::vector<std::string> &params)
     // user.
     // channel.
 }
+
+
+void CommandHandler::PART(User &user, std::vector<std::string> &params)
+{
+    if (params.size() < 1)
+        throw "Not enough parameters";
+
+    std::vector<std::string> channelNames = Split(params[0], ',');
+
+    for (std::vector<std::string>::iterator iter = channelNames.begin(); iter != channelNames.end(); iter++)
+    {
+        user.leaveChannel(*iter);
+    }
+}
+
+void CommandHandler::KICK(User &user, std::vector<std::string> &params)
+// <channel> <user> [<comment>]
+{
+    std::string channelName = params[0];
+    std::string userName = params[1];
+    std::string comment = params[2];
+
+    if (params.size() < 1)
+        throw "Not enough parameters";
+
+    user.FindChannel(channelName).KickUser(user, userName, comment);    
+}
+
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

@@ -12,6 +12,8 @@
 # include <fcntl.h>
 # include <map>
 # include <vector>
+#include "UserChannelController.hpp"
+#include <netinet/in.h>
 
 class KqueueEventManager
 {

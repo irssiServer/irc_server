@@ -73,6 +73,7 @@ Channel &UserChannelController::FindChannel(std::string channel)
 		if (!iter->second.GetName().compare(channel))
 			return iter->second;
 	}
+	throw "not find channel";
 }
 
 

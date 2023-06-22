@@ -1,9 +1,4 @@
 #include "KqueueEventManager.hpp"
-#include "UserChannelController.hpp"
-#include "CommandHandler.hpp"
-#include <netinet/in.h>
-KqueueEventManager::KqueueEventManager() {}
-KqueueEventManager::~KqueueEventManager() {}
 
 void ErrorPrintExit(std::string str);
 

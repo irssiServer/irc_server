@@ -191,7 +191,6 @@ int main(int argc, char **argv)
                                 std::string tmp;
                                 try
                                 {
-                                    CommandHandler::CommandRun(UserChannelController::Instance().FindUser(currEvent->ident), str);
                                     User test;
                                     int commandNum = CommandHandler::CommandRun(test, str);
                                     ss >> tmp;
@@ -204,7 +203,6 @@ int main(int argc, char **argv)
                                     }
                                     else if (commandNum == USERNUM)
                                     {
-                                        int commandNum = CommandHandler::CommandRun(UserChannelController::Instance().FindUser(currEvent->ident), str);
                                         ss >> tmp;
                                         clients[currEvent->ident].userFlag = true;
                                         clients[currEvent->ident].username = tmp;

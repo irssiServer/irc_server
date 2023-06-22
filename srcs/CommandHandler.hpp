@@ -3,6 +3,7 @@
 
 # include <iostream>
 # include <string>
+# include <unistd.h>
 # include <sstream>
 # include "User.hpp"
 # include "UserChannelController.hpp"
@@ -33,7 +34,7 @@ class CommandHandler
 
 		// excute
 		static int CommandRun(User &user, std::string str);
-		static void PRIVMSG();
+		static void PRIVMSG(User &send, User &recv, std::vector<std::string> &message);
 
 	private:
 		

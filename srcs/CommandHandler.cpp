@@ -49,7 +49,7 @@ void CommandHandler::CommandInit(std::map<std::string, void(*)(std::vector<std::
 
 }
 
-int CommandHandler::CommandRun(std::string str)
+int CommandHandler::CommandRun(User user, std::string str)
 {
     std::stringstream ss(str);
     std::vector<std::string> params;
@@ -95,7 +95,7 @@ void CommandHandler::JOIN(std::vector<std::string> &params)
         throw "paramiter is short";
     std::vector<std::string> channelName = Split(params[0], ',');
     std::vector<std::string> channelPass = Split(params[1], ',');
-    std::map<std::string, std::string> channelMap;
+    std::map<std::string, std::string> channelMap; // first = 채널이름, second = 채널 비밀번호
 
     std::vector<std::string>::iterator passIter = channelPass.begin();
     for (std::vector<std::string>::iterator iter = channelName.begin(); iter != channelName.end(); iter++)
@@ -111,18 +111,11 @@ void CommandHandler::JOIN(std::vector<std::string> &params)
         throw "paramiter is short";
 
     for (std::map<std::string, std::string>::iterator iter = channelMap.begin(); iter != channelMap.end(); iter++)
-        {
-            if (UserChannelController::Instance().isChannel(iter->first))
-            {
-                // 생성된 방에 입장
-            }
-            else
-            {
-                // 방을 생성후 입장(운영자 권한부여)
-                UserChannelController::Instance().AddChannel(iter->first, t_ChannelMode());
-                user.JoinChannel(&UserChannelController::Instance().FindChannel(iter->first), iter->second);
-            }
-        }
+    {
+        if (!UserChannelController::Instance().isChannel(iter->first)) // 채널이 없을때는 채널 생성
+            UserChannelController::Instance().AddChannel(iter->first, t_ChannelMode());
+        
+        user.JoinChannel(&UserChannelController::Instance().FindChannel(iter->first), iter->second);
     }
 }
 

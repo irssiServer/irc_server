@@ -188,7 +188,7 @@ int main(int argc, char **argv)
                                 {
                                     try
                                     {
-                                        CommandHandler::CommandRun(str);
+                                        CommandHandler::CommandRun(UserChannelController::Instance().FindUser(currEvent->ident), str);
                                     }
                                     catch(const std::string& str) // 수정중 어느 부분에서 write를 할지 아직 정하지 못함
                                     {
@@ -202,7 +202,7 @@ int main(int argc, char **argv)
                                     std::string tmp;
                                     try
                                     {
-                                        int commandNum = CommandHandler::CommandRun(str);
+                                        int commandNum = CommandHandler::CommandRun(UserChannelController::Instance().FindUser(currEvent->ident), str);
                                         ss >> tmp;
                                         if (commandNum == NICKNUM)
                                         {

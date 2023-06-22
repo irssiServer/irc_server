@@ -16,7 +16,7 @@ class CommandHandler
 
 	public:
 
-		static int CommandRun(std::string str);
+		static int CommandRun(User user, std::string str);
 		static void NICK(std::vector<std::string> &params);
 		static void JOIN(std::vector<std::string> &params);
 

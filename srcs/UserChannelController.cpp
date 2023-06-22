@@ -18,9 +18,9 @@ UserChannelController &UserChannelController::Instance()
 	return _userChannelController;	
 }
 
-void UserChannelController::AddUser(int fd, std::string nickname, std::string username, std::string hostname)
+void UserChannelController::AddUser(int fd, std::string nickname, std::string username, std::string hostname, std::string realname)
 {
-	User user(fd, nickname, username, hostname);
+	User user(fd, nickname, username, hostname, realname);
 	_users.insert(std::pair<int, User>(fd, user));
 }
 

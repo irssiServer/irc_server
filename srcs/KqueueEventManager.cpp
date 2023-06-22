@@ -1,10 +1,11 @@
 #include "KqueueEventManager.hpp"
 #include "UserChannelController.hpp"
 #include "CommandHandler.hpp"
-#include "main.cpp"
 #include <netinet/in.h>
 KqueueEventManager::KqueueEventManager() {}
 KqueueEventManager::~KqueueEventManager() {}
+
+void ErrorPrintExit(std::string str);
 
 void	Init_socket(int port, int &connectSocket)
 {
@@ -42,7 +43,7 @@ void	Init_socket(int port, int &connectSocket)
     fcntl(connectSocket, F_SETFL, O_NONBLOCK);
 }
 
-void	Init_event(std::vector<struct kevent> changeList, int &kq, int &connectSocket)
+void	Init_event(std::vector<struct kevent> &changeList, int &kq, int &connectSocket)
 {
 	if ((kq = kqueue()) == -1) // kqueue를 커널에 생성한다.
         ErrorPrintExit("Error: not create Kqueue");

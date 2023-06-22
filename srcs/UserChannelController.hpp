@@ -24,7 +24,7 @@ class UserChannelController
 
 		static UserChannelController &Instance();
 		// add, remove Method
-		void AddUser(int fd, std::string nickname, std::string username, std::string hostname);
+		void AddUser(int fd, std::string nickname, std::string username, std::string hostname, std::string realname);
 		void RemoveUser(int id);
 		void AddChannel(std::string channelName, t_ChannelMode mode);
 		void RemoveChannel(int id);

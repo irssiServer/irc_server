@@ -4,14 +4,23 @@
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
 
-User::User() {}
+User::User()
+{
+	_userInfo.fd = -1;
+	_userInfo.hostname = "";
+	_userInfo.nickname = "";
+	_userInfo.realname = "";
+	_userInfo.username = "";
+}
 User::~User() {}
-User::User(int fd, std::string nickname, std::string username, std::string hostname) 
+User::User(int fd, std::string nickname, std::string username, std::string hostname, std::string realname) 
 {
 	_userInfo.fd = fd;
 	_userInfo.nickname = nickname;
 	_userInfo.username = username;
 	_userInfo.hostname = hostname;
+	_userInfo.realname = realname;
+
 }
 
 

@@ -12,25 +12,28 @@ struct s_UserInfo
 	std::string nickname;
 	std::string username;
 	std::string hostname;
+	std::string realname;
 } typedef t_UserInfo;
 
 class User
 {
 	public:
 		User();
-		User(int fd, std::string nickname, std::string username, std::string hostname);
+		User(int fd, std::string nickname, std::string username, std::string hostname, std::string realname);
 		~User();
 
 		bool operator==(const User& rhs) const;
 
 		void SetFd(int fd) { _userInfo.fd = fd; };
 		int GetFd() const { return _userInfo.fd; };
-		void SetNickname(int nickname) { _userInfo.nickname = nickname; };
+		void SetNickname(std::string nickname) { _userInfo.nickname = nickname; };
 		std::string GetNickname() const { return _userInfo.nickname; };
-		void SetUsername(int username) { _userInfo.username = username; };
+		void SetUsername(std::string username) { _userInfo.username = username; };
 		std::string GetUsername() const { return _userInfo.username; };
-		void SetHostname(int hostname) { _userInfo.hostname = hostname; };
+		void SetHostname(std::string hostname) { _userInfo.hostname = hostname; };
 		std::string GetHostname() const { return _userInfo.hostname; };
+		void Setrealname(std::string realname) { _userInfo.realname = realname; };
+		std::string Getrealname() const { return _userInfo.realname; };
 
 		void JoinChannel(Channel *channel, std::string password);
 		void leaveChannel(int id);

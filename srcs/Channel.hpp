@@ -60,6 +60,8 @@ class Channel
 
 		void SetId(int id) { _id = id; };
 		int GetId() const { return _id; };
+		void SetName(std::string channelName) { _channelName = channelName; };
+		std::string GetName() const { return _channelName; };
 
 		int EnterUser(User *user, std::string password);
 		void LeaveUser(int fd);

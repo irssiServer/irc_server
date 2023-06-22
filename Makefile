@@ -4,7 +4,7 @@ CXX = c++
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98
 RM= rm -f
 
-SOURCE=	main.cpp Channel.cpp User.cpp UserChannelController.cpp CommandHandler.cpp
+SOURCE=	main.cpp Channel.cpp User.cpp UserChannelController.cpp CommandHandler.cpp KqueueEventManager.cpp
 SRCDIR= ./srcs
 
 SOURCES = $(addprefix $(SRCDIR)/,$(SOURCE))

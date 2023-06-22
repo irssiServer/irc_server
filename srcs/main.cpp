@@ -61,6 +61,9 @@ struct s_MandatoryClientInit
 		data.resize(size - len - 1);
 		return (tmp);
     }
+
+
+
     s_MandatoryClientInit() : userFlag(0), nickFlag(0), passwordFlag(0),  nickname(""), username(""), hostname(""), realname(""), data("") {}
 } typedef t_MandatoryClientInit;
 
@@ -74,15 +77,16 @@ struct s_MandatoryClientInit
 
 int main(int argc, char **argv)
 {
+    CommandHandler asd;
     std::string password;
     int port;
     int connectSocket;
     std::vector<struct kevent> changeList;
     int kq;
-    ArrayToPort(argv[1], port);
-    ArrayToPass(argv[2], password);
     if (argc != 3)
         ErrorPrintExit("Error: arguments ex) ./program port password");
+    ArrayToPort(argv[1], port);
+    ArrayToPass(argv[2], password);
     Init_socket(port, connectSocket);
     Init_event(changeList, kq, connectSocket);
     int invokedEvnets;
@@ -164,14 +168,14 @@ int main(int argc, char **argv)
                     else
                     {
                         std::cout << "client " << currEvent->ident << " : "  << str;
-                        if (clients[currEvent->ident].nickFlag && clients[currEvent->ident].userFlag && clients[currEvent->ident].userFlag)
+                        if (clients[currEvent->ident].nickFlag && clients[currEvent->ident].userFlag && clients[currEvent->ident].passwordFlag)
                         {
                             try
                             {
                                 if (!str.empty())
-                                    CommandHandler::CommandRun(str);
+                                    CommandHandler::CommandRun(str, UserChannelController::Instance().findUser(currEvent->ident));
                             }
-                            catch (const std::string& str)
+                            catch (const char *str)
                             {
                                 std::cerr << str << std::endl;
                             }
@@ -182,57 +186,70 @@ int main(int argc, char **argv)
                             str = clients[currEvent->ident].Get_command();
                             if (!str.empty())
                             {
-
                                 std::cout << "client " << currEvent->ident << " : |"  << str <<"|"<< std::endl;
-                                if (clients[currEvent->ident].nickFlag && clients[currEvent->ident].userFlag && clients[currEvent->ident].userFlag)
+                                std::stringstream ss(str);
+                                std::string tmp;
+                                try
                                 {
-                                    try
+                                    User test;
+                                    int commandNum = CommandHandler::CommandRun(str, );
+                                    ss >> tmp;
+                                    if (commandNum == NICKNUM)
                                     {
-                                        CommandHandler::CommandRun(str);
+                                        ss >> tmp;
+                                        clients[currEvent->ident].nickFlag = true;
+                                        clients[currEvent->ident].nickname = tmp;
+                                        std::cout << "NICK OK!\n";
                                     }
-                                    catch(const std::string& str) // 수정중 어느 부분에서 write를 할지 아직 정하지 못함
+                                    else if (commandNum == USERNUM)
                                     {
-                                        std::cout << str << std::endl;
-                                        write(currEvent->ident, "nickname is already", strlen("nickname is already"));
+                                        ss >> tmp;
+                                        clients[currEvent->ident].userFlag = true;
+                                        clients[currEvent->ident].username = tmp;
+                                        ss >> tmp;
+                                        clients[currEvent->ident].hostname = tmp;
+                                        ss >> tmp;
+                                        ss >> tmp;
+                                        std::size_t len = str.find(":");
+                                        if (len == std::string::npos)
+                                            clients[currEvent->ident].realname = tmp;
+                                        else
+                                        {
+                                            std::string tmp1;
+                                            tmp1.resize(str.size() - len - 1);
+                                            size_t i = 0;
+                                            while (i < str.size() - len - 1)
+                                            {
+                                                tmp1[i] = str[len + 1 + i];
+                                                i++;
+                                            }
+                                            clients[currEvent->ident].realname = tmp1;
+                                        }
+                                        std::cout << clients[currEvent->ident].realname << "|"<<std::endl;
+                                        std::cout << "USER OK!\n";
+                                    }
+                                    else if (commandNum == PASSNUM)
+                                    {
+                                        ss >> tmp;
+                                        if (!tmp.compare(password))
+                                        {
+                                            clients[currEvent->ident].passwordFlag = true;
+                                            std::cout << "PASS OK!\n";
+                                        }
+                                        else
+                                            write(currEvent->ident, "Password incorrect\n", strlen("Password incorrect\n"));
+                                    }
+                                    if (clients[currEvent->ident].nickFlag && clients[currEvent->ident].userFlag && clients[currEvent->ident].passwordFlag)
+                                    {
+                                        std::cout << "make USER\n";
+                                        UserChannelController::Instance().AddUser(currEvent->ident, clients[currEvent->ident].nickname,
+                                        clients[currEvent->ident].username, clients[currEvent->ident].hostname, clients[currEvent->ident].realname);
                                     }
                                 }
-                                else
+                                catch(const char *str)
                                 {
-                                    std::stringstream ss;
-                                    std::string tmp;
-                                    try
-                                    {
-                                        int commandNum = CommandHandler::CommandRun(str);
-                                        ss >> tmp;
-                                        if (commandNum == NICKNUM)
-                                        {
-                                            ss >> tmp;
-                                            clients[currEvent->ident].nickFlag = true;
-                                            clients[currEvent->ident].nickname = tmp;
-                                        }
-                                        else if (commandNum == USERNUM)
-                                        {
-                                            ss >> tmp;
-                                            clients[currEvent->ident].userFlag = true;
-                                            clients[currEvent->ident].username = tmp;
-                                            ss >> tmp;
-                                            clients[currEvent->ident].hostname = tmp;
-                                            ss >> tmp;
-                                            clients[currEvent->ident].realname = tmp;
-                                        }
-                                        else if (commandNum == PASSNUM)
-                                        {
-                                            ss >> tmp;
-                                            if (!tmp.compare(password))
-                                                clients[currEvent->ident].passwordFlag = true;
-                                            else
-                                                write(currEvent->ident, "Password incorrect\n", strlen("Password incorrect\n"));
-                                        }
-                                    }
-                                    catch(const std::string& str)
-                                    {
-                                        write(currEvent->ident, str.c_str(), str.size());
-                                    }
+                                    write(currEvent->ident, str, strlen(str));
+                                    write(currEvent->ident, "\n", 1);
                                 }
                             }
                         }

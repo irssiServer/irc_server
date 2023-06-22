@@ -23,6 +23,11 @@ User::User(int fd, std::string nickname, std::string username, std::string hostn
 
 }
 
+void User::send(User &recv, std::vector &message)
+{
+	
+}
+
 
 
 bool User::operator==( User const & rhs) const

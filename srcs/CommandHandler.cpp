@@ -186,8 +186,6 @@ void CommandHandler::PASS(User &user, std::vector<std::string> &params)
 }
 static void PRIVMSG(User &send, User &recv, std::vector<std::string> &message)
 {
-    std::string tmp(":");
-    tmp = tmp + send.GetNickname() + "!" + send.GetUsername() + "@" + "127.0.0.1 PRIVMSG ";
     for (std::size_t i = 0; i < message.size() ; i++)
         write(recv.GetFd(), message[i].c_str(), message[i].size());
 }
@@ -212,25 +210,22 @@ void CommandHandler::PRIVMSG(User &user, std::vector<std::string> &params)
         throw "Not enough parameters";
     recv = ft_Split(params[0], ',');
     msg = params[1];
+    std::string tmp(":");
+    tmp = tmp + user.GetNickname() + "!" + user.GetUsername() + "@" + "127.0.0.1 PRIVMSG ";
+    params.push_back(tmp);
     for (std::size_t i = 0; i < recv.size(); i++)
     {
         if (recv[i][0] == '#')
         {
             if (UserChannelController::Instance().isChannel(recv[i]))
-            {
-        
-            }
-            
+                UserChannelController::Instance().FindChannel(recv[i]).send(user, params);
         }
         else
         {
             if (UserChannelController::Instance().isNick(recv[i]))
-            {
-                user.send
-            }
+                user.send(UserChannelController::Instance().FindUser(recv[i]), params);
         }
     }
-    user.GetFd();
     // if (send[0] == '#')
     // else
     // 클라이언트가 프라이빗메시지로 보냈을때 확인

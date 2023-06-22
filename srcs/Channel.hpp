@@ -62,7 +62,7 @@ class Channel
 		int GetId() const { return _id; };
 		void SetName(std::string channelName) { _channelName = channelName; };
 		std::string GetName() const { return _channelName; };
-
+		void send(User &send, std::vector<std::string> &message);
 		int EnterUser(User *user, std::string password);
 		void LeaveUser(int fd);
 

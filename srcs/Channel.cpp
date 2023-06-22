@@ -48,6 +48,12 @@ void Channel::LeaveUser(int fd)
 	}
 }
 
+void Channel::send(User &send, std::vector<std::string> &message)
+{
+	for(std::size_t i = 0; i < this->_users.size(); i++)
+		CommandHandler::PRIVMSG(send, *(this->_users[i]), message);
+	
+}
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

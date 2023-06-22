@@ -66,6 +66,16 @@ User &UserChannelController::FindUser(int fd)
 	return _users[fd];
 }
 
+User &UserChannelController::FindUser(std::string nick)
+{
+	for (std::map<int, User>::iterator iter = _users.begin(); iter != _users.end(); iter++)
+	{
+		if (!iter->second.GetNickname().compare(nick))
+			return iter->second;
+	}
+	throw "not find user";
+}
+
 Channel &UserChannelController::FindChannel(std::string channel)
 {
 	for (std::map<int, Channel>::iterator iter = _channels.begin(); iter != _channels.end(); iter++)

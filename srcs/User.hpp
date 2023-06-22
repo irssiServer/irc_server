@@ -4,6 +4,7 @@
 # include <iostream>
 # include <string>
 # include <vector>
+# include "CommandHandler.hpp"
 # include "UserChannelController.hpp"
 
 struct s_UserInfo
@@ -34,7 +35,8 @@ class User
 		std::string GetHostname() const { return _userInfo.hostname; };
 		void Setrealname(std::string realname) { _userInfo.realname = realname; };
 		std::string Getrealname() const { return _userInfo.realname; };
-		void send(User &recv, std::vector &message);
+		void send(User &recv, std::vector<std::string> &message);
+
 
 		void JoinChannel(Channel *channel, std::string password);
 		void leaveChannel(int id);

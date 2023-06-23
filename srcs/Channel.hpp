@@ -10,7 +10,6 @@
 
 struct s_ChannelMode
 {
-	bool operatorFlag;
 	bool inviteFlag;
 	bool topicSetFlag;
 	bool keyFlag;
@@ -21,7 +20,7 @@ struct s_ChannelMode
 	std::string key;
 	int limite;
 
-	s_ChannelMode() : operatorFlag(0), inviteFlag(0), topicSetFlag(0), keyFlag(0), limiteFlag(0), limite(0) {}
+	s_ChannelMode() :inviteFlag(0), topicSetFlag(0), keyFlag(0), limiteFlag(0), limite(0) {}
 
 	bool InviteCheck(std::string nickname)
 	{

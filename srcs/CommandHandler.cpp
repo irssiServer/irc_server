@@ -285,14 +285,47 @@ void CommandHandler::KICK(User &user, std::vector<std::string> &params)
 void CommandHandler::MODE(User &user, std::vector<std::string> &params)
 {
     std::string channelName = params[0];
-    std::string mode = params[1];
-    
+    int flag = 1;
+    int paramNum = 2;
     try
     {
         Channel &channel = UserChannelController::Instance().FindChannel(params[0]);
-        (void)channel;
-        (void)user;
-        // if (params[0])
+        // (void)channel;
+        // (void)user;
+        for (int i = 0; i < params.size(); i++)
+        {
+            for (int j = 0; j < params[i].size(); j++)
+            {
+                if (params[i][j] == '+')
+                    flag = 1;
+                else if (params[i][j] == '-')
+                    flag = 2;
+                else
+                {
+                    // if (파라미터가 필요한 경우)
+                    // {
+                    //     if (paramNum < params.size())
+                    //     {
+                    //         paramexcute(params[i][j], params[paramNum]);
+                    //         paramNum++;
+                    //     }
+                    //     else
+                    //         paramexcute(params[i][j], "");
+                    // }
+                    // else // 파라미터가 필요없는 경우
+                    // {
+                    //     nonparamexcute(params[i][j]);
+                    // }
+                    //파라미터가 필요한 플래그와 필요없는 플래그를 나눠야할듯
+                    // 구현할 플래그들 itkol
+                    // 채널의 모드만 구현하기 때문에 무조건 첫번째 파라미터는 채널이어야한다.
+                    // mode의 처음은 무조건 +-일것, 그다음 +-가 나올떄까지가 앞에 나온 플래그대로 실행
+                    // ex) +it-ko 플래그가 왔을경우, it는 add, ko는 remmove
+                    // 인자가 필요한 경우 파라미터를 뒤져서 사용할것, 가변인자처럼 필요한 경우 파라미터를 사용하고, 포인터를 그 다음으로 옮긴다.
+                    // 다음에 인자가 필요한 플래그일시 포인터를 옮긴 파라미터를 사용
+                }
+            }
+        } 
     }
     catch(const char *str)
     {

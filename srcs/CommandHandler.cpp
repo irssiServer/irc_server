@@ -340,6 +340,9 @@ void CommandHandler::TOPIC(User &user, std::vector<std::string> &params)
     }
     else
     { 
+        /************************************/
+        //to do ->TOPIC 바꾸기 (권한 확인 -> 변경)
+        /************************************/
         //:test!test1@127.0.0.1 TOPIC #12 :asdv
         tmp = ":" + user.GetNickname() + "!" + user.GetUsername() + "@" + "127.0.0.1 TOPIC ";
         msg.push_back(tmp);

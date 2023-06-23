@@ -54,7 +54,7 @@ void Channel::KickUser(User &user, std::string username, std::string comment)
 		throw "No permission to Kick command";
 	for (std::vector<User *>::iterator iter = _users.begin(); iter != _users.end(); iter++)
 	{
-		if (*iter == &user)
+		if (!(*iter)->GetNickname().compare(username))
 		{
 			(*iter)->leaveChannel(_channelName);
 			write(user.GetFd(), comment.c_str(),comment.size());

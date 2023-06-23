@@ -60,7 +60,7 @@ void CommandHandler::CommandInit(std::map<std::string, void(*)(User &user, std::
     commandMap["PART"] = CommandHandler::PART;
     commandMap["PRIVMSG"] = CommandHandler::PRIVMSG;
     commandMap["KICK"] = CommandHandler::NICK;
-    // commandMap["MODE"] = CommandHandler::NICK;
+    commandMap["MODE"] = CommandHandler::MODE;
     // commandMap["INVITE"] = CommandHandler::NICK;
     // commandMap["TOPIC"] = CommandHandler::NICK;
     // commandMap["QUIT"] = CommandHandler::NICK;
@@ -178,6 +178,7 @@ void CommandHandler::PASS(User &user, std::vector<std::string> &params)
     if (params.size() != 1)
         throw "check PASS arg";
 }
+
 static void PRIVMSG(User &send, User &recv, std::vector<std::string> &message)
 {
     std::string tmp(":");
@@ -220,7 +221,7 @@ void CommandHandler::PRIVMSG(User &user, std::vector<std::string> &params)
         {
             if (UserChannelController::Instance().isNick(recv[i]))
             {
-                user.send
+                user.send()
             }
         }
     }
@@ -248,8 +249,8 @@ void CommandHandler::PART(User &user, std::vector<std::string> &params)
 }
 
 void CommandHandler::KICK(User &user, std::vector<std::string> &params)
-// <channel> <user> [<comment>]
 {
+// <channel> <user> [<comment>]
     std::string channelName = params[0];
     std::string userName = params[1];
     std::string comment = params[2];
@@ -257,9 +258,33 @@ void CommandHandler::KICK(User &user, std::vector<std::string> &params)
     if (params.size() < 1)
         throw "Not enough parameters";
 
-    user.FindChannel(channelName).KickUser(user, userName, comment);    
+    try
+    {
+        user.FindChannel(channelName).KickUser(user, userName, comment);    
+    }
+    catch(const char *str)
+    {
+        std::cout << str << std::endl;
+    }
+    
 }
 
+void CommandHandler::MODE(User &user, std::vector<std::string> &params)
+{
+    std::string channelName = params[0];
+    std::string mode = params[1];
+    
+    try
+    {
+        Channel &channel = UserChannelController::Instance().FindChannel(params[0]);
+        // if (params[0])
+    }
+    catch(const char *str)
+    {
+        std::cerr << str << std::endl;
+    }
+    
+}
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

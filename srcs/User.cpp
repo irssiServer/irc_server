@@ -80,6 +80,7 @@ Channel &User::FindChannel(std::string channel)
 			return *(*iter);
 		}
 	}
+	throw "not found Channel";
 }
 
 

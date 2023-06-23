@@ -142,8 +142,8 @@ void CommandHandler::JOIN(User &user, std::vector<std::string> &params)
 {
     if (params.size() < 1)
         throw "paramiter is short";
-    std::vector<std::string> channelName = ft_Split(params[0], ',');
-    std::vector<std::string> channelPass = ft_Split(params[1], ',');
+    std::vector<std::string> channelName = Split(params[0], ',');
+    std::vector<std::string> channelPass = Split(params[1], ',');
     std::map<std::string, std::string> channelMap; // first = 채널이름, second = 채널 비밀번호
 
     std::vector<std::string>::iterator passIter = channelPass.begin();
@@ -202,7 +202,7 @@ void CommandHandler::PRIVMSG(User &user, std::vector<std::string> &params)
     std::vector<std::string> recv;
     if (params.size() < 2)
         throw "Not enough parameters";
-    recv = ft_Split(params[0], ',');
+    recv = Split(params[0], ',');
     std::vector<std::string> msg;
     std::string tmp;
     tmp = ":" + user.GetNickname() + "!" + user.GetUsername() + "@" + "127.0.0.1 PRIVMSG ";
@@ -234,7 +234,6 @@ void CommandHandler::PRIVMSG(User &user, std::vector<std::string> &params)
                 user.send(UserChannelController::Instance().FindUser(recv[i]), msg);
             else
             {
-                user.send()
                 //받는이가없음
                 std::cout << recv[i] <<  " : 받는이가 없다\n";
             } 
@@ -291,6 +290,8 @@ void CommandHandler::MODE(User &user, std::vector<std::string> &params)
     try
     {
         Channel &channel = UserChannelController::Instance().FindChannel(params[0]);
+        (void)channel;
+        (void)user;
         // if (params[0])
     }
     catch(const char *str)

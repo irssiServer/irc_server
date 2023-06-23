@@ -56,25 +56,19 @@ void CommandHandler::CommandInit(std::map<std::string, void(*)(User &user, std::
     commandMap["NICK"] = CommandHandler::NICK;
     commandMap["PASS"] = CommandHandler::PASS;  
     commandMap["USER"] = CommandHandler::USER;
-    // commandMap["JOIN"] = CommandHandler::JOIN;
-    // commandMap["PART"] = CommandHandler::PART;
+    commandMap["JOIN"] = CommandHandler::JOIN;
+    commandMap["PART"] = CommandHandler::PART;
     commandMap["PRIVMSG"] = CommandHandler::PRIVMSG;
-    // commandMap["KICK"] = CommandHandler::KICK;
-    // commandMap["MODE"] = CommandHandler::MODE;
-    // commandMap["INVITE"] = CommandHandler::INVITE;
-    // commandMap["TOPIC"] = CommandHandler::TOPIC;
-    // commandMap["QUIT"] = CommandHandler::QUIT;
-    // commandMap["PING"] = CommandHandler::PING;
-    // commandMap["PONG"] = CommandHandler::PONG;
-    // commandMap["WHO"] = CommandHandler::WHO;
-    // commandMap["LIST"] = CommandHandler::LIST;
-    // commandMap["ERROR"] = CommandHandler::ERROR;
-    
-   
-    
-
-
-
+    commandMap["KICK"] = CommandHandler::NICK;
+    commandMap["MODE"] = CommandHandler::MODE;
+    // commandMap["INVITE"] = CommandHandler::NICK;
+    // commandMap["TOPIC"] = CommandHandler::NICK;
+    // commandMap["QUIT"] = CommandHandler::NICK;
+    // commandMap["PING"] = CommandHandler::NICK;
+    // commandMap["PONG"] = CommandHandler::NICK;
+    // commandMap["WHO"] = CommandHandler::NICK;
+    // commandMap["LIST"] = CommandHandler::NICK;
+    // commandMap["ERROR"] = CommandHandler::NICK;
 }
 
 int CommandHandler::CommandRun(User &user, std::string str)
@@ -240,6 +234,7 @@ void CommandHandler::PRIVMSG(User &user, std::vector<std::string> &params)
                 user.send(UserChannelController::Instance().FindUser(recv[i]), msg);
             else
             {
+                user.send()
                 //받는이가없음
                 std::cout << recv[i] <<  " : 받는이가 없다\n";
             } 
@@ -251,6 +246,58 @@ void CommandHandler::PRIVMSG(User &user, std::vector<std::string> &params)
     // 누가 누구에게 메시지
     // user.
     // channel.
+}
+
+
+void CommandHandler::PART(User &user, std::vector<std::string> &params)
+{
+    if (params.size() < 1)
+        throw "Not enough parameters";
+
+    std::vector<std::string> channelNames = Split(params[0], ',');
+
+    for (std::vector<std::string>::iterator iter = channelNames.begin(); iter != channelNames.end(); iter++)
+    {
+        user.leaveChannel(*iter);
+    }
+}
+
+void CommandHandler::KICK(User &user, std::vector<std::string> &params)
+{
+// <channel> <user> [<comment>]
+    std::string channelName = params[0];
+    std::string userName = params[1];
+    std::string comment = params[2];
+
+    if (params.size() < 1)
+        throw "Not enough parameters";
+
+    try
+    {
+        user.FindChannel(channelName).KickUser(user, userName, comment);    
+    }
+    catch(const char *str)
+    {
+        std::cout << str << std::endl;
+    }
+    
+}
+
+void CommandHandler::MODE(User &user, std::vector<std::string> &params)
+{
+    std::string channelName = params[0];
+    std::string mode = params[1];
+    
+    try
+    {
+        Channel &channel = UserChannelController::Instance().FindChannel(params[0]);
+        // if (params[0])
+    }
+    catch(const char *str)
+    {
+        std::cerr << str << std::endl;
+    }
+    
 }
 
 /*

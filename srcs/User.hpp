@@ -37,9 +37,10 @@ class User
 		std::string Getrealname() const { return _userInfo.realname; };
 		void send(User &recv, std::vector<std::string> &message);
 
-
 		void JoinChannel(Channel *channel, std::string password);
 		void leaveChannel(int id);
+		void leaveChannel(std::string &str);
+		Channel &FindChannel(std::string channel);
 
 	private:
 		t_UserInfo _userInfo;

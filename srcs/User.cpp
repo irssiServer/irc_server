@@ -51,12 +51,36 @@ void User::leaveChannel(int id)
 	{
 		if ((*iter)->GetId() == id)
 		{
+			(*iter)->LeaveUser(GetFd());
 			_channels.erase(iter);
 			break;
 		}
 	}
 }
 
+void User::leaveChannel(std::string &str)
+{
+	for (std::vector<Channel *>::iterator iter = _channels.begin(); iter != _channels.end(); iter++)
+	{
+		if ((*iter)->GetName() == str)
+		{
+			(*iter)->LeaveUser(GetFd());
+			_channels.erase(iter);
+			break;
+		}
+	}
+}
+
+Channel &User::FindChannel(std::string channel)
+{
+	for (std::vector<Channel *>::iterator iter = _channels.begin(); iter != _channels.end(); iter++)
+	{
+		if (!(*iter)->GetName().compare(channel))
+		{
+			return *(*iter);
+		}
+	}
+}
 
 
 /*

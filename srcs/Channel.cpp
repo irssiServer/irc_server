@@ -48,6 +48,21 @@ void Channel::LeaveUser(int fd)
 	}
 }
 
+void Channel::KickUser(User &user, std::string username, std::string comment)
+{
+	if (!_mode.OperUserCheck(user.GetNickname()))
+		throw "No permission to Kick command";
+	for (std::vector<User *>::iterator iter = _users.begin(); iter != _users.end(); iter++)
+	{
+		if (!(*iter)->GetNickname().compare(username))
+		{
+			(*iter)->leaveChannel(_channelName);
+			write(user.GetFd(), comment.c_str(),comment.size());
+			return;
+		}
+	}
+}
+
 void Channel::send(std::vector<std::string> &message)
 {
 	for(std::size_t i = 0; i < this->_users.size(); i++)

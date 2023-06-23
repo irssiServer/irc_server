@@ -184,12 +184,11 @@ void CommandHandler::PASS(User &user, std::vector<std::string> &params)
     if (params.size() != 1)
         throw "check PASS arg";
 }
-static void PRIVMSG(User &send, User &recv, std::vector<std::string> &message)
+
+void CommandHandler::MSG(int fd, std::vector<std::string> &message)
 {
-    std::string tmp(":");
-    tmp = tmp + send.GetNickname() + "!" + send.GetUsername() + "@" + "127.0.0.1 PRIVMSG ";
     for (std::size_t i = 0; i < message.size() ; i++)
-        write(recv.GetFd(), message[i].c_str(), message[i].size());
+        write(fd, message[i].c_str(), message[i].size());
 }
 
 // PRIVMSG 채널 메세지 보내기
@@ -206,31 +205,46 @@ static void PRIVMSG(User &send, User &recv, std::vector<std::string> &message)
 
 void CommandHandler::PRIVMSG(User &user, std::vector<std::string> &params)
 {
-    std::string msg;
     std::vector<std::string> recv;
     if (params.size() < 2)
         throw "Not enough parameters";
     recv = ft_Split(params[0], ',');
-    msg = params[1];
+    std::vector<std::string> msg;
+    std::string tmp;
+    tmp = ":" + user.GetNickname() + "!" + user.GetUsername() + "@" + "127.0.0.1 PRIVMSG ";
+    msg.push_back(tmp);
+    msg.push_back(params[1]);
     for (std::size_t i = 0; i < recv.size(); i++)
     {
         if (recv[i][0] == '#')
         {
             if (UserChannelController::Instance().isChannel(recv[i]))
             {
-        
+                if (UserChannelController::Instance().FindChannel(recv[i]).isUser(user))
+                    UserChannelController::Instance().FindChannel(recv[i]).send(msg);
+                else
+                {
+                    //보내는이가 채널안에없음 
+                    std::cout << recv[i] << "->" << user.GetNickname() << " : 채널안에 유저가없다\n";
+                }
             }
-            
+            else
+            {
+                //메세지를 받는 채널이 없음
+                std::cout << recv[i] << " : 메세지를 받을 채널이 없다\n";
+            }
         }
         else
         {
             if (UserChannelController::Instance().isNick(recv[i]))
+                user.send(UserChannelController::Instance().FindUser(recv[i]), msg);
+            else
             {
-                user.send
-            }
+                //받는이가없음
+                std::cout << recv[i] <<  " : 받는이가 없다\n";
+            } 
         }
     }
-    user.GetFd();
     // if (send[0] == '#')
     // else
     // 클라이언트가 프라이빗메시지로 보냈을때 확인

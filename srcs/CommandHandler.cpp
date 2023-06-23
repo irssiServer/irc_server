@@ -62,7 +62,7 @@ void CommandHandler::CommandInit(std::map<std::string, void(*)(User &user, std::
     commandMap["KICK"] = CommandHandler::NICK;
     commandMap["MODE"] = CommandHandler::MODE;
     // commandMap["INVITE"] = CommandHandler::NICK;
-    // commandMap["TOPIC"] = CommandHandler::NICK;
+    commandMap["TOPIC"] = CommandHandler::NICK;
     // commandMap["QUIT"] = CommandHandler::NICK;
     // commandMap["PING"] = CommandHandler::NICK;
     // commandMap["PONG"] = CommandHandler::NICK;
@@ -313,7 +313,48 @@ void CommandHandler::MODE(User &user, std::vector<std::string> &params)
     {
         std::cerr << str << std::endl;
     }
-    
+}
+
+void CommandHandler::TOPIC(User &user, std::vector<std::string> &params)
+{
+    std::string tmp;
+    std::vector<std::string> recv;
+    std::vector<std::string> msg;
+    if (params[1][0] != ':')
+            params[1] = ":" + params[1];
+    if (UserChannelController::Instance().isChannel(params[0]))
+    {
+        throw ":irc.local 403 test 1 :No such channel";
+    }
+    if (UserChannelController::Instance().FindChannel(params[0]).GetTopic() == "")
+    {
+        throw ":irc.local 331 test #11 :No topic is set.";
+    }
+    if (params.size() == 1)
+    {
+        // :irc.local 332 test #11 :hello
+        // :irc.local 333 test #11 test!test1@127.0.0.1 :1687519622
+        tmp = ":test 332 " + user.GetNickname() + " " + params[0] + " " + params[1];
+        msg.push_back(tmp);
+        user.send(user, msg);
+    }
+    else
+    { 
+        //:test!test1@127.0.0.1 TOPIC #12 :asdv
+        tmp = ":" + user.GetNickname() + "!" + user.GetUsername() + "@" + "127.0.0.1 TOPIC ";
+        msg.push_back(tmp);
+        msg.push_back(params[0] + " ");
+        msg.push_back(params[1]);
+
+        if (UserChannelController::Instance().FindChannel(params[0]).isUser(user))
+            UserChannelController::Instance().FindChannel(params[0]).send(msg);
+        else
+        {
+            //보내는이가 채널안에없음 
+            //:irc.local 442 test #12 :You're not on that channel!
+            std::cout << ":irc.local 442 test #12 :You're not on that channel!";
+        }
+    }
 }
 
 /*

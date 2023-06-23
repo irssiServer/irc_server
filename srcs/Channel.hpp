@@ -69,7 +69,7 @@ class Channel
 		Channel(int id, std::string channelName);
 		Channel(int id, std::string channelName, t_ChannelMode mode);
 		~Channel();
-
+		Channel() { _topic = ""; };
 		void SetId(int id) { _id = id; };
 		int GetId() const { return _id; };
 		void SetName(std::string channelName) { _channelName = channelName; };
@@ -79,9 +79,10 @@ class Channel
 		void LeaveUser(int fd);
 		void KickUser(User &user, std::string username, std::string comment);
 		bool isUser(User user);
+		void SetTopic(std::string topic) { _topic = topic; };
+		std::string GetTopic() const { return _topic; };
 
 	private:
-		Channel();
 		bool operator==(const Channel& rhs) const;
 
 		int _id;

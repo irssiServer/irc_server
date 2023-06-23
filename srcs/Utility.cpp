@@ -1,6 +1,6 @@
 #include "Utility.hpp"
 
-std::vector<std::string> ft_Split(const std::string &str, const char &delimiter)
+std::vector<std::string> Split(const std::string &str, const char &delimiter)
 {
     std::vector<std::string> ret;
     std::stringstream ss(str);

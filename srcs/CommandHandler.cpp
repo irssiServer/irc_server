@@ -56,10 +56,10 @@ void CommandHandler::CommandInit(std::map<std::string, void(*)(User &user, std::
     commandMap["NICK"] = CommandHandler::NICK;
     commandMap["PASS"] = CommandHandler::PASS;  
     commandMap["USER"] = CommandHandler::USER;
-    // commandMap["JOIN"] = CommandHandler::JOIN;
-    // commandMap["PART"] = CommandHandler::PART;
+    commandMap["JOIN"] = CommandHandler::JOIN;
+    commandMap["PART"] = CommandHandler::PART;
     commandMap["PRIVMSG"] = CommandHandler::PRIVMSG;
-    // commandMap["KICK"] = CommandHandler::KICK;
+    commandMap["KICK"] = CommandHandler::KICK;
     // commandMap["MODE"] = CommandHandler::MODE;
     // commandMap["INVITE"] = CommandHandler::INVITE;
     // commandMap["TOPIC"] = CommandHandler::TOPIC;
@@ -96,7 +96,18 @@ int CommandHandler::CommandRun(User &user, std::string str)
         {
             std::string tmp;
             ss >> tmp;
-            params.push_back(tmp);
+            if (tmp[0] == ':')
+            {
+                std::size_t len = str.find(':');
+                std::string param;
+                param.resize(str.size() - len);
+                for (std::size_t i = 0; i < str.size() - len; i++)
+                    param[i] = str[len + i];
+                params.push_back(param);
+                break;
+            }
+            else
+                params.push_back(tmp);
             tmp.clear();
         }
         _commandMap[command](user, params);
@@ -104,7 +115,6 @@ int CommandHandler::CommandRun(User &user, std::string str)
     }
     catch(const char *str)
     {
-        std::cerr << str << '\n';
         throw str;
     }
 
@@ -135,8 +145,8 @@ void CommandHandler::NICK(User &user, std::vector<std::string> &params)
     {
         if (!Check_nick(params[0]))
         {
-            //닉네임 유효성
-            return ;
+            //:irc.local 432 *(운영자) 1(유저) :Erroneous Nickname
+            throw "Erroneous Nickname";
         }
         user.SetNickname(params[0]);
     }
@@ -148,8 +158,8 @@ void CommandHandler::JOIN(User &user, std::vector<std::string> &params)
 {
     if (params.size() < 1)
         throw "paramiter is short";
-    std::vector<std::string> channelName = ft_Split(params[0], ',');
-    std::vector<std::string> channelPass = ft_Split(params[1], ',');
+    std::vector<std::string> channelName = Split(params[0], ',');
+    std::vector<std::string> channelPass = Split(params[1], ',');
     std::map<std::string, std::string> channelMap; // first = 채널이름, second = 채널 비밀번호
 
     std::vector<std::string>::iterator passIter = channelPass.begin();
@@ -189,6 +199,7 @@ void CommandHandler::MSG(int fd, std::vector<std::string> &message)
 {
     for (std::size_t i = 0; i < message.size() ; i++)
         write(fd, message[i].c_str(), message[i].size());
+    write(fd, "\n", 1);
 }
 
 // PRIVMSG 채널 메세지 보내기
@@ -208,14 +219,17 @@ void CommandHandler::PRIVMSG(User &user, std::vector<std::string> &params)
     std::vector<std::string> recv;
     if (params.size() < 2)
         throw "Not enough parameters";
-    recv = ft_Split(params[0], ',');
-    std::vector<std::string> msg;
+    recv = Split(params[0], ',');
     std::string tmp;
+    if (params[1][0] != ':')
+        params[1] = ":" + params[1]; 
     tmp = ":" + user.GetNickname() + "!" + user.GetUsername() + "@" + "127.0.0.1 PRIVMSG ";
-    msg.push_back(tmp);
-    msg.push_back(params[1]);
     for (std::size_t i = 0; i < recv.size(); i++)
     {
+        std::vector<std::string> msg;
+        msg.push_back(tmp);
+        msg.push_back(recv[i] + " ");
+        msg.push_back(params[1]);
         if (recv[i][0] == '#')
         {
             if (UserChannelController::Instance().isChannel(recv[i]))

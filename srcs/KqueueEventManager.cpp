@@ -43,7 +43,6 @@ void	Init_event(std::vector<struct kevent> &changeList, int &kq, int &connectSoc
 	if ((kq = kqueue()) == -1) // kqueue를 커널에 생성한다.
         ErrorPrintExit("Error: not create Kqueue");
 
-
     //클라이언트를 map으로 저장한다
     // key : 클라이언트의 소켓, val : 클라이언트가 보낸 문자열
     //kevent에 등록할 이벤트들

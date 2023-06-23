@@ -16,7 +16,6 @@
 
 class CommandHandler
 {
-
 	public:
 
 		CommandHandler();
@@ -28,6 +27,10 @@ class CommandHandler
 		static void USER(User &user, std::vector<std::string> &params);
 		static void PRIVMSG(User &user, std::vector<std::string> &params);
 		static void JOIN(User &user, std::vector<std::string> &params);
+		static void PART(User &user, std::vector<std::string> &params);
+		static void KICK(User &user, std::vector<std::string> &params);
+		static void MODE(User &user, std::vector<std::string> &params);
+
 		// excute
 		static int CommandRun(User &user, std::string str);
 		static void MSG(int fd, std::vector<std::string> &message);
@@ -39,7 +42,6 @@ class CommandHandler
 		void CommandNumInit(std::map<std::string, int> &commandNum);
 		static std::map<std::string, void(*)(User &user, std::vector<std::string> &param)> _commandMap;
 		static std::map<std::string, int> _commandNum;
-		
 
 };
 

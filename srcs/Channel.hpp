@@ -5,6 +5,8 @@
 # include <string>
 # include <vector>
 # include "UserChannelController.hpp"
+#include <unistd.h>
+
 
 struct s_ChannelMode
 {
@@ -48,6 +50,16 @@ struct s_ChannelMode
 		return userNum < limite;
 	}
 
+	bool OperUserCheck(std::string user)
+	{
+		for (std::vector<std::string>::iterator iter = operatorUser.begin(); iter != operatorUser.end(); iter++)
+		{
+			if (!iter->compare(user))
+				return true;
+		}
+		return false;
+	}
+
 } typedef t_ChannelMode;
 
 class Channel
@@ -65,6 +77,7 @@ class Channel
 		void send(std::vector<std::string> &message);
 		int EnterUser(User *user, std::string password);
 		void LeaveUser(int fd);
+		void KickUser(User &user, std::string username, std::string comment);
 		bool isUser(User user);
 
 	private:

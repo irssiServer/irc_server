@@ -4,6 +4,7 @@
 # include <iostream>
 # include <string>
 # include <vector>
+# include "CommandHandler.hpp"
 # include "UserChannelController.hpp"
 
 struct s_UserInfo

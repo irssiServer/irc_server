@@ -31,6 +31,7 @@ class UserChannelController
 		bool isNick(std::string nick);
 		bool isChannel(std::string channel);
 		User &FindUser(int fd);
+		User &FindUser(std::string nick);
 		Channel &FindChannel(std::string channel);
 
 	private:

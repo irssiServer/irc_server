@@ -33,7 +33,7 @@ class CommandHandler
 
 		// excute
 		static int CommandRun(User &user, std::string str);
-		static void PRIVMSG(User &send, User &recv, std::vector<std::string> &message);
+		static void MSG(int fd, std::vector<std::string> &message);
 
 	private:
 		

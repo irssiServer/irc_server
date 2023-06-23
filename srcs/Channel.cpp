@@ -48,13 +48,21 @@ void Channel::LeaveUser(int fd)
 	}
 }
 
-void Channel::send(User &send, std::vector<std::string> &message)
+void Channel::send(std::vector<std::string> &message)
 {
 	for(std::size_t i = 0; i < this->_users.size(); i++)
-		CommandHandler::PRIVMSG(send, *(this->_users[i]), message);
-	
+		CommandHandler::MSG(_users[i]->GetFd(), message);
 }
 
+bool Channel::isUser(User user)
+{
+	for (std::vector<User *>::iterator iter = _users.begin(); iter != _users.end(); iter++)
+	{
+		if ((*iter)->GetFd() == user.GetFd())
+			return 1;
+	}
+	return 0;
+}
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */

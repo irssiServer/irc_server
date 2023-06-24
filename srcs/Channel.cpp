@@ -62,7 +62,7 @@ void Channel::KickUser(User &user, std::string username, std::string comment)
 	}
 }
 
-void Channel::send(std::vector<std::string> &message)
+void Channel::send(std::string &message)
 {
 	for(std::size_t i = 0; i < this->_users.size(); i++)
 		CommandHandler::MSG(_users[i]->GetFd(), message);

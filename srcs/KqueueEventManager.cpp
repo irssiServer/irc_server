@@ -9,6 +9,8 @@ void	Init_socket(int port, int &connectSocket)
     connectSocket = socket(PF_INET, SOCK_STREAM, 0);
     if (connectSocket == -1)
         ErrorPrintExit("Error: not create socket");
+    int reuse = 1;
+    setsockopt(connectSocket, SOL_SOCKET, SO_REUSEADDR, &reuse, sizeof(reuse));
     memset(&server_addr, 0, sizeof(server_addr));
     server_addr.sin_family = AF_INET; // ipv4로 설정
 

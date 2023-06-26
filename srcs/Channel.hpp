@@ -1,11 +1,11 @@
 #ifndef CHANNEL_HPP
 # define CHANNEL_HPP
 
+# include <unistd.h>
 # include <iostream>
 # include <string>
 # include <vector>
 # include "UserChannelController.hpp"
-#include <unistd.h>
 
 
 struct s_ChannelMode
@@ -78,7 +78,16 @@ class Channel
 		void LeaveUser(int fd);
 		void KickUser(User &user, std::string username, std::string comment);
 		bool isUser(User user);
+		bool isUser(std::string nickName);
 
+		// mode change function
+		int ModeInvite(User &user, bool flag);
+		int ModeTopic(User &user, bool flag);
+		int ModeLimite(User &user, bool flag, int limiteNum);
+		int ModeKey(User &user, bool flag, std::string key);
+		int ModeOperator(User &user, bool flag, std::string userName);
+                    // 파라미터가 없는 mode = +-i, +-t, -l, -k
+                    // 파라미터가 필요한 mode = +k, +-o, +l
 	private:
 		Channel();
 		bool operator==(const Channel& rhs) const;

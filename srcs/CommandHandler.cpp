@@ -282,10 +282,11 @@ void CommandHandler::KICK(User &user, std::vector<std::string> &params)
     
 }
 
+
 void CommandHandler::MODE(User &user, std::vector<std::string> &params)
 {
     std::string channelName = params[0];
-    int flag = 1;
+    int flag = ADD;
     int paramNum = 2;
     try
     {
@@ -297,12 +298,36 @@ void CommandHandler::MODE(User &user, std::vector<std::string> &params)
             for (int j = 0; j < params[i].size(); j++)
             {
                 if (params[i][j] == '+')
-                    flag = 1;
+                    flag = ADD;
                 else if (params[i][j] == '-')
-                    flag = 2;
+                    flag = REMOVE;
                 else
                 {
-                    // if (파라미터가 필요한 경우)
+                    // 파라미터가 필수인 모드들
+                    if (params[i][j] == 'i' || params[i][j] == 't' || (params[i][j] == 'l' && flag == REMOVE))
+                    {
+                        if (params[i][j] == 'i')
+                            channel.ModeInvite(user, flag);
+                        else if (params[i][j] == 't')
+                            channel.ModeTopic(user, flag);
+                        else if (params[i][j] == 'l')
+                            channel.ModeLimite(user, flag, -1);
+
+                    }
+                    // 파라미터가 필요없는 모드들
+                    else if (params[i][j] == 'o' || params[i][j] == 'k' || (params[i][j] == 'l' && flag == ADD))
+                    {
+                        std::stringstream ss(params[paramNum]);
+
+                        if (params[i][j] == 'o')
+                            channel.ModeOperator(user, flag, params[paramNum]);
+                        else if (params[i][j] == 'k')
+                            channel.ModeKey(user, flag, params[paramNum]);
+                        else if (params[i][j] == 'l')
+                            channel.ModeOperator(user, flag, params[paramNum]);
+                        paramNum++;
+                    }
+                    // if (파라미터가 필요한 mode 경우)
                     // {
                     //     if (paramNum < params.size())
                     //     {
@@ -312,7 +337,7 @@ void CommandHandler::MODE(User &user, std::vector<std::string> &params)
                     //     else
                     //         paramexcute(params[i][j], "");
                     // }
-                    // else // 파라미터가 필요없는 경우
+                    // if else {// 파라미터가 필요없는 경우}
                     // {
                     //     nonparamexcute(params[i][j]);
                     // }
@@ -323,6 +348,10 @@ void CommandHandler::MODE(User &user, std::vector<std::string> &params)
                     // ex) +it-ko 플래그가 왔을경우, it는 add, ko는 remmove
                     // 인자가 필요한 경우 파라미터를 뒤져서 사용할것, 가변인자처럼 필요한 경우 파라미터를 사용하고, 포인터를 그 다음으로 옮긴다.
                     // 다음에 인자가 필요한 플래그일시 포인터를 옮긴 파라미터를 사용
+                    // else
+                    // {
+                    //         error
+                    // }
                 }
             }
         } 

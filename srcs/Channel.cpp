@@ -1,5 +1,4 @@
 #include "Channel.hpp"
-
 /*
 ** ------------------------------- CONSTRUCTOR --------------------------------
 */
@@ -78,6 +77,83 @@ bool Channel::isUser(User user)
 	}
 	return 0;
 }
+
+bool Channel::isUser(std::string nickName)
+{
+	for (std::vector<User *>::iterator iter = _users.begin(); iter != _users.end(); iter++)
+	{
+		if (!(*iter)->GetNickname().compare(nickName))
+			return 1;
+	}
+	return 0;
+}
+
+int Channel::ModeInvite(User &user, bool flag)
+{
+	if (_mode.OperUserCheck(user.GetNickname()))
+		throw "You must have channel op access or above to set channel mode i";
+	_mode.inviteFlag = flag;
+	return 0;
+}
+
+int Channel::ModeTopic(User &user, bool flag)
+{
+	if (_mode.OperUserCheck(user.GetNickname()))
+		throw "You must have channel op access or above to set channel mode t";
+	_mode.topicSetFlag = flag;
+	return 0;
+}
+
+int Channel::ModeLimite(User &user, bool flag, int limiteNum)
+{
+	if (_mode.OperUserCheck(user.GetNickname()))
+		throw "You must have channel op access or above to set channel mode l";
+	_mode.limiteFlag = flag;
+	if (flag == ADD && limiteNum > 0)
+		_mode.limite = limiteNum;
+	return 0;
+}
+
+int Channel::ModeKey(User &user, bool flag, std::string key)
+{
+	if (_mode.OperUserCheck(user.GetNickname()))
+		throw "You must have channel op access or above to set channel mode k";
+	if (_mode.keyFlag == false || _mode.KeyCheck(key))
+	{
+		_mode.keyFlag = flag;
+		_mode.key = key;
+	}
+	else
+		throw "467 gyyu #1 :Channel key already set";
+	return 0;
+}
+
+int Channel::ModeOperator(User &user, bool flag, std::string userName)
+{
+
+	if (_mode.OperUserCheck(user.GetNickname()))
+		throw "You must have channel op access or above to set channel mode t";
+
+	if (isUser(userName))
+	{
+		std::vector<std::string>::iterator find = std::find(_mode.operatorUser.begin(),_mode.operatorUser.end(), userName);
+		if (find == _mode.operatorUser.end())
+		{
+			if (flag == ADD)
+				_mode.operatorUser.push_back(*find);
+		}
+		else
+		{
+			if (flag == REMOVE)
+				_mode.operatorUser.erase(find);
+		}
+		return 0;
+	}
+	else
+		throw "401 gyyu vd :No such nick";
+}
+
+
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */

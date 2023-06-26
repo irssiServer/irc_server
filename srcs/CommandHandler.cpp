@@ -37,7 +37,7 @@ void CommandHandler::CommandNumInit(std::map<std::string, int> &commandNum)
     commandNum["NICK"] = NICKNUM;
     commandNum["PASS"] = PASSNUM;
     commandNum["USER"] = USERNUM;
-    // commandNum["JOIN"] = JOINNUM;
+    // commandNum["JOIN"] = JOINNUM;  
     // commandNum["PART"] = PARTNUM;
     commandNum["PRIVMSG"] = PRIVMSGNUM;
     // commandNum["KICK"] = KICKNUM;
@@ -56,19 +56,22 @@ void CommandHandler::CommandInit(std::map<std::string, void(*)(User &user, std::
     commandMap["NICK"] = CommandHandler::NICK;
     commandMap["PASS"] = CommandHandler::PASS;  
     commandMap["USER"] = CommandHandler::USER;
-    commandMap["JOIN"] = CommandHandler::JOIN;
-    commandMap["PART"] = CommandHandler::PART;
+    commandMap["JOIN"] = CommandHandler::JOIN; 
+    commandMap["PART"] = CommandHandler::PART; 
     commandMap["PRIVMSG"] = CommandHandler::PRIVMSG;
-    commandMap["KICK"] = CommandHandler::NICK;
+    commandMap["KICK"] = CommandHandler::KICK;
     commandMap["MODE"] = CommandHandler::MODE;
-    // commandMap["INVITE"] = CommandHandler::NICK;
-    // commandMap["TOPIC"] = CommandHandler::NICK;
-    // commandMap["QUIT"] = CommandHandler::NICK;
-    // commandMap["PING"] = CommandHandler::NICK;
-    // commandMap["PONG"] = CommandHandler::NICK;
-    // commandMap["WHO"] = CommandHandler::NICK;
-    // commandMap["LIST"] = CommandHandler::NICK;
-    // commandMap["ERROR"] = CommandHandler::NICK;
+    // commandMap["INVITE"] = CommandHandler::INVITE;
+    commandMap["TOPIC"] = CommandHandler::TOPIC;
+    // commandMap["QUIT"] = CommandHandler::QUIT;
+    commandMap["PING"] = CommandHandler::PING;
+    // commandMap["PONG"] = CommandHandler::PONG;
+    // commandMap["WHO"] = CommandHandler::WHO;
+    // commandMap["LIST"] = CommandHandler::LIST;
+    // commandMap["ERROR"] = CommandHandler::ERROR; 구현하기 애매 서버->클라 로  메세지를 보내는 경우가 크게 없음
+
+    /////:irc.local 451 * PART :You have not registered. error 451 -> 계정 생성전 NICK PASS USER 를 제외한 명령어 사용때 발생 NICK 명령 후에는 * -> 입력한 NICK
+    /////:irc.local 461 a PART :Not enough parameters. error 461 -> 파라미터 부족할때 무조건 우선순위인 에러코드 451보다 우선시됨
 }
 
 int CommandHandler::CommandRun(User &user, std::string str)
@@ -90,7 +93,22 @@ int CommandHandler::CommandRun(User &user, std::string str)
         {
             std::string tmp;
             ss >> tmp;
-            params.push_back(tmp);
+            if (tmp[0] == ':')
+            {
+                std::size_t len = str.find(':');
+                std::string param;
+                param.resize(str.size() - len - 1);
+                for (std::size_t i = 0; i < str.size() - len - 1; i++)
+                    param[i] = str[len + i + 1];
+                params.push_back(param);
+                break;
+            }
+            else
+            {
+                if (ss.fail())
+                    break;
+                params.push_back(tmp);
+            }
             tmp.clear();
         }
         _commandMap[command](user, params);
@@ -98,7 +116,6 @@ int CommandHandler::CommandRun(User &user, std::string str)
     }
     catch(const char *str)
     {
-        std::cerr << str << '\n';
         throw str;
     }
 
@@ -107,41 +124,65 @@ int CommandHandler::CommandRun(User &user, std::string str)
 
 void CommandHandler::USER(User &user, std::vector<std::string> &params)
 {
+    std::string tmp;
+    if (params.size() < 4)
+    {
+        tmp = ":irc.local 461 " + user.Getbuf() + " USER :Not enough parameters.";
+        user.send(tmp);
+        return ;
+    }
     if (user.GetFd() != -1)
     {
-        //ERROR 462;
-        return;
+        tmp = ":irc.local 462 " + user.Getbuf() + " :You may not reregister";
+        user.send(tmp);
+        return ;
     }
-    if (params.size() < 4)
-        throw "Insufficient argvs";
-    // user.SetHostname();
-    // user.SetUsername();
-    // user.Setrealname();
 }
 
 void CommandHandler::NICK(User &user, std::vector<std::string> &params)
 {
+    std::string tmp;
     if (params.size() < 1)
-        throw "not found nickname";
-    if (UserChannelController::Instance().isNick(params[0]))
-        throw "already nickname";
-    if (user.GetFd() > 0)
     {
-        if (!Check_nick(params[0]))
-        {
-            //닉네임 유효성
-            return ;
-        }
-        user.SetNickname(params[0]);
+        tmp = ":irc.local 461 " + user.Getbuf() + " NICK :Not enough parameters.";
+        user.send(tmp);
+        return ;
     }
+    if (UserChannelController::Instance().isNick(params[0]))
+    {
+        tmp = ":irc.local 433 * " + params[0] + " :Nickname is already in use.";
+        user.send(tmp);
+        return ;
+    }
+    if (!Check_nick(params[0]))
+    {
+        tmp = tmp = ":irc.local 433 * " + params[0] + " :Erroneous Nickname.";
+        user.send(tmp);
+        return ;
+    }
+    if (user.GetFd() > 0)
+        user.SetNickname(params[0]);
+    user.Setbuf(params[0]);
+    
 }
 
 
 // 주체설정
 void CommandHandler::JOIN(User &user, std::vector<std::string> &params)
 {
+    std::string tmp;
     if (params.size() < 1)
-        throw "paramiter is short";
+    {
+        tmp = ":irc.local 461 " + user.Getbuf() + " JOIN :Not enough parameters.";
+        user.send(tmp);
+        return ;
+    }
+    if (user.GetFd() < 0)
+    {
+        tmp = ":irc.local 451 " + user.Getbuf() + " JOIN :You have not registered.";
+        user.send(tmp);
+        return ;
+    }
     std::vector<std::string> channelName = Split(params[0], ',');
     std::vector<std::string> channelPass = Split(params[1], ',');
     std::map<std::string, std::string> channelMap; // first = 채널이름, second = 채널 비밀번호
@@ -163,26 +204,38 @@ void CommandHandler::JOIN(User &user, std::vector<std::string> &params)
     {
         if (!UserChannelController::Instance().isChannel(iter->first)) // 채널이 없을때는 채널 생성
             UserChannelController::Instance().AddChannel(iter->first, t_ChannelMode());
-        
+
         user.JoinChannel(&UserChannelController::Instance().FindChannel(iter->first), iter->second);
     }
 }
 
 void CommandHandler::PASS(User &user, std::vector<std::string> &params)
 {
+    std::string tmp;
+    if (params.size() == 0)
+    {
+        tmp = ":irc.local 461 " + user.Getbuf() + " PASS :Not enough parameters.";
+        user.send(tmp);
+        return ;
+    }
+    if (user.GetFd() < 0)
+    {
+        tmp = ":irc.local 451 " + user.Getbuf() + " PASS :You have not registered.";
+        user.send(tmp);
+        return ;
+    }
     if (user.GetFd() != -1)
     {
-        //ERROR 462; 적용되지않음
-        return;
+        tmp = ":irc.local 462 " + user.Getbuf() + " :You may not reregister";
+        user.send(tmp);
+        return ;
     }
-    if (params.size() != 1)
-        throw "check PASS arg";
 }
 
-void CommandHandler::MSG(int fd, std::vector<std::string> &message)
+void CommandHandler::MSG(int fd, std::string &message)
 {
-    for (std::size_t i = 0; i < message.size() ; i++)
-        write(fd, message[i].c_str(), message[i].size());
+    write(fd, message.c_str(), message.size());
+    write(fd, "\n", 1);
 }
 
 // PRIVMSG 채널 메세지 보내기
@@ -200,42 +253,54 @@ void CommandHandler::MSG(int fd, std::vector<std::string> &message)
 void CommandHandler::PRIVMSG(User &user, std::vector<std::string> &params)
 {
     std::vector<std::string> recv;
-    if (params.size() < 2)
-        throw "Not enough parameters";
-    recv = Split(params[0], ',');
-    std::vector<std::string> msg;
     std::string tmp;
-    tmp = ":" + user.GetNickname() + "!" + user.GetUsername() + "@" + "127.0.0.1 PRIVMSG ";
-    msg.push_back(tmp);
-    msg.push_back(params[1]);
+    if (params.size() < 2)
+    {
+        std::string tmp;
+        tmp = ":irc.local 461 " + user.Getbuf() + " PRIVMSG :Not enough parameters.";
+        user.send(tmp);
+        return ;
+    }
+    if (user.GetFd() < 0)
+    {
+        tmp = ":irc.local 451 " + user.Getbuf() + " PRIVMSG :You have not registered.";
+        user.send(tmp);
+        return ;
+    }
+    
+    recv = Split(params[0], ',');
+    params[1] = ":" + params[1];
+    std::string tmp1;
+    tmp1 = ":" + user.GetNickname() + "!" + user.GetUsername() + "@" + "127.0.0.1 PRIVMSG ";
     for (std::size_t i = 0; i < recv.size(); i++)
     {
+        tmp1 = tmp1 + recv[i] + " " + params[1];
         if (recv[i][0] == '#')
         {
             if (UserChannelController::Instance().isChannel(recv[i]))
             {
                 if (UserChannelController::Instance().FindChannel(recv[i]).isUser(user))
-                    UserChannelController::Instance().FindChannel(recv[i]).send(msg);
+                    UserChannelController::Instance().FindChannel(recv[i]).send(tmp1);
                 else
                 {
-                    //보내는이가 채널안에없음 
-                    std::cout << recv[i] << "->" << user.GetNickname() << " : 채널안에 유저가없다\n";
+                    tmp = ":irc.local 404 " + user.GetNickname() + recv[i] +  ":You cannot send external messages to this channel whilst the +n (noextmsg) mode is set.";
+                    user.send(tmp);
                 }
             }
             else
             {
-                //메세지를 받는 채널이 없음
-                std::cout << recv[i] << " : 메세지를 받을 채널이 없다\n";
+                tmp = ":irc.local 404 " + user.GetNickname() + recv[i] + " :No such channel.";
+                user.send(tmp);
             }
         }
         else
         {
             if (UserChannelController::Instance().isNick(recv[i]))
-                user.send(UserChannelController::Instance().FindUser(recv[i]), msg);
+                UserChannelController::Instance().FindUser(recv[i]).send(tmp1);
             else
             {
-                //받는이가없음
-                std::cout << recv[i] <<  " : 받는이가 없다\n";
+                tmp = ":irc.local 401 " + user.GetNickname() + " " + params[1] + " :No such nick.";
+                user.send(tmp);
             } 
         }
     }
@@ -250,9 +315,19 @@ void CommandHandler::PRIVMSG(User &user, std::vector<std::string> &params)
 
 void CommandHandler::PART(User &user, std::vector<std::string> &params)
 {
-    if (params.size() < 1)
-        throw "Not enough parameters";
-
+    std::string tmp;
+    if (params.size() == 0)
+    {
+        tmp = ":irc.local 461 " + user.Getbuf() + " PART :Not enough parameters.";
+        user.send(tmp);
+        return ;
+    }
+    if (user.GetFd() < 0)
+    {
+        tmp = ":irc.local 451 " + user.Getbuf() + " PART :You have not registered.";
+        user.send(tmp);
+        return ;
+    }
     std::vector<std::string> channelNames = Split(params[0], ',');
 
     for (std::vector<std::string>::iterator iter = channelNames.begin(); iter != channelNames.end(); iter++)
@@ -263,13 +338,23 @@ void CommandHandler::PART(User &user, std::vector<std::string> &params)
 
 void CommandHandler::KICK(User &user, std::vector<std::string> &params)
 {
-// <channel> <user> [<comment>]
+    std::string tmp;
+    if (params.size() < 1)
+    {
+        tmp = ":irc.local 461 " + user.Getbuf() + " KICK :Not enough parameters.";
+        user.send(tmp);
+        return ;
+    }
+    if (user.GetFd() < 0)
+    {
+        tmp = ":irc.local 451 " + user.Getbuf() + " KICK :You have not registered.";
+        user.send(tmp);
+        return ;
+    }
+    // <channel> <user> [<comment>]
     std::string channelName = params[0];
     std::string userName = params[1];
     std::string comment = params[2];
-
-    if (params.size() < 1)
-        throw "Not enough parameters";
 
     try
     {
@@ -286,7 +371,19 @@ void CommandHandler::MODE(User &user, std::vector<std::string> &params)
 {
     std::string channelName = params[0];
     std::string mode = params[1];
-    
+    std::string tmp;
+    if (params.size() == 0)
+    {
+        tmp = ":irc.local 461 " + user.Getbuf() + " MODE :Not enough parameters.";
+        user.send(tmp);
+        return ;
+    }
+    if (user.GetFd() < 0)
+    {
+        tmp = ":irc.local 451 " + user.Getbuf() + " MODE :You have not registered.";
+        user.send(tmp);
+        return ;
+    }
     try
     {
         Channel &channel = UserChannelController::Instance().FindChannel(params[0]);
@@ -298,8 +395,93 @@ void CommandHandler::MODE(User &user, std::vector<std::string> &params)
     {
         std::cerr << str << std::endl;
     }
-    
 }
+
+void CommandHandler::TOPIC(User &user, std::vector<std::string> &params)
+{
+    std::string tmp;
+    std::vector<std::string> recv;
+    if (params.size() == 0)
+    {
+        tmp = ":irc.local 461 " + user.Getbuf() + " TOPIC :Not enough parameters.";
+        user.send(tmp);
+        return ;
+    }
+    if (user.GetFd() < 0)
+    {
+        tmp = ":irc.local 451 " + user.Getbuf() + " TOPIC :You have not registered.";
+        user.send(tmp);
+        return ;
+    }
+    if (!UserChannelController::Instance().isChannel(params[0]))
+    {
+        tmp = ":irc.local 403 " + user.GetNickname() + params[0] + " :No such channel.";
+        user.send(tmp);
+        return ;
+    }
+    if (params.size() == 1)
+    {
+        if (UserChannelController::Instance().FindChannel(params[0]).GetTopic() == "")
+        {
+            tmp = ":irc.local 331 " + user.GetNickname() + params[0]  + " :No topic is set.";
+            user.send(tmp);
+        }
+        else
+        {
+            // :irc.local 332 test #11 :hello
+            // :irc.local 333 test #11 test!test1@127.0.0.1 :1687519622
+            tmp = ":test 332 " + user.GetNickname() + " " + params[0] + " " + UserChannelController::Instance().FindChannel(params[0]).GetTopic();
+            user.send(tmp);
+        }
+    }
+    else
+    { 
+        if (UserChannelController::Instance().FindChannel(params[0]).isUser(user))
+        {
+            std::cout << "topic : |"<< params[1] << "|\n";
+            UserChannelController::Instance().FindChannel(params[0]).SetTopic(params[1]);
+            if (params[1][0] != ':')
+                params[1] = ":" + params[1];
+            tmp = ":" + user.GetNickname() + "!" + user.GetUsername() + "@" + "127.0.0.1 TOPIC " + params[0] + " " + params[1];
+            UserChannelController::Instance().FindChannel(params[0]).send(tmp);
+        }
+        else
+        {
+            //보내는이가 채널안에없음 
+            tmp = ":irc.local 442 " + user.GetNickname() + params[0] + " :You're not on that channel!";
+            user.send(tmp);
+        }
+    }
+}
+
+void CommandHandler::PING(User &user, std::vector<std::string> &params)
+{
+    std::string tmp;
+    if (params.size() == 0)
+    {
+        tmp = ":irc.local 461 " + user.Getbuf() + " PING :Not enough parameters.";
+        user.send(tmp);
+        return ;
+    }
+    if (user.GetFd() < 0)
+    {
+        tmp = ":irc.local 451 " + user.Getbuf() + " PING :You have not registered.";
+        user.send(tmp);
+        return ;
+    }
+    if (params[0] == "")
+    {
+        tmp = ":irc.local 409 " + user.GetNickname() + " :No origin specified.";
+        user.send(tmp);
+        return ;
+    }
+    tmp = "PONG " + params[0];
+    user.send(tmp);
+}
+
+// void CommandHandler::QUIT(User &user, std::vector<std::string> &params)
+// {
+// }
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

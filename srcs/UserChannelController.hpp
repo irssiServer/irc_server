@@ -17,6 +17,7 @@ typedef struct s_UserInfo t_UserInfo;
 # include "User.hpp"
 # include "Channel.hpp"
 
+
 class UserChannelController
 {
 

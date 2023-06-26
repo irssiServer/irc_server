@@ -87,6 +87,7 @@ Channel &UserChannelController::FindChannel(std::string channel)
 }
 
 
+
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */

@@ -34,6 +34,7 @@ struct s_MandatoryClientInit
     bool userFlag;
     bool nickFlag;
     bool passwordFlag;
+    bool pass;
     
     std::string nickname;
     std::string username;
@@ -92,6 +93,7 @@ int main(int argc, char **argv)
     int invokedEvnets;
     struct kevent eventList[8];
     std::map<int, t_MandatoryClientInit> clients;
+    User test;
     while (1)
     {
         // kevent 함수는 kevent를 등록과 반환을 한번에 하는 함수이다.
@@ -167,6 +169,8 @@ int main(int argc, char **argv)
                     }
                     else
                     {
+                        clients[currEvent->ident].Push_data(str);
+                        str = clients[currEvent->ident].Get_command();
                         std::cout << "client " << currEvent->ident << " : "  << str;
                         if (clients[currEvent->ident].nickFlag && clients[currEvent->ident].userFlag && clients[currEvent->ident].passwordFlag)
                         {
@@ -182,16 +186,14 @@ int main(int argc, char **argv)
                         }       
                         else
                         {
-                            clients[currEvent->ident].Push_data(str);
-                            str = clients[currEvent->ident].Get_command();
                             if (!str.empty())
                             {
                                 std::cout << "client " << currEvent->ident << " : |"  << str <<"|"<< std::endl;
+                                test.Setbuf_fd(currEvent->ident);
                                 std::stringstream ss(str);
                                 std::string tmp;
                                 try
                                 {
-                                    User test;
                                     int commandNum = CommandHandler::CommandRun(test, str);
                                     ss >> tmp;
                                     if (commandNum == NICKNUM)
@@ -231,17 +233,27 @@ int main(int argc, char **argv)
                                     else if (commandNum == PASSNUM)
                                     {
                                         ss >> tmp;
+                                        clients[currEvent->ident].passwordFlag = true;
                                         if (!tmp.compare(password))
-                                        {
-                                            clients[currEvent->ident].passwordFlag = true;
-                                            std::cout << "PASS OK!\n";
-                                        }
+                                            clients[currEvent->ident].pass = true;
                                         else
-                                            write(currEvent->ident, "Password incorrect\n", strlen("Password incorrect\n"));
+                                            clients[currEvent->ident].pass = false;
                                     }
                                     if (clients[currEvent->ident].nickFlag && clients[currEvent->ident].userFlag && clients[currEvent->ident].passwordFlag)
                                     {
+                                        if (UserChannelController::Instance().isNick(clients[currEvent->ident].nickname))
+                                        {
+                                            //:irc.local 433 *(운영자) a(닉네임) :Nickname is already in use.
+                                            throw "Nickname is already in use";
+                                        }
+                                        if (!clients[currEvent->ident].pass)
+                                        {  
+                                            //ERROR :Closing link: (username(만들어진 닉)@127.0.0.1) [Access denied by configuration]
+                                            throw "ERROR :Closing link: (a@127.0.0.1) [Access denied by configuration]";
+                                        }
                                         std::cout << "make USER\n";
+                                        test.Setbuf("*");
+                                        test.Setbuf_fd(-1);
                                         UserChannelController::Instance().AddUser(currEvent->ident, clients[currEvent->ident].nickname,
                                         clients[currEvent->ident].username, clients[currEvent->ident].hostname, clients[currEvent->ident].realname);
                                     }

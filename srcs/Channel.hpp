@@ -65,6 +65,7 @@ class Channel
 {
 
 	public:
+		Channel();
 		Channel(int id, std::string channelName);
 		Channel(int id, std::string channelName, t_ChannelMode mode);
 		~Channel();
@@ -89,7 +90,6 @@ class Channel
                     // 파라미터가 없는 mode = +-i, +-t, -l, -k
                     // 파라미터가 필요한 mode = +k, +-o, +l
 	private:
-		Channel();
 		bool operator==(const Channel& rhs) const;
 
 		int _id;

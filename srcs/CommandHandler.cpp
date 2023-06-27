@@ -287,72 +287,55 @@ void CommandHandler::MODE(User &user, std::vector<std::string> &params)
 {
     std::string channelName = params[0];
     int flag = ADD;
+    int modes = 1; // [0] = 채널명, [1] = 설정할모드 플래그들, [2 ~] = 모드설정에 필요한 파라미터들
     int paramNum = 2;
+    Channel channel;
+
     try
     {
-        Channel &channel = UserChannelController::Instance().FindChannel(params[0]);
-        // (void)channel;
-        // (void)user;
-        for (int i = 0; i < params.size(); i++)
+        try
         {
-            for (int j = 0; j < params[i].size(); j++)
+            // channel = UserChannelController::Instance().FindChannel(channelName);
+            channel = user.FindChannel(channelName);
+        }
+        catch(const char *str)
+        {
+            throw str;
+        }
+        
+        for (size_t i = 0; i < params[modes].size(); i++)
+        {
+            if (params[modes][i] == '+')
+                flag = ADD;
+            else if (params[modes][i] == '-')
+                flag = REMOVE;
+            else
             {
-                if (params[i][j] == '+')
-                    flag = ADD;
-                else if (params[i][j] == '-')
-                    flag = REMOVE;
-                else
+                // 파라미터가 필수인 모드들
+                if (params[modes][i] == 'i' || params[modes][i] == 't' || (params[modes][i] == 'l' && flag == REMOVE))
                 {
-                    // 파라미터가 필수인 모드들
-                    if (params[i][j] == 'i' || params[i][j] == 't' || (params[i][j] == 'l' && flag == REMOVE))
-                    {
-                        if (params[i][j] == 'i')
-                            channel.ModeInvite(user, flag);
-                        else if (params[i][j] == 't')
-                            channel.ModeTopic(user, flag);
-                        else if (params[i][j] == 'l')
-                            channel.ModeLimite(user, flag, -1);
-
-                    }
-                    // 파라미터가 필요없는 모드들
-                    else if (params[i][j] == 'o' || params[i][j] == 'k' || (params[i][j] == 'l' && flag == ADD))
-                    {
-                        std::stringstream ss(params[paramNum]);
-
-                        if (params[i][j] == 'o')
-                            channel.ModeOperator(user, flag, params[paramNum]);
-                        else if (params[i][j] == 'k')
-                            channel.ModeKey(user, flag, params[paramNum]);
-                        else if (params[i][j] == 'l')
-                            channel.ModeOperator(user, flag, params[paramNum]);
-                        paramNum++;
-                    }
-                    // if (파라미터가 필요한 mode 경우)
-                    // {
-                    //     if (paramNum < params.size())
-                    //     {
-                    //         paramexcute(params[i][j], params[paramNum]);
-                    //         paramNum++;
-                    //     }
-                    //     else
-                    //         paramexcute(params[i][j], "");
-                    // }
-                    // if else {// 파라미터가 필요없는 경우}
-                    // {
-                    //     nonparamexcute(params[i][j]);
-                    // }
-                    //파라미터가 필요한 플래그와 필요없는 플래그를 나눠야할듯
-                    // 구현할 플래그들 itkol
-                    // 채널의 모드만 구현하기 때문에 무조건 첫번째 파라미터는 채널이어야한다.
-                    // mode의 처음은 무조건 +-일것, 그다음 +-가 나올떄까지가 앞에 나온 플래그대로 실행
-                    // ex) +it-ko 플래그가 왔을경우, it는 add, ko는 remmove
-                    // 인자가 필요한 경우 파라미터를 뒤져서 사용할것, 가변인자처럼 필요한 경우 파라미터를 사용하고, 포인터를 그 다음으로 옮긴다.
-                    // 다음에 인자가 필요한 플래그일시 포인터를 옮긴 파라미터를 사용
-                    // else
-                    // {
-                    //         error
-                    // }
+                    if (params[modes][i] == 'i')
+                        channel.ModeInvite(user, flag);
+                    else if (params[modes][i] == 't')
+                        channel.ModeTopic(user, flag);
+                    else if (params[modes][i] == 'l')
+                        channel.ModeLimite(user, flag, -1);
                 }
+                // 파라미터가 필요없는 모드들
+                else if (params[modes][i] == 'o' || params[modes][i] == 'k' || (params[modes][i] == 'l' && flag == ADD))
+                {
+                    std::stringstream ss(params[paramNum]);
+
+                    if (params[modes][i] == 'o')
+                        channel.ModeOperator(user, flag, params[paramNum]);
+                    else if (params[modes][i] == 'k')
+                        channel.ModeKey(user, flag, params[paramNum]);
+                    else if (params[modes][i] == 'l')
+                        channel.ModeOperator(user, flag, params[paramNum]);
+                    paramNum++;
+                }
+                else
+                    throw "error: It's not mode";
             }
         } 
     }

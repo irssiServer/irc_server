@@ -11,8 +11,11 @@ User::User()
 	_userInfo.nickname = "";
 	_userInfo.realname = "";
 	_userInfo.username = "";
+	_userInfo.buf = "*";
 }
-User::~User() {}
+User::~User() 
+{
+}
 User::User(int fd, std::string nickname, std::string username, std::string hostname, std::string realname) 
 {
 	_userInfo.fd = fd;
@@ -23,9 +26,11 @@ User::User(int fd, std::string nickname, std::string username, std::string hostn
 
 }
 
-void User::send(User &recv, std::vector<std::string> &message)
+void User::send(std::string &message)
 {
-	CommandHandler::MSG(recv.GetFd(), message);
+	if (_userInfo.nickname == "")
+		CommandHandler::MSG(_userInfo.buf_fd, message);
+	CommandHandler::MSG(_userInfo.fd, message);
 }
 
 bool User::operator==( User const & rhs) const
@@ -83,6 +88,21 @@ Channel &User::FindChannel(std::string channel)
 	throw "not found Channel";
 }
 
+int	User::Getbuf_fd()
+{
+	if(_userInfo.nickname != "")
+		return _userInfo.fd;
+	return _userInfo.fd;
+}
+
+
+
+std::string User::Getbuf()
+{
+	if(_userInfo.nickname != "")
+		return _userInfo.nickname;
+	return _userInfo.buf;
+}
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

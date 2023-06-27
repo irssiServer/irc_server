@@ -14,6 +14,8 @@ struct s_UserInfo
 	std::string username;
 	std::string hostname;
 	std::string realname;
+	std::string	buf;
+	int buf_fd;
 } typedef t_UserInfo;
 
 class User
@@ -35,8 +37,11 @@ class User
 		std::string GetHostname() const { return _userInfo.hostname; };
 		void Setrealname(std::string realname) { _userInfo.realname = realname; };
 		std::string Getrealname() const { return _userInfo.realname; };
-		void send(User &recv, std::vector<std::string> &message);
-
+		void Setbuf(std::string buf) { _userInfo.buf = buf; };
+		void Setbuf_fd(int buf) { _userInfo.buf_fd = buf; };
+		void send(std::string &message);
+		std::string Getbuf();
+		int	Getbuf_fd();
 		void JoinChannel(Channel *channel, std::string password);
 		void leaveChannel(int id);
 		void leaveChannel(std::string &str);

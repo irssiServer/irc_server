@@ -30,10 +30,13 @@ class CommandHandler
 		static void PART(User &user, std::vector<std::string> &params);
 		static void KICK(User &user, std::vector<std::string> &params);
 		static void MODE(User &user, std::vector<std::string> &params);
+		static void TOPIC(User &user, std::vector<std::string> &params);
+		static void PING(User &user, std::vector<std::string> &params);
+		// static void QUIT(User &user, std::vector<std::string> &params);
 
 		// excute
 		static int CommandRun(User &user, std::string str);
-		static void MSG(int fd, std::vector<std::string> &message);
+		static void MSG(int fd, std::string &message);
 
 	private:
 		

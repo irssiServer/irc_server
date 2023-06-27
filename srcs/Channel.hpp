@@ -69,12 +69,11 @@ class Channel
 		Channel(int id, std::string channelName);
 		Channel(int id, std::string channelName, t_ChannelMode mode);
 		~Channel();
-
 		void SetId(int id) { _id = id; };
 		int GetId() const { return _id; };
 		void SetName(std::string channelName) { _channelName = channelName; };
 		std::string GetName() const { return _channelName; };
-		void send(std::vector<std::string> &message);
+		void send(std::string &message);
 		int EnterUser(User *user, std::string password);
 		void LeaveUser(int fd);
 		void KickUser(User &user, std::string username, std::string comment);
@@ -87,8 +86,9 @@ class Channel
 		int ModeLimite(User &user, bool flag, int limiteNum);
 		int ModeKey(User &user, bool flag, std::string key);
 		int ModeOperator(User &user, bool flag, std::string userName);
-                    // 파라미터가 없는 mode = +-i, +-t, -l, -k
-                    // 파라미터가 필요한 mode = +k, +-o, +l
+		void SetTopic(std::string topic) { _topic = topic; };
+		std::string GetTopic() const { return _topic; };
+
 	private:
 		bool operator==(const Channel& rhs) const;
 

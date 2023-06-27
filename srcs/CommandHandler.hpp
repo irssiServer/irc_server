@@ -33,18 +33,21 @@ class CommandHandler
 		static void TOPIC(User &user, std::vector<std::string> &params);
 		static void PING(User &user, std::vector<std::string> &params);
 		// static void QUIT(User &user, std::vector<std::string> &params);
-
+		static std::string MakeMessage(std::string mod, std::string path);
+		static std::string MakeMessage(std::string mod, std::string path1, std::string path2);
 		// excute
 		static int CommandRun(User &user, std::string str);
-		static void MSG(int fd, std::string &message);
+		static void MSG(int fd, std::string message);
 
 	private:
 		
 		// map과 함수포인터를 결합해서 사용
 		void CommandInit(std::map<std::string, void(*)(User &user, std::vector<std::string> &param)> &commandMap);
 		void CommandNumInit(std::map<std::string, int> &commandNum);
+		void CommandMsgInit(std::map<std::string, std::string> &message);
 		static std::map<std::string, void(*)(User &user, std::vector<std::string> &param)> _commandMap;
 		static std::map<std::string, int> _commandNum;
+		static std::map<std::string, std::string>  _message;
 
 };
 

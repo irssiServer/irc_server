@@ -26,7 +26,7 @@ User::User(int fd, std::string nickname, std::string username, std::string hostn
 
 }
 
-void User::send(std::string &message)
+void User::send(std::string message)
 {
 	if (_userInfo.nickname == "")
 		CommandHandler::MSG(_userInfo.buf_fd, message);

@@ -39,7 +39,7 @@ class User
 		std::string Getrealname() const { return _userInfo.realname; };
 		void Setbuf(std::string buf) { _userInfo.buf = buf; };
 		void Setbuf_fd(int buf) { _userInfo.buf_fd = buf; };
-		void send(std::string &message);
+		void send(std::string message);
 		std::string Getbuf();
 		int	Getbuf_fd();
 		void JoinChannel(Channel *channel, std::string password);

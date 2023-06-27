@@ -153,6 +153,7 @@ int CommandHandler::CommandRun(User &user, std::string str)
     catch(const std::string str)
     {
         user.send(str);
+        return -2;
     }
 
     return (0);
@@ -244,11 +245,6 @@ void CommandHandler::PASS(User &user, std::vector<std::string> &params)
     if (params.size() == 0)
     {
         tmp = CommandHandler::MakeMessage("461", user.Getbuf(), "PASS");
-        throw tmp;
-    }
-    if (user.GetFd() < 0)
-    {
-        tmp = CommandHandler::MakeMessage("451", user.Getbuf(), "PASS");
         throw tmp;
     }
     if (user.GetFd() != -1)

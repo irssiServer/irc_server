@@ -118,9 +118,14 @@ int main(int argc, char **argv)
                         }
                         else
                         {
-                            if (!str.empty())
+                            try
                             {
-                                AuthenticateUserAccess(currEvent->ident, clients, password, str);
+                                if (!str.empty())
+                                    AuthenticateUserAccess(currEvent->ident, clients, password, str);
+                            }
+                            catch(const std::string str)
+                            {
+                                std::cerr << str << std::endl;
                             }
                         }
                     }

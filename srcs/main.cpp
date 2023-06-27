@@ -63,18 +63,116 @@ struct s_MandatoryClientInit
 		return (tmp);
     }
 
-
-
     s_MandatoryClientInit() : userFlag(0), nickFlag(0), passwordFlag(0),  nickname(""), username(""), hostname(""), realname(""), data("") {}
 } typedef t_MandatoryClientInit;
 
 
+void AcceptUser(int connectSocket, std::vector<struct kevent> &changeList, std::map<int, t_MandatoryClientInit> &clients)
+{
+    int clientSocket;
+    struct sockaddr clientAddr;
+    socklen_t clientAddrLen;
+    // accept는 연결 요청을 보낸 클라이언트를 수락하는 함수이다.
+    // 첫번째 매개변수는 연결 요청을 기다리는 소켓
+    // 두번째 매개변수는 요청한 클라이언트의 주소 정보를 담아준다.
+    // 세번째 매개변수는 addr 변수의 크기를 담아준다.
+    // 반환값은 성공시 소켓을 생성하고, 해당 소켓의 fd를 반환한다.
+    if ((clientSocket = accept(connectSocket, &clientAddr, &clientAddrLen)) == -1)
+    {
+        std::cout << clientAddr.sa_data << " is fail to accept" << std::endl;
+    }
+    else
+    {
+        //connectSocket랑 똑같이 클라이언트와 통신한 소켓도 논블록킹으로 설정해준다.
+        fcntl(clientSocket, F_SETFL, O_NONBLOCK);
+        // 클라이언트소켓또한 kevent에 등록하기 위해 changeList에 담아준다. 다음 순회때 kevent에 등록될것이다.
+        struct kevent temp_event;
+        EV_SET(&temp_event, clientSocket, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
+        changeList.push_back(temp_event);
+        clients.insert(std::pair<int, t_MandatoryClientInit>(clientSocket, t_MandatoryClientInit()));
+    }
+}
 
+void AuthenticateUserAccess(struct kevent* &currEvent, std::map<int, t_MandatoryClientInit> &clients, std::string password, std::string &str)
+{
+    User test;
+    test.Setbuf_fd(currEvent->ident);
 
-
-
-
-
+    std::cout << "client " << currEvent->ident << " : |"  << str <<"|"<< std::endl;
+    std::stringstream ss(str);
+    std::string tmp;
+    try
+    {
+        int commandNum = CommandHandler::CommandRun(test, str);
+        ss >> tmp;
+        if (commandNum == NICKNUM)
+        {
+            ss >> tmp;
+            clients[currEvent->ident].nickFlag = true;
+            clients[currEvent->ident].nickname = tmp;
+            std::cout << "NICK OK!\n";
+        }
+        else if (commandNum == USERNUM)
+        {
+            ss >> tmp;
+            clients[currEvent->ident].userFlag = true;
+            clients[currEvent->ident].username = tmp;
+            ss >> tmp;
+            clients[currEvent->ident].hostname = tmp;
+            ss >> tmp;
+            ss >> tmp;
+            std::size_t len = str.find(":");
+            if (len == std::string::npos)
+                clients[currEvent->ident].realname = tmp;
+            else
+            {
+                std::string tmp1;
+                tmp1.resize(str.size() - len - 1);
+                size_t i = 0;
+                while (i < str.size() - len - 1)
+                {
+                    tmp1[i] = str[len + 1 + i];
+                    i++;
+                }
+                clients[currEvent->ident].realname = tmp1;
+            }
+            std::cout << clients[currEvent->ident].realname << "|"<<std::endl;
+            std::cout << "USER OK!\n";
+        }
+        else if (commandNum == PASSNUM)
+        {
+            ss >> tmp;
+            clients[currEvent->ident].passwordFlag = true;
+            if (!tmp.compare(password))
+                clients[currEvent->ident].pass = true;
+            else
+                clients[currEvent->ident].pass = false;
+        }
+        if (clients[currEvent->ident].nickFlag && clients[currEvent->ident].userFlag && clients[currEvent->ident].passwordFlag)
+        {
+            if (UserChannelController::Instance().isNick(clients[currEvent->ident].nickname))
+            {
+                //:irc.local 433 *(운영자) a(닉네임) :Nickname is already in use.
+                throw "Nickname is already in use";
+            }
+            if (!clients[currEvent->ident].pass)
+            {  
+                //ERROR :Closing link: (username(만들어진 닉)@127.0.0.1) [Access denied by configuration]
+                throw "ERROR :Closing link: (a@127.0.0.1) [Access denied by configuration]";
+            }
+            std::cout << "make USER\n";
+            test.Setbuf("*");
+            test.Setbuf_fd(-1);
+            UserChannelController::Instance().AddUser(currEvent->ident, clients[currEvent->ident].nickname,
+            clients[currEvent->ident].username, clients[currEvent->ident].hostname, clients[currEvent->ident].realname);
+        }
+    }
+    catch(const char *str)
+    {
+        write(currEvent->ident, str, strlen(str));
+        write(currEvent->ident, "\n", 1);
+    }
+}
 
 int main(int argc, char **argv)
 {
@@ -133,28 +231,7 @@ int main(int argc, char **argv)
             {
                 if (static_cast<int>(currEvent->ident) == connectSocket)
                 {
-                    int clientSocket;
-                    struct sockaddr clientAddr;
-                    socklen_t clientAddrLen;
-                    // accept는 연결 요청을 보낸 클라이언트를 수락하는 함수이다.
-                    // 첫번째 매개변수는 연결 요청을 기다리는 소켓
-                    // 두번째 매개변수는 요청한 클라이언트의 주소 정보를 담아준다.
-                    // 세번째 매개변수는 addr 변수의 크기를 담아준다.
-                    // 반환값은 성공시 소켓을 생성하고, 해당 소켓의 fd를 반환한다.
-                    if ((clientSocket = accept(connectSocket, &clientAddr, &clientAddrLen)) == -1)
-                    {
-                        std::cout << clientAddr.sa_data << " is fail to accept" << std::endl;
-                    }
-                    else
-                    {
-                        //connectSocket랑 똑같이 클라이언트와 통신한 소켓도 논블록킹으로 설정해준다.
-                        fcntl(clientSocket, F_SETFL, O_NONBLOCK);
-                        // 클라이언트소켓또한 kevent에 등록하기 위해 changeList에 담아준다. 다음 순회때 kevent에 등록될것이다.
-                        struct kevent temp_event;
-                        EV_SET(&temp_event, clientSocket, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
-                        changeList.push_back(temp_event);
-                        clients.insert(std::pair<int, t_MandatoryClientInit>(clientSocket, t_MandatoryClientInit()));
-                    }
+                    AcceptUser(connectSocket, changeList, clients);
                 }
                 else
                 {
@@ -183,86 +260,87 @@ int main(int argc, char **argv)
                             {
                                 std::cerr << str << std::endl;
                             }
-                        }       
+                        }
                         else
                         {
                             if (!str.empty())
                             {
-                                std::cout << "client " << currEvent->ident << " : |"  << str <<"|"<< std::endl;
-                                test.Setbuf_fd(currEvent->ident);
-                                std::stringstream ss(str);
-                                std::string tmp;
-                                try
-                                {
-                                    int commandNum = CommandHandler::CommandRun(test, str);
-                                    ss >> tmp;
-                                    if (commandNum == NICKNUM)
-                                    {
-                                        ss >> tmp;
-                                        clients[currEvent->ident].nickFlag = true;
-                                        clients[currEvent->ident].nickname = tmp;
-                                        std::cout << "NICK OK!\n";
-                                    }
-                                    else if (commandNum == USERNUM)
-                                    {
-                                        ss >> tmp;
-                                        clients[currEvent->ident].userFlag = true;
-                                        clients[currEvent->ident].username = tmp;
-                                        ss >> tmp;
-                                        clients[currEvent->ident].hostname = tmp;
-                                        ss >> tmp;
-                                        ss >> tmp;
-                                        std::size_t len = str.find(":");
-                                        if (len == std::string::npos)
-                                            clients[currEvent->ident].realname = tmp;
-                                        else
-                                        {
-                                            std::string tmp1;
-                                            tmp1.resize(str.size() - len - 1);
-                                            size_t i = 0;
-                                            while (i < str.size() - len - 1)
-                                            {
-                                                tmp1[i] = str[len + 1 + i];
-                                                i++;
-                                            }
-                                            clients[currEvent->ident].realname = tmp1;
-                                        }
-                                        std::cout << clients[currEvent->ident].realname << "|"<<std::endl;
-                                        std::cout << "USER OK!\n";
-                                    }
-                                    else if (commandNum == PASSNUM)
-                                    {
-                                        ss >> tmp;
-                                        clients[currEvent->ident].passwordFlag = true;
-                                        if (!tmp.compare(password))
-                                            clients[currEvent->ident].pass = true;
-                                        else
-                                            clients[currEvent->ident].pass = false;
-                                    }
-                                    if (clients[currEvent->ident].nickFlag && clients[currEvent->ident].userFlag && clients[currEvent->ident].passwordFlag)
-                                    {
-                                        if (UserChannelController::Instance().isNick(clients[currEvent->ident].nickname))
-                                        {
-                                            //:irc.local 433 *(운영자) a(닉네임) :Nickname is already in use.
-                                            throw "Nickname is already in use";
-                                        }
-                                        if (!clients[currEvent->ident].pass)
-                                        {  
-                                            //ERROR :Closing link: (username(만들어진 닉)@127.0.0.1) [Access denied by configuration]
-                                            throw "ERROR :Closing link: (a@127.0.0.1) [Access denied by configuration]";
-                                        }
-                                        std::cout << "make USER\n";
-                                        test.Setbuf("*");
-                                        test.Setbuf_fd(-1);
-                                        UserChannelController::Instance().AddUser(currEvent->ident, clients[currEvent->ident].nickname,
-                                        clients[currEvent->ident].username, clients[currEvent->ident].hostname, clients[currEvent->ident].realname);
-                                    }
-                                }
-                                catch(const char *str)
-                                {
-                                    write(currEvent->ident, str, strlen(str));
-                                    write(currEvent->ident, "\n", 1);
-                                }
+                                AuthenticateUserAccess(currEvent, clients, password, str);
+                                // std::cout << "client " << currEvent->ident << " : |"  << str <<"|"<< std::endl;
+                                // test.Setbuf_fd(currEvent->ident);
+                                // std::stringstream ss(str);
+                                // std::string tmp;
+                                // try
+                                // {
+                                //     int commandNum = CommandHandler::CommandRun(test, str);
+                                //     ss >> tmp;
+                                //     if (commandNum == NICKNUM)
+                                //     {
+                                //         ss >> tmp;
+                                //         clients[currEvent->ident].nickFlag = true;
+                                //         clients[currEvent->ident].nickname = tmp;
+                                //         std::cout << "NICK OK!\n";
+                                //     }
+                                //     else if (commandNum == USERNUM)
+                                //     {
+                                //         ss >> tmp;
+                                //         clients[currEvent->ident].userFlag = true;
+                                //         clients[currEvent->ident].username = tmp;
+                                //         ss >> tmp;
+                                //         clients[currEvent->ident].hostname = tmp;
+                                //         ss >> tmp;
+                                //         ss >> tmp;
+                                //         std::size_t len = str.find(":");
+                                //         if (len == std::string::npos)
+                                //             clients[currEvent->ident].realname = tmp;
+                                //         else
+                                //         {
+                                //             std::string tmp1;
+                                //             tmp1.resize(str.size() - len - 1);
+                                //             size_t i = 0;
+                                //             while (i < str.size() - len - 1)
+                                //             {
+                                //                 tmp1[i] = str[len + 1 + i];
+                                //                 i++;
+                                //             }
+                                //             clients[currEvent->ident].realname = tmp1;
+                                //         }
+                                //         std::cout << clients[currEvent->ident].realname << "|"<<std::endl;
+                                //         std::cout << "USER OK!\n";
+                                //     }
+                                //     else if (commandNum == PASSNUM)
+                                //     {
+                                //         ss >> tmp;
+                                //         clients[currEvent->ident].passwordFlag = true;
+                                //         if (!tmp.compare(password))
+                                //             clients[currEvent->ident].pass = true;
+                                //         else
+                                //             clients[currEvent->ident].pass = false;
+                                //     }
+                                //     if (clients[currEvent->ident].nickFlag && clients[currEvent->ident].userFlag && clients[currEvent->ident].passwordFlag)
+                                //     {
+                                //         if (UserChannelController::Instance().isNick(clients[currEvent->ident].nickname))
+                                //         {
+                                //             //:irc.local 433 *(운영자) a(닉네임) :Nickname is already in use.
+                                //             throw "Nickname is already in use";
+                                //         }
+                                //         if (!clients[currEvent->ident].pass)
+                                //         {  
+                                //             //ERROR :Closing link: (username(만들어진 닉)@127.0.0.1) [Access denied by configuration]
+                                //             throw "ERROR :Closing link: (a@127.0.0.1) [Access denied by configuration]";
+                                //         }
+                                //         std::cout << "make USER\n";
+                                //         test.Setbuf("*");
+                                //         test.Setbuf_fd(-1);
+                                //         UserChannelController::Instance().AddUser(currEvent->ident, clients[currEvent->ident].nickname,
+                                //         clients[currEvent->ident].username, clients[currEvent->ident].hostname, clients[currEvent->ident].realname);
+                                //     }
+                                // }
+                                // catch(const char *str)
+                                // {
+                                //     write(currEvent->ident, str, strlen(str));
+                                //     write(currEvent->ident, "\n", 1);
+                                // }
                             }
                         }
                     }

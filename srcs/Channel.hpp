@@ -1,16 +1,15 @@
 #ifndef CHANNEL_HPP
 # define CHANNEL_HPP
 
+# include <unistd.h>
 # include <iostream>
 # include <string>
 # include <vector>
 # include "UserChannelController.hpp"
-#include <unistd.h>
 
 
 struct s_ChannelMode
 {
-	bool operatorFlag;
 	bool inviteFlag;
 	bool topicSetFlag;
 	bool keyFlag;
@@ -21,7 +20,7 @@ struct s_ChannelMode
 	std::string key;
 	int limite;
 
-	s_ChannelMode() : operatorFlag(0), inviteFlag(0), topicSetFlag(0), keyFlag(0), limiteFlag(0), limite(0) {}
+	s_ChannelMode() :inviteFlag(0), topicSetFlag(0), keyFlag(0), limiteFlag(0), limite(0) {}
 
 	bool InviteCheck(std::string nickname)
 	{
@@ -66,10 +65,10 @@ class Channel
 {
 
 	public:
+		Channel();
 		Channel(int id, std::string channelName);
 		Channel(int id, std::string channelName, t_ChannelMode mode);
 		~Channel();
-		Channel() { _topic = ""; };
 		void SetId(int id) { _id = id; };
 		int GetId() const { return _id; };
 		void SetName(std::string channelName) { _channelName = channelName; };
@@ -79,6 +78,14 @@ class Channel
 		void LeaveUser(int fd);
 		void KickUser(User &user, std::string username, std::string comment);
 		bool isUser(User user);
+		bool isUser(std::string nickName);
+
+		// mode change function
+		int ModeInvite(User &user, bool flag);
+		int ModeTopic(User &user, bool flag);
+		int ModeLimite(User &user, bool flag, int limiteNum);
+		int ModeKey(User &user, bool flag, std::string key);
+		int ModeOperator(User &user, bool flag, std::string userName);
 		void SetTopic(std::string topic) { _topic = topic; };
 		std::string GetTopic() const { return _topic; };
 

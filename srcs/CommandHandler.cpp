@@ -367,9 +367,15 @@ void CommandHandler::KICK(User &user, std::vector<std::string> &params)
     
 }
 
+
 void CommandHandler::MODE(User &user, std::vector<std::string> &params)
 {
     std::string channelName = params[0];
+    int flag = ADD;
+    int modes = 1; // [0] = 채널명, [1] = 설정할모드 플래그들, [2 ~] = 모드설정에 필요한 파라미터들
+    int paramNum = 2;
+    Channel channel;
+
     std::string mode = params[1];
     std::string tmp;
     if (params.size() == 0)
@@ -386,10 +392,51 @@ void CommandHandler::MODE(User &user, std::vector<std::string> &params)
     }
     try
     {
-        Channel &channel = UserChannelController::Instance().FindChannel(params[0]);
-        (void)channel;
-        (void)user;
-        // if (params[0])
+        try
+        {
+            // channel = UserChannelController::Instance().FindChannel(channelName);
+            channel = user.FindChannel(channelName);
+        }
+        catch(const char *str)
+        {
+            throw str;
+        }
+        
+        for (size_t i = 0; i < params[modes].size(); i++)
+        {
+            if (params[modes][i] == '+')
+                flag = ADD;
+            else if (params[modes][i] == '-')
+                flag = REMOVE;
+            else
+            {
+                // 파라미터가 필수인 모드들
+                if (params[modes][i] == 'i' || params[modes][i] == 't' || (params[modes][i] == 'l' && flag == REMOVE))
+                {
+                    if (params[modes][i] == 'i')
+                        channel.ModeInvite(user, flag);
+                    else if (params[modes][i] == 't')
+                        channel.ModeTopic(user, flag);
+                    else if (params[modes][i] == 'l')
+                        channel.ModeLimite(user, flag, -1);
+                }
+                // 파라미터가 필요없는 모드들
+                else if (params[modes][i] == 'o' || params[modes][i] == 'k' || (params[modes][i] == 'l' && flag == ADD))
+                {
+                    std::stringstream ss(params[paramNum]);
+
+                    if (params[modes][i] == 'o')
+                        channel.ModeOperator(user, flag, params[paramNum]);
+                    else if (params[modes][i] == 'k')
+                        channel.ModeKey(user, flag, params[paramNum]);
+                    else if (params[modes][i] == 'l')
+                        channel.ModeOperator(user, flag, params[paramNum]);
+                    paramNum++;
+                }
+                else
+                    throw "error: It's not mode";
+            }
+        } 
     }
     catch(const char *str)
     {

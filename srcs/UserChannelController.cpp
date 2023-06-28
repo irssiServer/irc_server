@@ -26,6 +26,7 @@ void UserChannelController::AddUser(int fd, std::string nickname, std::string us
 
 void UserChannelController::RemoveUser(int id)
 {
+	_users[id].AllLeaveChannels();
 	_users.erase(id);
 }
 

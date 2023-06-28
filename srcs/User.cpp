@@ -104,6 +104,12 @@ std::string User::Getbuf()
 	return _userInfo.buf;
 }
 
+void User::AllLeaveChannels()
+{
+	for (std::vector<Channel *>::iterator iter = _channels.begin(); iter != _channels.end(); iter++)
+		leaveChannel((*iter)->GetId());
+}
+
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */

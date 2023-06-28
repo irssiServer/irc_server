@@ -45,6 +45,7 @@ class User
 		void JoinChannel(Channel *channel, std::string password);
 		void leaveChannel(int id);
 		void leaveChannel(std::string &str);
+		void AllLeaveChannels();
 		Channel &FindChannel(std::string channel);
 
 	private:

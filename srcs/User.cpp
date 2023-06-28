@@ -110,6 +110,12 @@ void User::AllLeaveChannels()
 		leaveChannel((*iter)->GetId());
 }
 
+std::string User::GetNickHostmask()
+{
+	return GetNickname() + "!" + GetUsername() + "@" + GetHostname();
+}
+
+
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */

@@ -154,6 +154,23 @@ int Channel::ModeOperator(User &user, bool flag, std::string userName)
 		throw "401 gyyu vd :No such nick";
 }
 
+void Channel::InviteUser(User &inviter, std::string invitee)
+{
+	if (!UserChannelController::Instance().isNick(invitee))
+		throw ("401 gyyu vd :No such nick");
+	if (_mode.OperUserCheck(inviter.GetNickname()))
+	{
+		if (!_mode.InviteCheck(invitee))
+			SetInvitedUser(invitee);
+	}
+	else
+		throw ("No operator permissions");
+}
+
+void Channel::SetOper(User &user)
+{
+	_mode.operatorUser.push_back(user.GetNickname());
+}
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

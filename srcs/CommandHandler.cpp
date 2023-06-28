@@ -80,7 +80,7 @@ void CommandHandler::CommandInit(std::map<std::string, void(*)(User &user, std::
     commandMap["MODE"] = CommandHandler::MODE;
     // commandMap["INVITE"] = CommandHandler::INVITE;
     commandMap["TOPIC"] = CommandHandler::TOPIC;
-    // commandMap["QUIT"] = CommandHandler::QUIT;
+    commandMap["QUIT"] = CommandHandler::QUIT;
     commandMap["PING"] = CommandHandler::PING;
     // commandMap["PONG"] = CommandHandler::PONG;
     // commandMap["WHO"] = CommandHandler::WHO;
@@ -128,6 +128,7 @@ int CommandHandler::CommandRun(User &user, std::string str)
         while (!ss.fail() && !ss.eof())
         {
             std::string tmp;
+            tmp.clear();
             ss >> tmp;
             if (tmp[0] == ':')
             {
@@ -145,7 +146,6 @@ int CommandHandler::CommandRun(User &user, std::string str)
                     break;
                 params.push_back(tmp);
             }
-            tmp.clear();
         }
         _commandMap[command](user, params);
         return (_commandNum[command]);
@@ -232,10 +232,15 @@ void CommandHandler::JOIN(User &user, std::vector<std::string> &params)
 
     for (std::map<std::string, std::string>::iterator iter = channelMap.begin(); iter != channelMap.end(); iter++)
     {
-        if (!UserChannelController::Instance().isChannel(iter->first)) // 채널이 없을때는 채널 생성
+        if (!UserChannelController::Instance().isChannel(iter->first)) // 채널이 없을때는 채널 생성 및 권한 부여
+        {
+            std::cout << "first JOIN" << std::endl;
             UserChannelController::Instance().AddChannel(iter->first, t_ChannelMode());
-
-        user.JoinChannel(&UserChannelController::Instance().FindChannel(iter->first), iter->second);
+            user.JoinChannel(&UserChannelController::Instance().FindChannel(iter->first), iter->second);
+            UserChannelController::Instance().FindChannel(iter->first).SetOper(user);
+        }
+        else
+            user.JoinChannel(&UserChannelController::Instance().FindChannel(iter->first), iter->second);
     }
 }
 
@@ -549,7 +554,31 @@ void CommandHandler::QUIT(User &user, std::vector<std::string> &params)
 {
     (void)params;
     UserChannelController::Instance().RemoveUser(user.GetFd());
+    std::cout << "client disconnected: " << user.GetFd() << std::endl;
     close(user.GetFd());
+}
+
+void CommandHandler::INVITE(User &user, std::vector<std::string> &params)
+{
+    (void)user;
+    if (params.size() < 2)
+    {
+        // 336 asdz :<channels>
+        // :irc.local 337 asdz :End of INVITE list
+    }
+    else
+    {
+        try
+        {
+            UserChannelController::Instance().FindChannel(params[1]).InviteUser(user, params[0]);
+        }
+        catch(const std::string str)
+        {
+            throw(str);
+        }
+
+
+    }
 }
 
 /*

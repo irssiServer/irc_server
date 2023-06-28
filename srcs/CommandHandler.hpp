@@ -8,6 +8,7 @@
 # include "User.hpp"
 # include "UserChannelController.hpp"
 # include "Utility.hpp"
+# include "SendMessage.hpp"
 
 #define NICKNUM 1
 #define USERNUM 2
@@ -33,6 +34,7 @@ class CommandHandler
 		static void TOPIC(User &user, std::vector<std::string> &params);
 		static void PING(User &user, std::vector<std::string> &params);
 		static void QUIT(User &user, std::vector<std::string> &params);
+		static void INVITE(User &user, std::vector<std::string> &params);
 		static std::string MakeMessage(std::string mod, std::string path);
 		static std::string MakeMessage(std::string mod, std::string path1, std::string path2);
 		// excute

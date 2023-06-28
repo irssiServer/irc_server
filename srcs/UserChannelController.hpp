@@ -27,6 +27,9 @@ class UserChannelController
 	public:
 
 		static UserChannelController &Instance();
+
+		void SetServerName(std::string serverName) { _serverName = serverName.substr(2, serverName.size() - 2); };
+		std::string GetServerName() const { return _serverName; };
 		// add, remove Method
 		void AddUser(int fd, std::string nickname, std::string username, std::string hostname, std::string realname);
 		void RemoveUser(int id);
@@ -37,8 +40,12 @@ class UserChannelController
 		User &FindUser(int fd);
 		User &FindUser(std::string nick);
 		Channel &FindChannel(std::string channel);
+		
+		
 
 	private:
+
+		std::string _serverName;
 		int _channelID;
 		std::map<int, User> _users;
 		std::map<int, Channel> _channels;

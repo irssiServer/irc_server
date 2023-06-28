@@ -37,16 +37,17 @@ int main(int argc, char **argv)
     int connectSocket;
     std::vector<struct kevent> changeList;
     int kq;
+    int invokedEvnets;
+    struct kevent eventList[8];
+    std::map<int, t_MandatoryClientInit> clients;
+
     if (argc != 3)
         ErrorPrintExit("Error: arguments ex) ./program port password");
     ArrayToPort(argv[1], port);
     ArrayToPass(argv[2], password);
     Init_socket(port, connectSocket);
     Init_event(changeList, kq, connectSocket);
-    int invokedEvnets;
-    struct kevent eventList[8];
-    std::map<int, t_MandatoryClientInit> clients;
-    User test;
+    UserChannelController::Instance().SetServerName(argv[0]);
     while (1)
     {
         // kevent 함수는 kevent를 등록과 반환을 한번에 하는 함수이다.
@@ -102,35 +103,34 @@ int main(int argc, char **argv)
                     else
                     {
                         clients[currEvent->ident].Push_data(str);
-                        str = clients[currEvent->ident].Get_command();
-                        std::cout << "client " << currEvent->ident << " : "  << str;
-                        if (clients[currEvent->ident].nickFlag && clients[currEvent->ident].userFlag && clients[currEvent->ident].passwordFlag)
+                        while ((str = clients[currEvent->ident].Get_command()).compare(""))
                         {
+                            std::cout << "client " << currEvent->ident << " : "  << str << std::endl;
                             try
                             {
-                                if (!str.empty())
-                                    CommandHandler::CommandRun(UserChannelController::Instance().FindUser(currEvent->ident), str);
+                                if (clients[currEvent->ident].nickFlag && clients[currEvent->ident].userFlag && clients[currEvent->ident].passwordFlag)
+                                {
+                                    std::cout << str << std::endl;
+                                    if (!str.empty())
+                                        CommandHandler::CommandRun(UserChannelController::Instance().FindUser(currEvent->ident), str);
+                                }
+                                else
+                                {
+                                    if (!str.empty())
+                                        AuthenticateUserAccess(currEvent->ident, clients, password, str);
+                                }
                             }
                             catch (const char *str)
                             {
                                 std::cerr << str << std::endl;
                             }
-                        }
-                        else
-                        {
-                            try
-                            {
-                                if (!str.empty())
-                                    AuthenticateUserAccess(currEvent->ident, clients, password, str);
-                            }
-                            catch(const std::string str)
+                            catch (const std::string str)
                             {
                                 std::cerr << str << std::endl;
                             }
                         }
                     }
                 }
-                std::cout << std::endl << std::flush;
             }
             else if (currEvent->filter == EVFILT_WRITE)
             {

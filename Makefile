@@ -4,7 +4,7 @@ CXX = c++
 CXXFLAGS = -Wall -Wextra -Werror -std=c++98
 RM= rm -f
 
-SOURCE=	main.cpp Channel.cpp User.cpp UserChannelController.cpp CommandHandler.cpp KqueueEventManager.cpp Utility.cpp
+SOURCE=	main.cpp Channel.cpp User.cpp UserChannelController.cpp CommandHandler.cpp KqueueEventManager.cpp Utility.cpp SendMessage.cpp
 SRCDIR= ./srcs
 
 SOURCES = $(addprefix $(SRCDIR)/,$(SOURCE))
@@ -23,5 +23,7 @@ fclean : clean
 all : $(NAME)
 re : fclean all
 up : all
+	./ircserv 6667 123
+rup : re
 	./ircserv 6667 123
 .PHONY: clean fclean all re

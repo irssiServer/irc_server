@@ -69,16 +69,16 @@ void	Init_event(std::vector<struct kevent> &changeList, int &kq, int &connectSoc
 void AcceptUser(int connectSocket, std::vector<struct kevent> &changeList, std::map<int, t_MandatoryClientInit> &clients)
 {
     int clientSocket;
-    struct sockaddr clientAddr;
+    struct sockaddr_in clientAddr;
     socklen_t clientAddrLen;
     // accept는 연결 요청을 보낸 클라이언트를 수락하는 함수이다.
     // 첫번째 매개변수는 연결 요청을 기다리는 소켓
     // 두번째 매개변수는 요청한 클라이언트의 주소 정보를 담아준다.
     // 세번째 매개변수는 addr 변수의 크기를 담아준다.
     // 반환값은 성공시 소켓을 생성하고, 해당 소켓의 fd를 반환한다.
-    if ((clientSocket = accept(connectSocket, &clientAddr, &clientAddrLen)) == -1)
+    if ((clientSocket = accept(connectSocket, (struct sockaddr *)&clientAddr, &clientAddrLen)) == -1)
     {
-        std::cout << clientAddr.sa_data << " is fail to accept" << std::endl;
+        std::cout << ((struct sockaddr *)&clientAddr)->sa_data << " is fail to accept" << std::endl;
     }
     else
     {
@@ -89,6 +89,7 @@ void AcceptUser(int connectSocket, std::vector<struct kevent> &changeList, std::
         EV_SET(&temp_event, clientSocket, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
         changeList.push_back(temp_event);
         clients.insert(std::pair<int, t_MandatoryClientInit>(clientSocket, t_MandatoryClientInit()));
+        clients[clientSocket].hostname = inet_ntoa(clientAddr.sin_addr);
     }
 }
 
@@ -117,7 +118,7 @@ void AuthenticateUserAccess(int fd, std::map<int, t_MandatoryClientInit> &client
             clients[fd].userFlag = true;
             clients[fd].username = tmp;
             ss >> tmp;
-            clients[fd].hostname = tmp;
+            // clients[fd].hostname = tmp;
             ss >> tmp;
             ss >> tmp;
             std::size_t len = message.find(":");
@@ -135,7 +136,6 @@ void AuthenticateUserAccess(int fd, std::map<int, t_MandatoryClientInit> &client
                 }
                 clients[fd].realname = tmp1;
             }
-            // std::cout << clients[fd].realname << "|"<<std::endl;
             std::cout << "USER OK!\n";
         }
         else if (commandNum == PASSNUM)
@@ -163,7 +163,7 @@ void AuthenticateUserAccess(int fd, std::map<int, t_MandatoryClientInit> &client
             test.Setbuf("*");
             test.Setbuf_fd(-1);
             UserChannelController::Instance().AddUser(fd, clients[fd].nickname,
-            clients[fd].username, clients[fd].hostname, clients[fd].realname);
+                clients[fd].username, clients[fd].hostname, clients[fd].realname);
             std::cout << "client " << clients[fd].nickname << "!" << clients[fd].username << "@" << clients[fd].hostname  << " is connected" << std::endl;
         }
     }

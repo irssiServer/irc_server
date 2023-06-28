@@ -22,6 +22,8 @@ void UserChannelController::AddUser(int fd, std::string nickname, std::string us
 {
 	User user(fd, nickname, username, hostname, realname);
 	_users.insert(std::pair<int, User>(fd, user));
+	RPL_WELCOME(_serverName, user);
+	std::cout << "123" << std::endl;
 }
 
 void UserChannelController::RemoveUser(int id)

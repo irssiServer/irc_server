@@ -22,4 +22,6 @@ fclean : clean
 	$(RM) $(NAME)
 all : $(NAME)
 re : fclean all
+up : all
+	./ircserv 6667 123
 .PHONY: clean fclean all re

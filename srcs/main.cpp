@@ -130,7 +130,7 @@ int main(int argc, char **argv)
                         }
                     }
                 }
-                std::cout << std::flush;
+                std::cout << std::endl << std::flush;
             }
             else if (currEvent->filter == EVFILT_WRITE)
             {

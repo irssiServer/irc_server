@@ -28,7 +28,7 @@ struct s_MandatoryClientInit
     std::string realname;
     std::string data;
     
-	void    Push_data(std::string str)
+	void Push_data(std::string str)
     {
         data = data + str;
     }

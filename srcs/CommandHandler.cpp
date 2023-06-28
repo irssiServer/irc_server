@@ -547,6 +547,7 @@ void CommandHandler::PING(User &user, std::vector<std::string> &params)
 
 void CommandHandler::QUIT(User &user, std::vector<std::string> &params)
 {
+    (void)params;
     UserChannelController::Instance().RemoveUser(user.GetFd());
     close(user.GetFd());
 }

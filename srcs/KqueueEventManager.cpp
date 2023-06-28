@@ -97,7 +97,7 @@ void AuthenticateUserAccess(int fd, std::map<int, t_MandatoryClientInit> &client
     User test;
     test.Setbuf_fd(fd);
 
-    std::cout << "client " << fd << " : |"  << message <<"|"<< std::endl;
+    // std::cout << "client " << fd << " : |"  << message <<"|"<< std::endl;
     std::stringstream ss(message);
     std::string tmp;
     try
@@ -135,7 +135,7 @@ void AuthenticateUserAccess(int fd, std::map<int, t_MandatoryClientInit> &client
                 }
                 clients[fd].realname = tmp1;
             }
-            std::cout << clients[fd].realname << "|"<<std::endl;
+            // std::cout << clients[fd].realname << "|"<<std::endl;
             std::cout << "USER OK!\n";
         }
         else if (commandNum == PASSNUM)
@@ -164,6 +164,7 @@ void AuthenticateUserAccess(int fd, std::map<int, t_MandatoryClientInit> &client
             test.Setbuf_fd(-1);
             UserChannelController::Instance().AddUser(fd, clients[fd].nickname,
             clients[fd].username, clients[fd].hostname, clients[fd].realname);
+            std::cout << "client " << clients[fd].nickname << "!" << clients[fd].username << "@" << clients[fd].hostname  << " is connected" << std::endl;
         }
     }
     catch(const char *message)

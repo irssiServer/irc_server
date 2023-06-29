@@ -80,6 +80,7 @@ class Channel
 		void SetInvitedUser(std::string nickName) { _mode.invitedUser.push_back(nickName); };
 
 		void SendUsers(std::string &message, User &user);
+		void SendUsers(std::string &message);
 		int EnterUser(User *user, std::string password);
 		void LeaveUser(int fd);
 		void KickUser(User &user, std::string username, std::string comment);

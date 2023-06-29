@@ -35,8 +35,7 @@ int Channel::EnterUser(User *user, std::string password)
 		throw ":irc.local 471 asdf #1 :Cannot join channel (channel is full)";
 	_users.push_back(user);
 	std::string str = user->GetNickHostmask() + " JOIN :" + GetName();
-	SendUsers(str, *user);
-	Send(user->GetFd(), str);
+	SendUsers(str);
 	return 1;
 }
 
@@ -73,6 +72,14 @@ void Channel::SendUsers(std::string &message, User &user)
 	{
 		if (_users[i]->GetNickname().compare(user.GetNickname()))
 			Send(_users[i]->GetFd(), message);
+	}
+}
+
+void Channel::SendUsers(std::string &message)
+{
+	for(std::size_t i = 0; i < this->_users.size(); i++)
+	{
+		Send(_users[i]->GetFd(), message);
 	}
 }
 

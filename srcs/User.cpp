@@ -56,7 +56,7 @@ void User::leaveChannel(int id)
 		{
 			(*iter)->LeaveUser(GetFd());
 			_channels.erase(iter);
-			break;
+			return ;
 		}
 	}
 }
@@ -69,7 +69,7 @@ void User::leaveChannel(std::string &str)
 		{
 			(*iter)->LeaveUser(GetFd());
 			_channels.erase(iter);
-			break;
+			return ;
 		}
 	}
 }
@@ -79,11 +79,11 @@ Channel &User::FindChannel(std::string channel)
 	for (std::vector<Channel *>::iterator iter = _channels.begin(); iter != _channels.end(); iter++)
 	{
 		if (!(*iter)->GetName().compare(channel))
-		{
 			return *(*iter);
-		}
 	}
-	throw ":irc.local 403 bbbb #2 :No such channel";
+	Channel *tmp = NULL;
+
+	return *tmp;
 }
 
 int	User::Getbuf_fd()
@@ -104,8 +104,10 @@ std::string User::Getbuf()
 
 void User::AllLeaveChannels()
 {
-	for (std::vector<Channel *>::iterator iter = _channels.begin(); iter != _channels.end(); iter++)
-		leaveChannel((*iter)->GetId());
+	for (size_t i = 0; i < _channels.size(); i++)
+	{
+		leaveChannel(_channels[i]->GetId());
+	}
 }
 
 std::string User::GetNickHostmask()

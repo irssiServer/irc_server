@@ -13,7 +13,7 @@
 #define NICKNUM 1
 #define USERNUM 2
 #define PASSNUM 3
-#define PRIVMSGNUM 4
+#define QUITNUM 4
 
 class CommandHandler
 {

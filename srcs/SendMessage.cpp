@@ -106,6 +106,13 @@ void ERR_NOORIGIN(User &user)
 	Send(user.GetFd(), str);
 }
 
+void ERR_NOUSERMODE(User &user)
+{
+	std::string str;
+
+	str = ":" + UserChannelController::Instance().GetServerName() + " 470 " + user.GetNickname() + " :Does not Support NICK MODE";
+	Send(user.GetFd(), str);
+}
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

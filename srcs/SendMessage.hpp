@@ -15,6 +15,7 @@ void RPL_WELCOME(User &user);
 
 
 // 실패 메세지
+void ERR_NOUSERMODE(User &user);
 void ERR_CHANNELISFULL(User &user);
 void ERR_INVITEONLYCHAN(User &user);
 void ERR_BADCHANNELKEY(User &user);

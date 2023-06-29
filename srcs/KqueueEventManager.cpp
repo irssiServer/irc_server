@@ -159,7 +159,6 @@ void AuthenticateUserAccess(int fd, std::map<int, t_MandatoryClientInit> &client
                 //ERROR :Closing link: (username(만들어진 닉)@127.0.0.1) [Access denied by configuration]
                 throw "ERROR :Closing link: (a@127.0.0.1) [Access denied by configuration]";
             }
-            std::cout << "make USER\n";
             test.Setbuf("*");
             test.Setbuf_fd(-1);
             UserChannelController::Instance().AddUser(fd, clients[fd].nickname,
@@ -169,8 +168,7 @@ void AuthenticateUserAccess(int fd, std::map<int, t_MandatoryClientInit> &client
     }
     catch(const char *message)
     {
-        write(fd, message, strlen(message));
-        write(fd, "\n", 1);
+        std::cout << message << std::endl;
     }
 }
 

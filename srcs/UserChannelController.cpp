@@ -29,6 +29,7 @@ void UserChannelController::RemoveUser(int id)
 {
 	_users[id].AllLeaveChannels();
 	_users.erase(id);
+    close(id);
 }
 
 void UserChannelController::AddChannel(std::string channelName, t_ChannelMode mode)

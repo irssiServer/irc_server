@@ -26,13 +26,6 @@ User::User(int fd, std::string nickname, std::string username, std::string hostn
 
 }
 
-void User::send(std::string message)
-{
-	if (_userInfo.nickname == "")
-		CommandHandler::MSG(_userInfo.buf_fd, message);
-	CommandHandler::MSG(_userInfo.fd, message);
-}
-
 bool User::operator==( User const & rhs) const
 {
 	return GetFd() == rhs.GetFd();

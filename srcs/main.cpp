@@ -109,15 +109,9 @@ int main(int argc, char **argv)
                             try
                             {
                                 if (clients[currEvent->ident].nickFlag && clients[currEvent->ident].userFlag && clients[currEvent->ident].passwordFlag)
-                                {
-                                    if (!str.empty())
-                                        CommandHandler::CommandRun(UserChannelController::Instance().FindUser(currEvent->ident), str);
-                                }
+                                    CommandHandler::CommandRun(UserChannelController::Instance().FindUser(currEvent->ident), str);
                                 else
-                                {
-                                    if (!str.empty())
-                                        AuthenticateUserAccess(currEvent->ident, clients, password, str);
-                                }
+                                    AuthenticateUserAccess(currEvent->ident, clients, password, str);
                             }
                             catch (const char *str)
                             {

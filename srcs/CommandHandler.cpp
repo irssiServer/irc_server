@@ -251,7 +251,7 @@ void CommandHandler::PRIVMSG(User &user, std::vector<std::string> &params)
                 if (UserChannelController::Instance().isChannel(recv[i]))
                 {
                     if (UserChannelController::Instance().FindChannel(recv[i]).isUser(user))
-                        UserChannelController::Instance().FindChannel(recv[i]).SendUsers(tmp1);
+                        UserChannelController::Instance().FindChannel(recv[i]).SendUsers(tmp1, user);
                     else
                     {
                         ERR_CANNOTSENDTOCHAN(user, recv[i]);
@@ -451,7 +451,8 @@ void CommandHandler::TOPIC(User &user, std::vector<std::string> &params)
             if (params[1][0] != ':')
                 params[1] = ":" + params[1];
             tmp = ":" + user.GetNickname() + "!" + user.GetUsername() + "@" + "127.0.0.1 TOPIC " + params[0] + " " + params[1];
-            UserChannelController::Instance().FindChannel(params[0]).SendUsers(tmp);
+            UserChannelController::Instance().FindChannel(params[0]).SendUsers(tmp,user);
+            Send(user.GetFd(), tmp);
         }
         else
         {

@@ -47,7 +47,7 @@ class User
 		std::string GetNickHostmask();
 
 
-		void send(std::string message);
+
 		void JoinChannel(Channel *channel, std::string password);
 		void leaveChannel(int id);
 		void leaveChannel(std::string &str);

@@ -117,10 +117,7 @@ int main(int argc, char **argv)
                                             clients.erase(currEvent->ident);
                                 }
                                 else
-                                {
-                                    if (!str.empty())
-                                        AuthenticateUserAccess(currEvent->ident, clients, password, str);
-                                }
+                                    AuthenticateUserAccess(currEvent->ident, clients, password, str);
                             }
                             catch (const char *str)
                             {

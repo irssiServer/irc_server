@@ -1,7 +1,6 @@
 #include "CommandHandler.hpp"
 
 std::map<std::string, void(*)(User &user, std::vector<std::string> &param)> CommandHandler::_commandMap;
-std::map<std::string, std::string> CommandHandler::_message;
 std::map<std::string, int> CommandHandler::_commandNum;
 
 int Check_nick(std::string nick)
@@ -24,7 +23,6 @@ CommandHandler::CommandHandler()
 {
     CommandInit(_commandMap);
     CommandNumInit(_commandNum);
-    CommandMsgInit(_message);
 }
 
 CommandHandler::~CommandHandler() {}
@@ -33,21 +31,6 @@ CommandHandler::~CommandHandler() {}
 /*
 ** --------------------------------- METHODS ----------------------------------
 */
-
-void CommandHandler::CommandMsgInit(std::map<std::string, std::string> &message)
-{
-    message["461"] = ":Not enough parameters.";
-    message["462"] = ":You may not reregister.";
-    message["432"] = ":Erroneous Nickname.";
-    message["433"] = ":Nickname is already in use.";
-    message["451"] = ":You have not registered.";
-    message["404"] = ":Cannot send to channel";
-    message["403"] = ":No such channel.";
-    message["401"] = ":No such nick.";
-    message["331"] = ":No topic is set.";
-    message["442"] = ":You're not on that channel!";
-    message["409"] = ":No origin specified.";
-}
 
 void CommandHandler::CommandNumInit(std::map<std::string, int> &commandNum)
 {
@@ -91,24 +74,6 @@ void CommandHandler::CommandInit(std::map<std::string, void(*)(User &user, std::
     /////:irc.local 461 a PART :Not enough parameters. error 461 -> 파라미터 부족할때 무조건 우선순위인 에러코드 451보다 우선시됨
 }
 
-std::string CommandHandler::MakeMessage(std::string mod, std::string path)
-{
-    std::string result;
-    result = ":irc.local " + mod;
-    result = result + " " + path;
-    result = " " + result + " " + _message[mod];
-    return result;
-}
-
-std::string CommandHandler::MakeMessage(std::string mod, std::string path1, std::string path2)
-{
-    std::string result;
-    result = "";
-    result = ":irc.local " + mod;
-    result = result + " " + path1 + " " + path2;
-    result = " " + result + " " + _message[mod];
-    return result;
-}
 
 int CommandHandler::CommandRun(User &user, std::string str)
 {
@@ -164,33 +129,32 @@ void CommandHandler::USER(User &user, std::vector<std::string> &params)
     std::string tmp;
     if (params.size() < 4)
     {
-        tmp = CommandHandler::MakeMessage("461", user.Getbuf(), "USER");
-        throw tmp;
+        ERR_NEEDMOREPARAMS(user, "USER");
+        throw "";
     }
     if (user.GetFd() != -1)
     {
-        tmp = CommandHandler::MakeMessage("462", user.Getbuf());
-        throw tmp;
+        ERR_ALREADYREGISTERED(user);
+        throw "";
     }
 }
 
 void CommandHandler::NICK(User &user, std::vector<std::string> &params)
 {
-    std::string tmp;
     if (params.size() < 1)
     {
-        tmp = CommandHandler::MakeMessage("461", user.Getbuf(), "NICK");
-        throw tmp;
+        ERR_NEEDMOREPARAMS(user, "NICK");
+        throw "";
     }
     if (UserChannelController::Instance().isNick(params[0]))
     {
-        tmp = CommandHandler::MakeMessage("433", user.Getbuf(), params[0]);
-        throw tmp;
+        ERR_NICKNAMEINUSE(user, params[0]);
+        throw "";
     }
     if (!Check_nick(params[0]))
     {
-        tmp = CommandHandler::MakeMessage("432", user.Getbuf(), params[0]);
-        throw tmp;
+        ERR_ERRONEUSNICKNAME(user, params[0]);
+        throw "";
     }
     if (user.GetFd() > 0)
         user.SetNickname(params[0]);
@@ -199,22 +163,19 @@ void CommandHandler::NICK(User &user, std::vector<std::string> &params)
 
 void CommandHandler::JOIN(User &user, std::vector<std::string> &params)
 {
-    std::string tmp;
     if (params.size() < 1)
     {
-        tmp = CommandHandler::MakeMessage("461", user.Getbuf(), "JOIN");
-        throw tmp;
+        ERR_NEEDMOREPARAMS(user, "JOIN");
+        throw "";
     }
     if (user.GetFd() < 0)
     {
-        tmp = CommandHandler::MakeMessage("451", user.Getbuf(), "JOIN");
-        throw tmp;
+        ERR_NOTREGISTERED(user);
+        throw "";
     }
     std::vector<std::string> channelName = Split(params[0], ',');
     std::vector<std::string> channelPass = Split(params[1], ',');
     std::map<std::string, std::string> channelMap; // first = 채널이름, second = 채널 비밀번호
-    if (channelName.empty())
-        throw ":irc.local 461 asdf JOIN :Not enough parameters.";
 
     std::vector<std::string>::iterator passIter = channelPass.begin();
     for (std::vector<std::string>::iterator iter = channelName.begin(); iter != channelName.end(); iter++) // 채널명 = key, 비밀번호 = val
@@ -246,39 +207,32 @@ void CommandHandler::JOIN(User &user, std::vector<std::string> &params)
 
 void CommandHandler::PASS(User &user, std::vector<std::string> &params)
 {
-    std::string tmp;
     if (params.size() == 0)
     {
-        tmp = CommandHandler::MakeMessage("461", user.Getbuf(), "PASS");
-        throw tmp;
+        ERR_NEEDMOREPARAMS(user, "PASS");
+        throw "";
     }
     if (user.GetFd() != -1)
     {
-        tmp = CommandHandler::MakeMessage("462", user.Getbuf());
-        throw tmp;
+        ERR_ALREADYREGISTERED(user);
+        throw "";
     }
-}
-
-void CommandHandler::MSG(int fd, std::string message)
-{
-    write(fd, message.c_str(), message.size());
-    write(fd, "\n", 1);
 }
 
 void CommandHandler::PRIVMSG(User &user, std::vector<std::string> &params)
 {
     std::vector<std::string> recv;
-    std::string tmp;
     std::string buf;
+    int flag = 0;
     if (params.size() < 2)
     {
-        tmp = CommandHandler::MakeMessage("461", user.Getbuf(), "PRIVMSG");
-        throw tmp;
+        ERR_NEEDMOREPARAMS(user, "PRIVMSG");
+        throw "";
     }
     if (user.GetFd() < 0)
     {
-        tmp = CommandHandler::MakeMessage("451", user.Getbuf(), "PRIVMSG");
-        throw tmp;
+        ERR_NOTREGISTERED(user);
+        throw "";
     }
     
     recv = Split(params[0], ',');
@@ -295,57 +249,50 @@ void CommandHandler::PRIVMSG(User &user, std::vector<std::string> &params)
                 if (UserChannelController::Instance().isChannel(recv[i]))
                 {
                     if (UserChannelController::Instance().FindChannel(recv[i]).isUser(user))
-                        UserChannelController::Instance().FindChannel(recv[i]).SendUsers(tmp1);
+                        UserChannelController::Instance().FindChannel(recv[i]).SendUsers(tmp1, user);
                     else
                     {
-                        tmp = CommandHandler::MakeMessage("404", user.GetNickname(), recv[i]);
-                        throw tmp;
+                        ERR_CANNOTSENDTOCHAN(user, recv[i]);
+                        throw "";
                     }
                 }
                 else
                 {
-                    tmp = CommandHandler::MakeMessage("403", user.GetNickname(), recv[i]);
-                    throw tmp;
+                    ERR_NOSUCHCHANNEL(user, recv[i]);
+                    throw "";
                 }
             }
             else
             {
                 if (UserChannelController::Instance().isNick(recv[i]))
-                    UserChannelController::Instance().FindUser(recv[i]).send(tmp1);
+                    Send(UserChannelController::Instance().FindUser(recv[i]).GetFd(), tmp1);
                 else
                 {
-                    tmp = CommandHandler::MakeMessage("401", user.GetNickname(), recv[i]);
-                    throw tmp;
+                    ERR_NOSUCHNICK(user, recv[i]);
                 }
             }
         }
         catch(const std::string str)
         {
-            buf = buf + str;
+            flag = 1;
         }
-        throw buf;
     }
-    // if (send[0] == '#')
-    // else
-    // 클라이언트가 프라이빗메시지로 보냈을때 확인
-    // 누가 누구에게 메시지
-    // user.
-    // channel.
+    if (flag == 1)
+        throw "";
 }
 
 
 void CommandHandler::PART(User &user, std::vector<std::string> &params)
 {
-    std::string tmp;
     if (params.size() == 0)
     {
-        tmp = CommandHandler::MakeMessage("461", user.Getbuf(), "PART");
-        throw tmp;
+        ERR_NEEDMOREPARAMS(user, "PART");
+        throw "";
     }
     if (user.GetFd() < 0)
     {
-        tmp = CommandHandler::MakeMessage("451", user.Getbuf(), "PART");
-        throw tmp;
+        ERR_NOTREGISTERED(user);
+        throw "";
     }
     std::vector<std::string> channelNames = Split(params[0], ',');
 
@@ -362,8 +309,6 @@ void CommandHandler::PART(User &user, std::vector<std::string> &params)
         }
         std::string str = ":gyyu!root@127.0.0.1 PART :#1";
         UserChannelController::Instance().FindChannel(*iter).SendUsers(str);
-        Send(user.GetFd(), str);
-        
         user.leaveChannel(*iter);
         return;
     }
@@ -371,16 +316,15 @@ void CommandHandler::PART(User &user, std::vector<std::string> &params)
 
 void CommandHandler::KICK(User &user, std::vector<std::string> &params)
 {
-    std::string tmp;
     if (params.size() < 1)
     {
-        tmp = CommandHandler::MakeMessage("461", user.Getbuf(), "KICK");
-        throw tmp;
+        ERR_NEEDMOREPARAMS(user, "KICK");
+        throw "";
     }
     if (user.GetFd() < 0)
     {
-        tmp = CommandHandler::MakeMessage("451", user.Getbuf(), "KICK");
-        throw tmp;
+        ERR_NOTREGISTERED(user);
+        throw "";
     }
     
     std::string channelName = params[0];
@@ -408,17 +352,15 @@ void CommandHandler::MODE(User &user, std::vector<std::string> &params)
     Channel channel;
 
     std::string mode = params[1];
-    std::string tmp;
     if (params.size() == 0)
     {
-        tmp = CommandHandler::MakeMessage("461", user.Getbuf(), "MODE");
-        throw tmp;
-        return ;
+        ERR_NEEDMOREPARAMS(user, "MODE");
+        throw "";
     }
     if (user.GetFd() < 0)
     {
-        tmp = CommandHandler::MakeMessage("451", user.Getbuf(), "MODE");
-        throw tmp;
+        ERR_NOTREGISTERED(user);
+        throw "";
     }
     try
     {
@@ -479,41 +421,41 @@ void CommandHandler::TOPIC(User &user, std::vector<std::string> &params)
     std::vector<std::string> recv;
     if (params.size() == 0)
     {
-        tmp = CommandHandler::MakeMessage("461", user.Getbuf(), "TOPIC");
-        throw tmp;
-        return ;
+        ERR_NEEDMOREPARAMS(user, "TOPIC");
+        throw "";
     }
     if (user.GetFd() < 0)
     {
-        tmp = CommandHandler::MakeMessage("451", user.Getbuf(), "TOPIC");
-        throw tmp;
+        ERR_NOTREGISTERED(user);
+        throw "";
     }
     if (!UserChannelController::Instance().isChannel(params[0]))
     {
-        tmp = CommandHandler::MakeMessage("403", user.GetNickname(), params[0]);
-        throw tmp;
+        ERR_NOSUCHCHANNEL(user, params[0]);
+        throw "";
     }
 
     if (params.size() == 1)
     {
         if (UserChannelController::Instance().FindChannel(params[0]).GetTopic() == "")
         {
-            tmp = CommandHandler::MakeMessage("331", user.GetNickname(), params[0]);
-            throw tmp;
+            RPL_NOTOPIC(user, params[0]);
+            throw "";
         }
         else
         {
             // :irc.local 332 test #11 :hello
             // :irc.local 333 test #11 test!test1@127.0.0.1 :1687519622
-            tmp = ":test 332 " + user.GetNickname() + " " + params[0] + " " + UserChannelController::Instance().FindChannel(params[0]).GetTopic();
-            user.send(tmp);            
+            tmp = ":"+ UserChannelController::Instance().GetServerName() + " "
+            + user.GetNickname() + " " + params[0] + " "
+            + UserChannelController::Instance().FindChannel(params[0]).GetTopic();
+            Send(user.GetFd(), tmp);
         }
     }
     else
     { 
         if (UserChannelController::Instance().FindChannel(params[0]).isUser(user))
         {
-            std::cout << "topic : |"<< params[1] << "|\n";
             UserChannelController::Instance().FindChannel(params[0]).SetTopic(params[1]);
             if (params[1][0] != ':')
                 params[1] = ":" + params[1];
@@ -522,8 +464,8 @@ void CommandHandler::TOPIC(User &user, std::vector<std::string> &params)
         }
         else
         {
-            tmp = CommandHandler::MakeMessage("442", user.GetNickname(), params[0]);
-            throw tmp;
+            ERR_NOTONCHANNEL(user, params[0]);
+            throw "";
         }
     }
 }
@@ -533,21 +475,21 @@ void CommandHandler::PING(User &user, std::vector<std::string> &params)
     std::string tmp;
     if (params.size() == 0)
     {
-        tmp = CommandHandler::MakeMessage("461", user.Getbuf(), "PING");
-        throw tmp;
+        ERR_NEEDMOREPARAMS(user, "PING");
+        throw "";
     }
     if (user.GetFd() < 0)
     {
-        tmp = CommandHandler::MakeMessage("451", user.Getbuf(), "PING");
-        throw tmp;
+        ERR_NOTREGISTERED(user);
+        throw "";
     }
     if (params[0] == "")
     {
-        tmp = CommandHandler::MakeMessage("409", user.GetNickname());
-        throw tmp;
+        ERR_NOORIGIN(user);
+        throw "";
     }
-    tmp = "PONG " + params[0];
-    user.send(tmp);
+    tmp = ":" + UserChannelController::Instance().GetServerName() + " PONG " + params[0];
+    Send(user.GetFd(), tmp);
 }
 
 void CommandHandler::QUIT(User &user, std::vector<std::string> &params)
@@ -563,8 +505,7 @@ void CommandHandler::INVITE(User &user, std::vector<std::string> &params)
     (void)user;
     if (params.size() < 2)
     {
-        // 336 asdz :<channels>
-        // :irc.local 337 asdz :End of INVITE list
+        ERR_NEEDMOREPARAMS(user, "INVITE");
     }
     else
     {

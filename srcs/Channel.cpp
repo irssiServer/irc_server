@@ -66,11 +66,19 @@ void Channel::KickUser(User &user, std::string username, std::string comment)
 	}
 }
 
+void Channel::SendUsers(std::string &message, User &user)
+{
+	for(std::size_t i = 0; i < this->_users.size(); i++)
+	{
+		if (_users[i]->GetNickname().compare(user.GetNickname()))
+			Send(_users[i]->GetFd(), message);
+	}
+}
+
 void Channel::SendUsers(std::string &message)
 {
 	for(std::size_t i = 0; i < this->_users.size(); i++)
 	{
-		std::cout << _users[i]->GetNickname() << std::endl;
 		Send(_users[i]->GetFd(), message);
 	}
 }

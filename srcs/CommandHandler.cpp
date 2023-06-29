@@ -152,7 +152,8 @@ int CommandHandler::CommandRun(User &user, std::string str)
     }
     catch(const std::string str)
     {
-        user.send(str);
+        // user.send(str);
+        Send(user.GetFd(), str);
         return -2;
     }
 
@@ -216,31 +217,35 @@ void CommandHandler::JOIN(User &user, std::vector<std::string> &params)
     std::vector<std::string> channelName = Split(params[0], ',');
     std::vector<std::string> channelPass = Split(params[1], ',');
     std::map<std::string, std::string> channelMap; // first = 채널이름, second = 채널 비밀번호
+    if (channelName.empty())
+        throw ":irc.local 461 asdf JOIN :Not enough parameters.";
 
     std::vector<std::string>::iterator passIter = channelPass.begin();
-    for (std::vector<std::string>::iterator iter = channelName.begin(); iter != channelName.end(); iter++)
+    for (std::vector<std::string>::iterator iter = channelName.begin(); iter != channelName.end(); iter++) // 채널명 = key, 비밀번호 = val
     {
         if (passIter != channelPass.end())
-        {
             channelMap[*iter] = *passIter++;
-        }
         else
             channelMap[*iter];
     }
-    if (channelName.empty())
-        throw "paramiter is short";
-
+    // gyyu!root@127.0.0.1 JOIN :#1
     for (std::map<std::string, std::string>::iterator iter = channelMap.begin(); iter != channelMap.end(); iter++)
     {
-        if (!UserChannelController::Instance().isChannel(iter->first)) // 채널이 없을때는 채널 생성 및 권한 부여
+        try
         {
-            std::cout << "first JOIN" << std::endl;
-            UserChannelController::Instance().AddChannel(iter->first, t_ChannelMode());
-            user.JoinChannel(&UserChannelController::Instance().FindChannel(iter->first), iter->second);
-            UserChannelController::Instance().FindChannel(iter->first).SetOper(user);
+            if (!UserChannelController::Instance().isChannel(iter->first)) // 채널이 없을때는 채널 생성 및 권한 부여 
+            {
+                UserChannelController::Instance().AddChannel(iter->first, t_ChannelMode());
+                user.JoinChannel(&UserChannelController::Instance().FindChannel(iter->first), iter->second);
+                UserChannelController::Instance().FindChannel(iter->first).SetOper(user);
+            }
+            else
+                user.JoinChannel(&UserChannelController::Instance().FindChannel(iter->first), iter->second);
         }
-        else
-            user.JoinChannel(&UserChannelController::Instance().FindChannel(iter->first), iter->second);
+        catch(const std::string str)
+        {
+            throw str;
+        }
     }
 }
 
@@ -307,7 +312,7 @@ void CommandHandler::PRIVMSG(User &user, std::vector<std::string> &params)
                 if (UserChannelController::Instance().isChannel(recv[i]))
                 {
                     if (UserChannelController::Instance().FindChannel(recv[i]).isUser(user))
-                        UserChannelController::Instance().FindChannel(recv[i]).send(tmp1);
+                        UserChannelController::Instance().FindChannel(recv[i]).SendUsers(tmp1);
                     else
                     {
                         tmp = CommandHandler::MakeMessage("404", user.GetNickname(), recv[i]);
@@ -517,7 +522,7 @@ void CommandHandler::TOPIC(User &user, std::vector<std::string> &params)
             if (params[1][0] != ':')
                 params[1] = ":" + params[1];
             tmp = ":" + user.GetNickname() + "!" + user.GetUsername() + "@" + "127.0.0.1 TOPIC " + params[0] + " " + params[1];
-            UserChannelController::Instance().FindChannel(params[0]).send(tmp);
+            UserChannelController::Instance().FindChannel(params[0]).SendUsers(tmp);
         }
         else
         {

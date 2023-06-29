@@ -95,7 +95,7 @@ int main(int argc, char **argv)
                     str.resize(currEvent->data); // string의 주소에 직접쓰기 때문에 공간을 미리 할당해줘야한다.
                     // read는 주소를 write할 주소를 가져가기 때문에 &str로 가져가면 string의 첫번째가아닌 string 포인터자체에 write하기 때문에
                     // string에서 실질적으로 문자열을 담는 str[0]의 주소값을 넘겨줘야 string에서 문자열로 인식할 수 있다.
-                    if (read(currEvent->ident, &str[0], currEvent->data) <= 0)
+                    if (recv(currEvent->ident, &str[0], currEvent->data, 0) <= 0)
                     {
                         std::cout << "client disconnected: " << currEvent->ident << std::endl;
                         close(currEvent->ident);
@@ -110,7 +110,6 @@ int main(int argc, char **argv)
                             {
                                 if (clients[currEvent->ident].nickFlag && clients[currEvent->ident].userFlag && clients[currEvent->ident].passwordFlag)
                                 {
-                                    std::cout << str << std::endl;
                                     if (!str.empty())
                                         CommandHandler::CommandRun(UserChannelController::Instance().FindUser(currEvent->ident), str);
                                 }

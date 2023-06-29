@@ -14,10 +14,8 @@ void RPL_WELCOME(std::string serverName, User &user)
 {
 	std::string str;
 
-	// (void)serverName;
-	str = ":" + serverName + " 001 " + user.GetHostname() + " :Welcome to the 42IRCnet Network," + user.GetNickHostmask();
+	str = ":" + serverName + " 001 " + user.GetNickname() + " :Welcome to the 42IRCnet Network," + user.GetNickHostmask();
 	Send(user.GetFd(), str);
-	// Send(user.GetFd(), ":irc.local 001 gyyu :Welcome to the Localnet IRC Network gyyu!root@127.0.0.1");
 }
 
 

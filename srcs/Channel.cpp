@@ -24,16 +24,19 @@ int Channel::EnterUser(User *user, std::string password)
 {
 	for (std::vector<User *>::iterator iter = _users.begin(); iter != _users.end(); iter++)
 	{
-		if ((*iter)->GetNickname() == user->GetNickname())
+		if ((*iter)->GetNickname() == user->GetNickname()) // 이미 채널에 유저가 있을경우
 			return 0;
 	}
-	if (_mode.InviteCheck(user->GetNickname()) && _mode.KeyCheck(password) && _mode.LimiteCheck(_users.size()))
-	{
-		_users.push_back(user);
-		return 1;
-	}
-	else
-		return 0;
+	if (!_mode.InviteCheck(user->GetNickname()))
+		throw "irc.local 473 asdf #1 :Cannot join channel (invite only)";
+	else if (!_mode.KeyCheck(password))
+		throw ":irc.local 475 asdf #1 :Cannot join channel (incorrect channel key)";
+	else if (!_mode.LimiteCheck(_users.size()))
+		throw ":irc.local 471 asdf #1 :Cannot join channel (channel is full)";
+	_users.push_back(user);
+	std::string str = user->GetNickHostmask() + " JOIN :" + GetName();
+	SendUsers(str);
+	return 1;
 }
 
 void Channel::LeaveUser(int fd)
@@ -63,10 +66,10 @@ void Channel::KickUser(User &user, std::string username, std::string comment)
 	}
 }
 
-void Channel::send(std::string &message)
+void Channel::SendUsers(std::string &message)
 {
 	for(std::size_t i = 0; i < this->_users.size(); i++)
-		CommandHandler::MSG(_users[i]->GetFd(), message);
+		Send(_users[i]->GetFd(), message);
 }
 
 bool Channel::isUser(User user)

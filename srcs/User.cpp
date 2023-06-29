@@ -44,10 +44,15 @@ bool User::operator==( User const & rhs) const
 
 void User::JoinChannel(Channel *channel, std::string password)
 {
-	if (channel->EnterUser(this, password))
-		_channels.push_back(channel);
-	else
-		std::cout << "채널에 입장하지 못했습니다." << std::endl;
+	try
+	{
+		if (channel->EnterUser(this, password))
+			_channels.push_back(channel);
+	}
+	catch(const std::string str)
+	{
+		throw str;
+	}
 }
 
 void User::leaveChannel(int id)

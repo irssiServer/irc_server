@@ -78,7 +78,7 @@ void CommandHandler::CommandInit(std::map<std::string, void(*)(User &user, std::
     commandMap["PRIVMSG"] = CommandHandler::PRIVMSG;
     commandMap["KICK"] = CommandHandler::KICK;
     commandMap["MODE"] = CommandHandler::MODE;
-    // commandMap["INVITE"] = CommandHandler::INVITE;
+    commandMap["INVITE"] = CommandHandler::INVITE;
     commandMap["TOPIC"] = CommandHandler::TOPIC;
     commandMap["QUIT"] = CommandHandler::QUIT;
     commandMap["PING"] = CommandHandler::PING;
@@ -199,8 +199,6 @@ void CommandHandler::NICK(User &user, std::vector<std::string> &params)
     
 }
 
-
-// 주체설정
 void CommandHandler::JOIN(User &user, std::vector<std::string> &params)
 {
     std::string tmp;
@@ -228,7 +226,6 @@ void CommandHandler::JOIN(User &user, std::vector<std::string> &params)
         else
             channelMap[*iter];
     }
-    // gyyu!root@127.0.0.1 JOIN :#1
     for (std::map<std::string, std::string>::iterator iter = channelMap.begin(); iter != channelMap.end(); iter++)
     {
         try
@@ -269,18 +266,6 @@ void CommandHandler::MSG(int fd, std::string message)
     write(fd, message.c_str(), message.size());
     write(fd, "\n", 1);
 }
-
-// PRIVMSG 채널 메세지 보내기
-                // 클라이언트가 ㅁ 채널에 "a" 를 전달
-                // 서버 ㅁ 채널의 유저들에게 "a"를 전달해야됌
-                // ㅁ 채널 찾는다. PRIVMSG(a ,ㅁ, "a");
-                //ㅁ.sendMessage("a");
-
-                //ㅁ.sendMessage()
-                // {
-                //     while ()
-                //         a.send()
-                // }
 
 void CommandHandler::PRIVMSG(User &user, std::vector<std::string> &params)
 {
@@ -364,6 +349,7 @@ void CommandHandler::PART(User &user, std::vector<std::string> &params)
         tmp = CommandHandler::MakeMessage("451", user.Getbuf(), "PART");
         throw tmp;
     }
+    //:irc.local 442 bbbb #1 :You're not on that channel 참여하지 않은 채널 나갈때
     std::vector<std::string> channelNames = Split(params[0], ',');
 
     for (std::vector<std::string>::iterator iter = channelNames.begin(); iter != channelNames.end(); iter++)
@@ -427,7 +413,6 @@ void CommandHandler::MODE(User &user, std::vector<std::string> &params)
     {
         try
         {
-            // channel = UserChannelController::Instance().FindChannel(channelName);
             channel = user.FindChannel(channelName);
         }
         catch(const char *str)
@@ -467,11 +452,11 @@ void CommandHandler::MODE(User &user, std::vector<std::string> &params)
                     paramNum++;
                 }
                 else
-                    throw "error: It's not mode";
+                    throw ":irc.local 472 gyyu a :is not a recognised channel mode.";
             }
         } 
     }
-    catch(const char *str)
+    catch(const std::string str)
     {
         std::cerr << str << std::endl;
     }
@@ -539,7 +524,6 @@ void CommandHandler::PING(User &user, std::vector<std::string> &params)
     {
         tmp = CommandHandler::MakeMessage("461", user.Getbuf(), "PING");
         throw tmp;
-        return ;
     }
     if (user.GetFd() < 0)
     {
@@ -579,10 +563,8 @@ void CommandHandler::INVITE(User &user, std::vector<std::string> &params)
         }
         catch(const std::string str)
         {
-            throw(str);
+            throw str;
         }
-
-
     }
 }
 

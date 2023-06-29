@@ -10,7 +10,7 @@ void Send(int fd, std::string str)
 	send(fd, "\n", 1, 0);	
 }
 
-void RPL_WELCOME(std::string serverName, User &user)
+void RPL_WELCOME(std::string &serverName, User &user)
 {
 	std::string str;
 

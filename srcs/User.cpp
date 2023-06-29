@@ -90,7 +90,7 @@ Channel &User::FindChannel(std::string channel)
 			return *(*iter);
 		}
 	}
-	throw "not found Channel";
+	throw ":irc.local 403 bbbb #2 :No such channel";
 }
 
 int	User::Getbuf_fd()

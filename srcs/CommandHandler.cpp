@@ -56,12 +56,12 @@ void CommandHandler::CommandNumInit(std::map<std::string, int> &commandNum)
     commandNum["USER"] = USERNUM;
     // commandNum["JOIN"] = JOINNUM;  
     // commandNum["PART"] = PARTNUM;
-    commandNum["PRIVMSG"] = PRIVMSGNUM;
+    // commandNum["PRIVMSG"] = PRIVMSGNUM;
     // commandNum["KICK"] = KICKNUM;
     // commandNum["MODE"] = MODENUM;
     // commandNum["INVITE"] = INVITENUM;
     // commandNum["TOPIC"] = TOPICNUM;
-    // commandNum["QUIT"] = QUITNUM;
+    commandNum["QUIT"] = QUITNUM;
     // commandNum["PING"] = PINGNUM;
     // commandNum["PONG"] = PONGNUM;
     // commandNum["WHO"] = WHONUM;
@@ -152,8 +152,7 @@ int CommandHandler::CommandRun(User &user, std::string str)
     }
     catch(const std::string str)
     {
-        // user.send(str);
-        Send(user.GetFd(), str);
+        std::cout << str << std::endl;
         return -2;
     }
 
@@ -196,7 +195,6 @@ void CommandHandler::NICK(User &user, std::vector<std::string> &params)
     if (user.GetFd() > 0)
         user.SetNickname(params[0]);
     user.Setbuf(params[0]);
-    
 }
 
 void CommandHandler::JOIN(User &user, std::vector<std::string> &params)
@@ -349,12 +347,25 @@ void CommandHandler::PART(User &user, std::vector<std::string> &params)
         tmp = CommandHandler::MakeMessage("451", user.Getbuf(), "PART");
         throw tmp;
     }
-    //:irc.local 442 bbbb #1 :You're not on that channel 참여하지 않은 채널 나갈때
     std::vector<std::string> channelNames = Split(params[0], ',');
 
     for (std::vector<std::string>::iterator iter = channelNames.begin(); iter != channelNames.end(); iter++)
     {
+        //:gyyu!root@127.0.0.1 PART :#1
+        if (!UserChannelController::Instance().isChannel(*iter))
+        {
+            // send(404 error);
+        }
+        if (!UserChannelController::Instance().FindChannel(*iter).isUser(user))
+        {
+            // send(442 error);
+        }
+        std::string str = ":gyyu!root@127.0.0.1 PART :#1";
+        UserChannelController::Instance().FindChannel(*iter).SendUsers(str);
+        Send(user.GetFd(), str);
+        
         user.leaveChannel(*iter);
+        return;
     }
 }
 
@@ -371,7 +382,7 @@ void CommandHandler::KICK(User &user, std::vector<std::string> &params)
         tmp = CommandHandler::MakeMessage("451", user.Getbuf(), "KICK");
         throw tmp;
     }
-    // <channel> <user> [<comment>]
+    
     std::string channelName = params[0];
     std::string userName = params[1];
     std::string comment = params[2];
@@ -411,13 +422,13 @@ void CommandHandler::MODE(User &user, std::vector<std::string> &params)
     }
     try
     {
-        try
+        if (UserChannelController::Instance().isChannel(channelName))
         {
-            channel = user.FindChannel(channelName);
-        }
-        catch(const char *str)
-        {
-            throw str;
+            if (UserChannelController::Instance().isNick(channelName))
+            {
+                ERR_NOUSERMODE(user);
+                return ;
+            }
         }
         
         for (size_t i = 0; i < params[modes].size(); i++)
@@ -542,9 +553,9 @@ void CommandHandler::PING(User &user, std::vector<std::string> &params)
 void CommandHandler::QUIT(User &user, std::vector<std::string> &params)
 {
     (void)params;
+    std::cout << "QUIT : " << user.GetNickname() << std::endl;
     UserChannelController::Instance().RemoveUser(user.GetFd());
-    std::cout << "client disconnected: " << user.GetFd() << std::endl;
-    close(user.GetFd());
+    std::cout << "QUIT end" << std::endl;
 }
 
 void CommandHandler::INVITE(User &user, std::vector<std::string> &params)

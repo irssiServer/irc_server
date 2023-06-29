@@ -78,8 +78,9 @@ int main(int argc, char **argv)
                     ErrorPrintExit("Error: Server socket");
                 else
                 {
-                    std::cout << "client disconnected: " << currEvent->ident << std::endl;
-                    close(currEvent->ident);
+                    std::cout << "1111client disconnected: " << currEvent->ident << std::endl;
+                    UserChannelController::Instance().RemoveUser(currEvent->ident);
+                    clients.erase(currEvent->ident);
                     // 클라이언트와 연결이 끊겼을때의 처리
                 }
             }
@@ -98,7 +99,8 @@ int main(int argc, char **argv)
                     if (recv(currEvent->ident, &str[0], currEvent->data, 0) <= 0)
                     {
                         std::cout << "client disconnected: " << currEvent->ident << std::endl;
-                        close(currEvent->ident);
+                        UserChannelController::Instance().RemoveUser(currEvent->ident);
+                        clients.erase(currEvent->ident);
                     }
                     else
                     {
@@ -111,7 +113,8 @@ int main(int argc, char **argv)
                                 if (clients[currEvent->ident].nickFlag && clients[currEvent->ident].userFlag && clients[currEvent->ident].passwordFlag)
                                 {
                                     if (!str.empty())
-                                        CommandHandler::CommandRun(UserChannelController::Instance().FindUser(currEvent->ident), str);
+                                        if (CommandHandler::CommandRun(UserChannelController::Instance().FindUser(currEvent->ident), str) == QUITNUM)
+                                            clients.erase(currEvent->ident);
                                 }
                                 else
                                 {

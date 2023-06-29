@@ -32,21 +32,7 @@ struct s_MandatoryClientInit
     {
         data = data + str;
     }
-    // std::string Get_command()
-    // {
-    //     std::size_t len = data.find("\r\n");
-	// 	std::size_t size = data.size();
-    //     if (len == std::string::npos)
-	// 		return ("");
-	// 	std::string tmp;
-	// 	tmp.resize(len);
-    //     for(std::size_t i = 0; i < len; i++)
-    //         tmp[i] = data[i];
-	// 	for(std::size_t i = 0; i < size; i++)
-	// 		data[i] = data[i + len + 1];
-	// 	data.resize(size - len - 1);
-	// 	return (tmp);
-    // }
+
     std::string Get_command()
     {
         std::size_t len = data.find("\r\n");

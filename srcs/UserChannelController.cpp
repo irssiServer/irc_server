@@ -22,13 +22,14 @@ void UserChannelController::AddUser(int fd, std::string nickname, std::string us
 {
 	User user(fd, nickname, username, hostname, realname);
 	_users.insert(std::pair<int, User>(fd, user));
-	RPL_WELCOME(_serverName, user);
+	RPL_WELCOME(user);
 }
 
 void UserChannelController::RemoveUser(int id)
 {
 	_users[id].AllLeaveChannels();
 	_users.erase(id);
+    close(id);
 }
 
 void UserChannelController::AddChannel(std::string channelName, t_ChannelMode mode)

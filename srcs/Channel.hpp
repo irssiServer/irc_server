@@ -79,7 +79,7 @@ class Channel
 		std::vector<std::string> GetInvitedUser() const { return _mode.invitedUser; };
 		void SetInvitedUser(std::string nickName) { _mode.invitedUser.push_back(nickName); };
 
-		void SendUsers(std::string &message);
+		void SendUsers(std::string &message, User &user);
 		int EnterUser(User *user, std::string password);
 		void LeaveUser(int fd);
 		void KickUser(User &user, std::string username, std::string comment);

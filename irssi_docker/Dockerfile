@@ -5,6 +5,7 @@ RUN apt-get upgrade -y
 RUN apt install inspircd -y && sed -i 's/<connect/<connect password="123"\n/g' /etc/inspircd/inspircd.conf
 RUN apt install irssi -y
 RUN apt install tcpflow -y
+RUN apt install netcat -y
 RUN mkdir /var/run/inspircd/ && chmod 777 /var/run/inspircd/
 
 CMD ["inspircd", "--runasroot", "--nofork", "--debug"]

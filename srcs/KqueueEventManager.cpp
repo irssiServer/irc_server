@@ -66,6 +66,114 @@ void	Init_event(std::vector<struct kevent> &changeList, int &kq, int &connectSoc
     changeList.push_back(temp_event);
 }
 
+void AcceptUser(int connectSocket, std::vector<struct kevent> &changeList, std::map<int, t_MandatoryClientInit> &clients)
+{
+    int clientSocket;
+    struct sockaddr_in clientAddr;
+    socklen_t clientAddrLen;
+    // accept는 연결 요청을 보낸 클라이언트를 수락하는 함수이다.
+    // 첫번째 매개변수는 연결 요청을 기다리는 소켓
+    // 두번째 매개변수는 요청한 클라이언트의 주소 정보를 담아준다.
+    // 세번째 매개변수는 addr 변수의 크기를 담아준다.
+    // 반환값은 성공시 소켓을 생성하고, 해당 소켓의 fd를 반환한다.
+    if ((clientSocket = accept(connectSocket, (struct sockaddr *)&clientAddr, &clientAddrLen)) == -1)
+    {
+        std::cout << ((struct sockaddr *)&clientAddr)->sa_data << " is fail to accept" << std::endl;
+    }
+    else
+    {
+        //connectSocket랑 똑같이 클라이언트와 통신한 소켓도 논블록킹으로 설정해준다.
+        fcntl(clientSocket, F_SETFL, O_NONBLOCK);
+        // 클라이언트소켓또한 kevent에 등록하기 위해 changeList에 담아준다. 다음 순회때 kevent에 등록될것이다.
+        struct kevent temp_event;
+        EV_SET(&temp_event, clientSocket, EVFILT_READ, EV_ADD | EV_ENABLE, 0, 0, NULL);
+        changeList.push_back(temp_event);
+        clients.insert(std::pair<int, t_MandatoryClientInit>(clientSocket, t_MandatoryClientInit()));
+        clients[clientSocket].hostname = inet_ntoa(clientAddr.sin_addr);
+    }
+}
+
+void AuthenticateUserAccess(int fd, std::map<int, t_MandatoryClientInit> &clients, std::string &password, std::string &message)
+{
+    User test;
+    test.Setbuf_fd(fd);
+
+    // std::cout << "client " << fd << " : |"  << message <<"|"<< std::endl;
+    std::stringstream ss(message);
+    std::string tmp;
+    try
+    {
+        int commandNum = CommandHandler::CommandRun(test, message);
+        ss >> tmp;
+        if (commandNum == NICKNUM)
+        {
+            ss >> tmp;
+            clients[fd].nickFlag = true;
+            clients[fd].nickname = tmp;
+            std::cout << "NICK OK!\n";
+        }
+        else if (commandNum == USERNUM)
+        {
+            ss >> tmp;
+            clients[fd].userFlag = true;
+            clients[fd].username = tmp;
+            ss >> tmp;
+            // clients[fd].hostname = tmp;
+            ss >> tmp;
+            ss >> tmp;
+            std::size_t len = message.find(":");
+            if (len == std::string::npos)
+                clients[fd].realname = tmp;
+            else
+            {
+                std::string tmp1;
+                tmp1.resize(message.size() - len - 1);
+                size_t i = 0;
+                while (i < message.size() - len - 1)
+                {
+                    tmp1[i] = message[len + 1 + i];
+                    i++;
+                }
+                clients[fd].realname = tmp1;
+            }
+            std::cout << "USER OK!\n";
+        }
+        else if (commandNum == PASSNUM)
+        {
+            ss >> tmp;
+            clients[fd].passwordFlag = true;
+            if (!tmp.compare(password))
+                clients[fd].pass = true;
+            else
+                clients[fd].pass = false;
+        }
+        if (clients[fd].nickFlag && clients[fd].userFlag && clients[fd].passwordFlag)
+        {
+            if (UserChannelController::Instance().isNick(clients[fd].nickname))
+            {
+                //:irc.local 433 *(운영자) a(닉네임) :Nickname is already in use.
+                throw "Nickname is already in use";
+            }
+            if (!clients[fd].pass)
+            {  
+                //ERROR :Closing link: (username(만들어진 닉)@127.0.0.1) [Access denied by configuration]
+                throw "ERROR :Closing link: (a@127.0.0.1) [Access denied by configuration]";
+            }
+            std::cout << "make USER\n";
+            test.Setbuf("*");
+            test.Setbuf_fd(-1);
+            UserChannelController::Instance().AddUser(fd, clients[fd].nickname,
+                clients[fd].username, clients[fd].hostname, clients[fd].realname);
+            std::cout << "client " << clients[fd].nickname << "!" << clients[fd].username << "@" << clients[fd].hostname  << " is connected" << std::endl;
+        }
+    }
+    catch(const char *message)
+    {
+        write(fd, message, strlen(message));
+        write(fd, "\n", 1);
+    }
+}
+
 /*
 ** --------------------------------- METHODS ----------------------------------
 */

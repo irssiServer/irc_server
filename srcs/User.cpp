@@ -26,7 +26,7 @@ User::User(int fd, std::string nickname, std::string username, std::string hostn
 
 }
 
-void User::send(std::string &message)
+void User::send(std::string message)
 {
 	if (_userInfo.nickname == "")
 		CommandHandler::MSG(_userInfo.buf_fd, message);
@@ -44,10 +44,15 @@ bool User::operator==( User const & rhs) const
 
 void User::JoinChannel(Channel *channel, std::string password)
 {
-	if (channel->EnterUser(this, password))
-		_channels.push_back(channel);
-	else
-		std::cout << "채널에 입장하지 못했습니다." << std::endl;
+	try
+	{
+		if (channel->EnterUser(this, password))
+			_channels.push_back(channel);
+	}
+	catch(const std::string str)
+	{
+		throw str;
+	}
 }
 
 void User::leaveChannel(int id)
@@ -85,7 +90,7 @@ Channel &User::FindChannel(std::string channel)
 			return *(*iter);
 		}
 	}
-	throw "not found Channel";
+	throw ":irc.local 403 bbbb #2 :No such channel";
 }
 
 int	User::Getbuf_fd()
@@ -103,6 +108,18 @@ std::string User::Getbuf()
 		return _userInfo.nickname;
 	return _userInfo.buf;
 }
+
+void User::AllLeaveChannels()
+{
+	for (std::vector<Channel *>::iterator iter = _channels.begin(); iter != _channels.end(); iter++)
+		leaveChannel((*iter)->GetId());
+}
+
+std::string User::GetNickHostmask()
+{
+	return GetNickname() + "!" + GetUsername() + "@" + GetHostname();
+}
+
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

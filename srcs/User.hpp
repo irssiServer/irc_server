@@ -15,6 +15,7 @@ struct s_UserInfo
 	std::string hostname;
 	std::string realname;
 	std::string	buf;
+	std::vector<std::string> invitedChannels;
 	int buf_fd;
 } typedef t_UserInfo;
 
@@ -37,14 +38,20 @@ class User
 		std::string GetHostname() const { return _userInfo.hostname; };
 		void Setrealname(std::string realname) { _userInfo.realname = realname; };
 		std::string Getrealname() const { return _userInfo.realname; };
+		void SetInvitedChannel(std::string invitedChannel) { _userInfo.invitedChannels.push_back(invitedChannel); };
+		std::vector<std::string> GetInvitedChannels() const { return _userInfo.invitedChannels; };
 		void Setbuf(std::string buf) { _userInfo.buf = buf; };
 		void Setbuf_fd(int buf) { _userInfo.buf_fd = buf; };
-		void send(std::string &message);
 		std::string Getbuf();
 		int	Getbuf_fd();
+		std::string GetNickHostmask();
+
+
+		void send(std::string message);
 		void JoinChannel(Channel *channel, std::string password);
 		void leaveChannel(int id);
 		void leaveChannel(std::string &str);
+		void AllLeaveChannels();
 		Channel &FindChannel(std::string channel);
 
 	private:

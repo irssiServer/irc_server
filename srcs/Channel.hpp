@@ -73,7 +73,13 @@ class Channel
 		int GetId() const { return _id; };
 		void SetName(std::string channelName) { _channelName = channelName; };
 		std::string GetName() const { return _channelName; };
-		void send(std::string &message);
+		void SetTopic(std::string topic) { _topic = topic; };
+		std::string GetTopic() const { return _topic; };
+		void SetOper(User &user);
+		std::vector<std::string> GetInvitedUser() const { return _mode.invitedUser; };
+		void SetInvitedUser(std::string nickName) { _mode.invitedUser.push_back(nickName); };
+
+		void SendUsers(std::string &message);
 		int EnterUser(User *user, std::string password);
 		void LeaveUser(int fd);
 		void KickUser(User &user, std::string username, std::string comment);
@@ -86,8 +92,9 @@ class Channel
 		int ModeLimite(User &user, bool flag, int limiteNum);
 		int ModeKey(User &user, bool flag, std::string key);
 		int ModeOperator(User &user, bool flag, std::string userName);
-		void SetTopic(std::string topic) { _topic = topic; };
-		std::string GetTopic() const { return _topic; };
+		
+		void InviteUser(User &inviter, std::string invitee);
+
 
 	private:
 		bool operator==(const Channel& rhs) const;

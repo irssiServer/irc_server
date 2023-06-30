@@ -15,23 +15,12 @@ struct s_ChannelMode
 	bool keyFlag;
 	bool limiteFlag;
 	std::vector<std::string> operatorUser;
-	std::vector<std::string> invitedUser;
 	std::string topic;
 	std::string key;
 	int limite;
 
 	s_ChannelMode() :inviteFlag(0), topicSetFlag(0), keyFlag(0), limiteFlag(0), limite(0) {}
 
-	bool InviteCheck(std::string nickname)
-	{
-		if (!inviteFlag)
-			return true;
-		
-		// 해당 유저의 당위성 체크는 좀 더 고민해야 될듯(nickname으로 체크하면 로그아웃하고 나서 같은 이름의 유저도 처리될듯)
-		std::vector<std::string>::iterator iter
-				= std::find(invitedUser.begin(), invitedUser.end(), nickname);
-		return iter != invitedUser.end();
-	}
 
 	bool KeyCheck(std::string password)
 	{
@@ -76,8 +65,7 @@ class Channel
 		void SetTopic(std::string topic, User &user);
 		std::string GetTopic() const { return _topic; };
 		void SetOper(User &user);
-		std::vector<std::string> GetInvitedUser() const { return _mode.invitedUser; };
-		void SetInvitedUser(std::string nickName) { _mode.invitedUser.push_back(nickName); };
+		int GetUserSize() { return _users.size(); };
 
 		void SendUsers(std::string &message, User &user);
 		void SendUsers(std::string &message);
@@ -86,6 +74,7 @@ class Channel
 		void KickUser(User &user, std::string username);
 		bool isUser(User user);
 		bool isUser(std::string nickName);
+		std::string GetModeFlags();
 
 		// mode change function
 		int ModeInvite(User &user, bool flag);
@@ -94,6 +83,7 @@ class Channel
 		int ModeKey(User &user, bool flag, std::string key);
 		int ModeOperator(User &user, bool flag, std::string userName);
 		
+		bool InviteCheck(User &user);
 		void InviteUser(User &inviter, std::string invitee);
 
 

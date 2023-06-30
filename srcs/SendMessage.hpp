@@ -19,9 +19,11 @@ void RPL_INVITING(User &user, std::string nick, std::string channel); //341
 void ERR_CHANOPRIVSNEEDED(User &user, std::string channel); //482
 void ERR_NOUSERMODE(User &user);
 void ERR_UNKNOWNMODE(User &user, char mode);
-void ERR_CHANNELISFULL(User &user);
-void ERR_INVITEONLYCHAN(User &user);
-void ERR_BADCHANNELKEY(User &user);
+void RPL_INVITELIST(User &user); // 336
+void RPL_ENDOFINVITELIST(User &user); // 337
+// void ERR_CHANNELISFULL(User &user);
+// void ERR_INVITEONLYCHAN(User &user);
+// void ERR_BADCHANNELKEY(User &user);
 void ERR_NEEDMOREPARAMS(User &user, std::string command); //461
 void ERR_ALREADYREGISTERED(User &user); //462
 void ERR_NICKNAMEINUSE(User &user, std::string nick); //433

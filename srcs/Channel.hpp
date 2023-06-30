@@ -73,7 +73,7 @@ class Channel
 		int GetId() const { return _id; };
 		void SetName(std::string channelName) { _channelName = channelName; };
 		std::string GetName() const { return _channelName; };
-		void SetTopic(std::string topic) { _topic = topic; };
+		void SetTopic(std::string topic, User &user);
 		std::string GetTopic() const { return _topic; };
 		void SetOper(User &user);
 		std::vector<std::string> GetInvitedUser() const { return _mode.invitedUser; };

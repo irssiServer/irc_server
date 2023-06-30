@@ -33,6 +33,7 @@ struct s_MandatoryClientInit
         data = data + str;
     }
 
+
     std::string Get_command()
     {
         std::size_t len = data.find("\r\n");
@@ -42,7 +43,7 @@ struct s_MandatoryClientInit
         data.erase(0, len + 2);
 		return (tmp);
     }
-    s_MandatoryClientInit() : userFlag(0), nickFlag(0), passwordFlag(0),  nickname(""), username(""), hostname(""), realname(""), data("") {}
+    s_MandatoryClientInit() : userFlag(0), nickFlag(0), passwordFlag(0),  nickname("*"), username(""), hostname(""), realname(""), data("") {}
 } typedef t_MandatoryClientInit;
 
 

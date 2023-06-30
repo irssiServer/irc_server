@@ -129,10 +129,11 @@ void CommandHandler::USER(User &user, std::vector<std::string> &params)
     std::string tmp;
     if (params.size() < 4)
     {
+        std::cout << "HERE\n";
         ERR_NEEDMOREPARAMS(user, "USER");
         throw "";
     }
-    if (user.GetFd() != -1)
+    if (user.GetFlag() != 1)
     {
         ERR_ALREADYREGISTERED(user);
         throw "";
@@ -156,9 +157,7 @@ void CommandHandler::NICK(User &user, std::vector<std::string> &params)
         ERR_ERRONEUSNICKNAME(user, params[0]);
         throw "";
     }
-    if (user.GetFd() > 0)
-        user.SetNickname(params[0]);
-    user.Setbuf(params[0]);
+    user.SetNickname(params[0]);
 }
 
 void CommandHandler::JOIN(User &user, std::vector<std::string> &params)
@@ -168,7 +167,7 @@ void CommandHandler::JOIN(User &user, std::vector<std::string> &params)
         ERR_NEEDMOREPARAMS(user, "JOIN");
         throw "";
     }
-    if (user.GetFd() < 0)
+    if (user.GetFlag() == 1)
     {
         ERR_NOTREGISTERED(user);
         throw "";
@@ -212,7 +211,7 @@ void CommandHandler::PASS(User &user, std::vector<std::string> &params)
         ERR_NEEDMOREPARAMS(user, "PASS");
         throw "";
     }
-    if (user.GetFd() != -1)
+    if (user.GetFlag() != 1)
     {
         ERR_ALREADYREGISTERED(user);
         throw "";
@@ -229,7 +228,7 @@ void CommandHandler::PRIVMSG(User &user, std::vector<std::string> &params)
         ERR_NEEDMOREPARAMS(user, "PRIVMSG");
         throw "";
     }
-    if (user.GetFd() < 0)
+    if (user.GetFlag() == 1)
     {
         ERR_NOTREGISTERED(user);
         throw "";
@@ -238,7 +237,7 @@ void CommandHandler::PRIVMSG(User &user, std::vector<std::string> &params)
     recv = Split(params[0], ',');
     params[1] = ":" + params[1];
     std::string tmp1;
-    tmp1 = ":" + user.GetNickname() + "!" + user.GetUsername() + "@" + "127.0.0.1 PRIVMSG ";
+    tmp1 = user.GetNickHostmask() + " PRIVMSG ";
     for (std::size_t i = 0; i < recv.size(); i++)
     {
         try
@@ -289,7 +288,7 @@ void CommandHandler::PART(User &user, std::vector<std::string> &params)
         ERR_NEEDMOREPARAMS(user, "PART");
         throw "";
     }
-    if (user.GetFd() < 0)
+    if (user.GetFlag() == 1)
     {
         ERR_NOTREGISTERED(user);
         throw "";
@@ -324,7 +323,7 @@ void CommandHandler::KICK(User &user, std::vector<std::string> &params)
         ERR_NEEDMOREPARAMS(user, "KICK");
         throw "";
     }
-    if (user.GetFd() < 0)
+    if (user.GetFlag() == 1)
     {
         ERR_NOTREGISTERED(user);
         throw "";
@@ -356,18 +355,13 @@ void CommandHandler::KICK(User &user, std::vector<std::string> &params)
                 else
                 {
                     std::string tmp;
-                    User().GetNickHostmask();
-                    tmp = ":" + user.GetNickname() + "!" + user.GetUsername() + "@" + "127.0.0.1 KICK " + params[0] + " " + recv[i] + " :";
+                    tmp = user.GetNickHostmask() + " KICK " + params[0] + " " + recv[i] + " :";
                     user.FindChannel(params[0]).KickUser(user, recv[i]);
                     if (params.size() == 2)
                         tmp = tmp + user.GetNickname();
                     else
                         tmp = tmp + params[2];
                     UserChannelController::Instance().FindChannel(params[0]).SendUsers(tmp);
-                    //throw 확인 ;
-                    //권한확인후 추추방방
-                    //:irc.local 482 a #1 :You must be a channel operator ERR_CHANOPRIVSNEEDED(user, params[0])
-                    //:c!c1@127.0.0.1 KICK #1 b :c
                 }
             }
         }
@@ -389,7 +383,7 @@ void CommandHandler::MODE(User &user, std::vector<std::string> &params)
         ERR_NEEDMOREPARAMS(user, "MODE");
         throw "";
     }
-    if (user.GetFd() < 0)
+    if (user.GetFlag() == 1)
     {
         ERR_NOTREGISTERED(user);
         throw "";
@@ -471,7 +465,7 @@ void CommandHandler::TOPIC(User &user, std::vector<std::string> &params)
         ERR_NEEDMOREPARAMS(user, "TOPIC");
         throw "";
     }
-    if (user.GetFd() < 0)
+    if (user.GetFlag() == 1)
     {
         ERR_NOTREGISTERED(user);
         throw "";
@@ -501,7 +495,7 @@ void CommandHandler::TOPIC(User &user, std::vector<std::string> &params)
     { 
         if (UserChannelController::Instance().FindChannel(params[0]).isUser(user))
         {
-            UserChannelController::Instance().FindChannel(params[0]).SetTopic(params[1]);
+            UserChannelController::Instance().FindChannel(params[0]).SetTopic(params[1], user);
             if (params[1][0] != ':')
                 params[1] = ":" + params[1];
             tmp = user.GetNickHostmask() + " TOPIC " + params[0] + " " + params[1];
@@ -523,7 +517,7 @@ void CommandHandler::PING(User &user, std::vector<std::string> &params)
         ERR_NEEDMOREPARAMS(user, "PING");
         throw "";
     }
-    if (user.GetFd() < 0)
+    if (user.GetFlag() == 1)
     {
         ERR_NOTREGISTERED(user);
         throw "";
@@ -547,7 +541,7 @@ void CommandHandler::QUIT(User &user, std::vector<std::string> &params)
 
 void CommandHandler::INVITE(User &user, std::vector<std::string> &params)
 {
-    if (user.GetFd() < 0)
+    if (user.GetFlag() == 1)
     {
         ERR_NOTREGISTERED(user);
         throw "";
@@ -582,9 +576,8 @@ void CommandHandler::INVITE(User &user, std::vector<std::string> &params)
     }
     UserChannelController::Instance().FindChannel(params[1]).InviteUser(user, params[0]);
     RPL_INVITING(user, params[0], params[1]);
-    //요청 받은사람 :b!b1@127.0.0.1 INVITE c :#1
+    Send(UserChannelController::Instance().FindUser(params[0]).GetFd(), user.GetNickHostmask() + " INVITE " + params[0] + " :" + params[1]);
     //서버에 있던사람 :irc.local NOTICE #1 :*** b invited c into the channel
-    //Send
 }
 
 /*

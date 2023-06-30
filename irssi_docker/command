@@ -4,3 +4,5 @@ docker exec -it irssi bash
 tcpflow -i lo port 6667 -c
 // 서버에 접속
 irssi -c 127.0.0.1 -n gyyu -w 123
+
+nc 127.0.0.1 6667

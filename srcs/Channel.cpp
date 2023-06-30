@@ -191,6 +191,25 @@ void Channel::SetOper(User &user)
 	_mode.operatorUser.push_back(user.GetNickname());
 }
 
+
+void Channel::SetTopic(std::string topic, User &user)
+{
+	if (_mode.topicSetFlag == true)
+	{
+		if (_mode.OperUserCheck(user.GetNickname()))
+			_mode.topic = topic;
+		else
+		{
+			ERR_CHANOPRIVSNEEDED(user, _channelName);
+			throw "";
+		}
+	}
+	else
+	{
+		_mode.topic = topic;
+	}
+
+}
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */

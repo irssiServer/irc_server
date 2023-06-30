@@ -18,6 +18,25 @@ void RPL_WELCOME(User &user)
 	Send(user.GetFd(), str);
 }
 
+
+void RPL_CHANNELMODEIS(User &user, Channel &channel)
+{
+	std::string str;
+	//:irc.local 324 b #1 :+nt
+	str = ":" + UserChannelController::Instance().GetServerName() + " 324 " + user.GetNickname() + " " + channel.GetName() + " :"; //+nt;
+	Send(user.GetFd(), str);
+}
+
+
+
+
+
+
+
+
+
+
+
 void ERR_NEEDMOREPARAMS(User &user, std::string command)
 {
 	std::string str;
@@ -78,7 +97,7 @@ void ERR_NOSUCHNICK(User &user, std::string nick)
 {
 	std::string str;
 
-	str = ":" + UserChannelController::Instance().GetServerName() + " 401 " + user.GetNickname() + " " + nick + " :No such nick";
+	str = ":" + UserChannelController::Instance().GetServerName() + " 401 " + user.GetNickname() + " " + nick + " :No such nick/channel";
 	Send(user.GetFd(), str);
 }
 
@@ -111,6 +130,30 @@ void ERR_NOUSERMODE(User &user)
 	std::string str;
 
 	str = ":" + UserChannelController::Instance().GetServerName() + " 470 " + user.GetNickname() + " :Does not Support NICK MODE";
+	Send(user.GetFd(), str);
+}
+
+void ERR_CHANOPRIVSNEEDED(User &user, std::string channel)
+{
+	std::string str;
+
+	str = ":" + UserChannelController::Instance().GetServerName() + " 482 " + user.GetNickname() + " " + channel +  " :You're not channel operator";
+	Send(user.GetFd(), str);
+}
+
+void ERR_USERONCHANNEL(User &user, std::string nick, std::string channel)
+{
+	std::string str;
+
+	str = ":" + UserChannelController::Instance().GetServerName() + " 443 " + user.GetNickname() + " " + nick + " " + channel +  " :is already on channel";
+	Send(user.GetFd(), str);
+}
+
+void RPL_INVITING(User &user, std::string nick, std::string channel)
+{
+	std::string str;
+
+	str = ":" + UserChannelController::Instance().GetServerName() + " 341 " + user.GetNickname() + " " + nick + " :" + channel;
 	Send(user.GetFd(), str);
 }
 

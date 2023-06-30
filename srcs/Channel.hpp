@@ -83,7 +83,7 @@ class Channel
 		void SendUsers(std::string &message);
 		int EnterUser(User *user, std::string password);
 		void LeaveUser(int fd);
-		void KickUser(User &user, std::string username, std::string comment);
+		void KickUser(User &user, std::string username);
 		bool isUser(User user);
 		bool isUser(std::string nickName);
 

@@ -302,10 +302,12 @@ void CommandHandler::PART(User &user, std::vector<std::string> &params)
         if (!UserChannelController::Instance().isChannel(*iter))
         {
             // send(404 error);
+            ERR_CANNOTSENDTOCHAN(user, *iter);
         }
         if (!UserChannelController::Instance().FindChannel(*iter).isUser(user))
         {
             // send(442 error);
+            ERR_NOTONCHANNEL(user, *iter);
         }
         std::string str = ":gyyu!root@127.0.0.1 PART :#1";
         UserChannelController::Instance().FindChannel(*iter).SendUsers(str);
@@ -316,7 +318,8 @@ void CommandHandler::PART(User &user, std::vector<std::string> &params)
 
 void CommandHandler::KICK(User &user, std::vector<std::string> &params)
 {
-    if (params.size() < 1)
+    int flag = 0;
+    if (params.size() < 2)
     {
         ERR_NEEDMOREPARAMS(user, "KICK");
         throw "";
@@ -326,32 +329,61 @@ void CommandHandler::KICK(User &user, std::vector<std::string> &params)
         ERR_NOTREGISTERED(user);
         throw "";
     }
-    
-    std::string channelName = params[0];
-    std::string userName = params[1];
-    std::string comment = params[2];
-
-    try
+    if (!UserChannelController::Instance().isChannel(params[0]))
     {
-        user.FindChannel(channelName).KickUser(user, userName, comment);    
+        ERR_NOSUCHCHANNEL(user, params[0]);
+        throw "";
     }
-    catch(const char *str)
+    std::vector<std::string> recv;
+    recv = Split(params[1], ',');
+    for (std::size_t i = 0; i < recv.size(); i++)
     {
-        std::cout << str << std::endl;
+        try
+        {
+            if (!UserChannelController::Instance().FindChannel(params[0]).isUser(recv[i]))
+            {
+                ERR_NOSUCHNICK(user, recv[i]);
+                //:irc.local 401 a asd :No such nick
+                throw "";
+            }
+            else
+            {
+                if (!UserChannelController::Instance().FindChannel(params[0]).isUser(user.GetNickname()))
+                {
+                    ERR_NOTONCHANNEL(user, params[0]);
+                    throw "";
+                }
+                else
+                {
+                    std::string tmp;
+                    User().GetNickHostmask();
+                    tmp = ":" + user.GetNickname() + "!" + user.GetUsername() + "@" + "127.0.0.1 KICK " + params[0] + " " + recv[i] + " :";
+                    user.FindChannel(params[0]).KickUser(user, recv[i]);
+                    if (params.size() == 2)
+                        tmp = tmp + user.GetNickname();
+                    else
+                        tmp = tmp + params[2];
+                    UserChannelController::Instance().FindChannel(params[0]).SendUsers(tmp);
+                    //throw 확인 ;
+                    //권한확인후 추추방방
+                    //:irc.local 482 a #1 :You must be a channel operator ERR_CHANOPRIVSNEEDED(user, params[0])
+                    //:c!c1@127.0.0.1 KICK #1 b :c
+                }
+            }
+        }
+        catch(const std::exception& e)
+        {
+            flag = 1;
+        }
     }
+    if (flag == 1)
+        throw "";
     
 }
 
 
 void CommandHandler::MODE(User &user, std::vector<std::string> &params)
 {
-    std::string channelName = params[0];
-    int flag = ADD;
-    int modes = 1; // [0] = 채널명, [1] = 설정할모드 플래그들, [2 ~] = 모드설정에 필요한 파라미터들
-    int paramNum = 2;
-    Channel channel;
-
-    std::string mode = params[1];
     if (params.size() == 0)
     {
         ERR_NEEDMOREPARAMS(user, "MODE");
@@ -362,15 +394,30 @@ void CommandHandler::MODE(User &user, std::vector<std::string> &params)
         ERR_NOTREGISTERED(user);
         throw "";
     }
+    if (!UserChannelController::Instance().isChannel(params[0]))
+    {
+        ERR_NOSUCHCHANNEL(user, params[0]);
+        throw "";
+    }
+    if (params.size() == 1)
+    {
+       RPL_CHANNELMODEIS(user, UserChannelController::Instance().FindChannel(params[0]));
+        //:irc.local 324 b #1 :+nt
+        return ;
+    }
+    std::string channelName = params[0];
+    int flag = ADD;
+    int modes = 1; // [0] = 채널명, [1] = 설정할모드 플래그들, [2 ~] = 모드설정에 필요한 파라미터들
+    int paramNum = 2;
+    Channel channel;
+
+    std::string mode = params[1];
     try
     {
-        if (UserChannelController::Instance().isChannel(channelName))
+        if (UserChannelController::Instance().isNick(channelName))
         {
-            if (UserChannelController::Instance().isNick(channelName))
-            {
-                ERR_NOUSERMODE(user);
-                return ;
-            }
+            ERR_NOUSERMODE(user);
+            return ;
         }
         
         for (size_t i = 0; i < params[modes].size(); i++)
@@ -444,8 +491,6 @@ void CommandHandler::TOPIC(User &user, std::vector<std::string> &params)
         }
         else
         {
-            // :irc.local 332 test #11 :hello
-            // :irc.local 333 test #11 test!test1@127.0.0.1 :1687519622
             tmp = ":"+ UserChannelController::Instance().GetServerName() + " "
             + user.GetNickname() + " " + params[0] + " "
             + UserChannelController::Instance().FindChannel(params[0]).GetTopic();
@@ -459,7 +504,7 @@ void CommandHandler::TOPIC(User &user, std::vector<std::string> &params)
             UserChannelController::Instance().FindChannel(params[0]).SetTopic(params[1]);
             if (params[1][0] != ':')
                 params[1] = ":" + params[1];
-            tmp = ":" + user.GetNickname() + "!" + user.GetUsername() + "@" + "127.0.0.1 TOPIC " + params[0] + " " + params[1];
+            tmp = user.GetNickHostmask() + " TOPIC " + params[0] + " " + params[1];
             UserChannelController::Instance().FindChannel(params[0]).SendUsers(tmp);
         }
         else
@@ -502,22 +547,44 @@ void CommandHandler::QUIT(User &user, std::vector<std::string> &params)
 
 void CommandHandler::INVITE(User &user, std::vector<std::string> &params)
 {
-    (void)user;
+    if (user.GetFd() < 0)
+    {
+        ERR_NOTREGISTERED(user);
+        throw "";
+    }
     if (params.size() < 2)
     {
-        ERR_NEEDMOREPARAMS(user, "INVITE");
+        //:irc.local 336 c :#1
+        //:irc.local 337 c :End of INVITE list
+        //336
+        //337
+        throw "";
     }
-    else
+    if (!UserChannelController::Instance().isChannel(params[1]))
     {
-        try
-        {
-            UserChannelController::Instance().FindChannel(params[1]).InviteUser(user, params[0]);
-        }
-        catch(const std::string str)
-        {
-            throw str;
-        }
+        ERR_NOSUCHCHANNEL(user, params[1]); //403
+        throw "";
     }
+    if (!UserChannelController::Instance().isNick(params[0]))
+    {
+        ERR_NOSUCHNICK(user, params[0]);
+        throw "";
+    }
+    if (!UserChannelController::Instance().FindChannel(params[1]).isUser(user))
+    {
+        ERR_NOTONCHANNEL(user, params[1]);
+        throw "";
+    }
+    if (UserChannelController::Instance().FindChannel(params[1]).isUser(params[0]))
+    {
+        ERR_USERONCHANNEL(user, params[0], params[1]);
+        throw "";
+    }
+    UserChannelController::Instance().FindChannel(params[1]).InviteUser(user, params[0]);
+    RPL_INVITING(user, params[0], params[1]);
+    //요청 받은사람 :b!b1@127.0.0.1 INVITE c :#1
+    //서버에 있던사람 :irc.local NOTICE #1 :*** b invited c into the channel
+    //Send
 }
 
 /*

@@ -51,16 +51,18 @@ void Channel::LeaveUser(int fd)
 	}
 }
 
-void Channel::KickUser(User &user, std::string username, std::string comment)
+void Channel::KickUser(User &user, std::string username)
 {
 	if (!_mode.OperUserCheck(user.GetNickname()))
-		throw "No permission to Kick command";
+	{
+		ERR_CHANOPRIVSNEEDED(user, _channelName);
+		throw "";
+	}
 	for (std::vector<User *>::iterator iter = _users.begin(); iter != _users.end(); iter++)
 	{
 		if (!(*iter)->GetNickname().compare(username))
 		{
 			(*iter)->leaveChannel(_channelName);
-			write(user.GetFd(), comment.c_str(),comment.size());
 			return;
 		}
 	}
@@ -178,6 +180,9 @@ void Channel::InviteUser(User &inviter, std::string invitee)
 			SetInvitedUser(invitee);
 	}
 	else
+	{
+		ERR_CHANOPRIVSNEEDED(inviter, _channelName);
+	}
 		throw ("No operator permissions");
 }
 

@@ -101,6 +101,7 @@ int main(int argc, char **argv)
                         std::cout << "client disconnected: " << currEvent->ident << std::endl;
                         UserChannelController::Instance().RemoveUser(currEvent->ident);
                         clients.erase(currEvent->ident);
+                        
                     }
                     else
                     {

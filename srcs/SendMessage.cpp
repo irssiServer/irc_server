@@ -133,6 +133,13 @@ void ERR_NOUSERMODE(User &user)
 	Send(user.GetFd(), str);
 }
 
+void ERR_UNKNOWNMODE(User &user, char mode)
+{
+	std::string str;
+	
+	str = ":" + UserChannelController::Instance().GetServerName() + " 472 " + user.GetNickname() + " " + mode + " :is not a recognised channel mode.";
+}
+
 void ERR_CHANOPRIVSNEEDED(User &user, std::string channel)
 {
 	std::string str;

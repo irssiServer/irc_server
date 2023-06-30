@@ -18,6 +18,7 @@ void RPL_INVITING(User &user, std::string nick, std::string channel); //341
 // 실패 메세지
 void ERR_CHANOPRIVSNEEDED(User &user, std::string channel); //482
 void ERR_NOUSERMODE(User &user);
+void ERR_UNKNOWNMODE(User &user, char mode);
 void ERR_CHANNELISFULL(User &user);
 void ERR_INVITEONLYCHAN(User &user);
 void ERR_BADCHANNELKEY(User &user);

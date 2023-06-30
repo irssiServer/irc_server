@@ -402,7 +402,6 @@ void CommandHandler::MODE(User &user, std::vector<std::string> &params)
     if (params.size() == 1)
     {
        RPL_CHANNELMODEIS(user, UserChannelController::Instance().FindChannel(params[0]));
-        //:irc.local 324 b #1 :+nt
         return ;
     }
     std::string channelName = params[0];
@@ -428,7 +427,7 @@ void CommandHandler::MODE(User &user, std::vector<std::string> &params)
                 flag = REMOVE;
             else
             {
-                // 파라미터가 필수인 모드들
+                // 파라미터가 필요없는 모드들
                 if (params[modes][i] == 'i' || params[modes][i] == 't' || (params[modes][i] == 'l' && flag == REMOVE))
                 {
                     if (params[modes][i] == 'i')
@@ -438,7 +437,7 @@ void CommandHandler::MODE(User &user, std::vector<std::string> &params)
                     else if (params[modes][i] == 'l')
                         channel.ModeLimite(user, flag, -1);
                 }
-                // 파라미터가 필요없는 모드들
+                // 파라미터가 필수인 모드들
                 else if (params[modes][i] == 'o' || params[modes][i] == 'k' || (params[modes][i] == 'l' && flag == ADD))
                 {
                     std::stringstream ss(params[paramNum]);
@@ -452,7 +451,9 @@ void CommandHandler::MODE(User &user, std::vector<std::string> &params)
                     paramNum++;
                 }
                 else
-                    throw ":irc.local 472 gyyu a :is not a recognised channel mode.";
+                {
+                    ERR_UNKNOWNMODE(user, params[modes][i]);
+                }
             }
         } 
     }

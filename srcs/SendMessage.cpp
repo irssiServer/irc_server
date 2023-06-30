@@ -41,40 +41,40 @@ void ERR_NEEDMOREPARAMS(User &user, std::string command)
 {
 	std::string str;
 
-	str = ":" + UserChannelController::Instance().GetServerName() + " 461 " + user.Getbuf() + " " + command +" :Not enough parameters";
-	Send(user.Getbuf_fd(), str);
+	str = ":" + UserChannelController::Instance().GetServerName() + " 461 " + user.GetNickname() + " " + command +" :Not enough parameters";
+	Send(user.GetFd(), str);
 }
 
 void ERR_ALREADYREGISTERED(User &user)
 {
 	std::string str;
 
-	str = ":" + UserChannelController::Instance().GetServerName() + " 462 " + user.Getbuf() + " :You may not reregister";
-	Send(user.Getbuf_fd(), str);
+	str = ":" + UserChannelController::Instance().GetServerName() + " 462 " + user.GetNickname() + " :You may not reregister";
+	Send(user.GetFd(), str);
 }
 
 void ERR_NICKNAMEINUSE(User &user, std::string nick)
 {
 	std::string str;
 
-	str = ":" + UserChannelController::Instance().GetServerName() + " 433 " + user.Getbuf() + " " + nick + " :Nickname is already in use";
-	Send(user.Getbuf_fd(), str);
+	str = ":" + UserChannelController::Instance().GetServerName() + " 433 " + user.GetNickname() + " " + nick + " :Nickname is already in use";
+	Send(user.GetFd(), str);
 }
 
 void ERR_ERRONEUSNICKNAME(User &user, std::string nick)
 {
 	std::string str;
 
-	str = ":" + UserChannelController::Instance().GetServerName() + " 432 " + user.Getbuf() + " " + nick + " :Erroneus nickname";
-	Send(user.Getbuf_fd(), str);
+	str = ":" + UserChannelController::Instance().GetServerName() + " 432 " + user.GetNickname() + " " + nick + " :Erroneus nickname";
+	Send(user.GetFd(), str);
 }
 
 void ERR_NOTREGISTERED(User &user)
 {
 	std::string str;
 
-	str = ":" + UserChannelController::Instance().GetServerName() + " 451 " + user.Getbuf() + " :You have not registered";
-	Send(user.Getbuf_fd(), str);
+	str = ":" + UserChannelController::Instance().GetServerName() + " 451 " + user.GetNickname() + " :You have not registered";
+	Send(user.GetFd(), str);
 }
 
 void ERR_CANNOTSENDTOCHAN(User &user, std::string channel)

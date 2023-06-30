@@ -11,7 +11,7 @@ User::User()
 	_userInfo.nickname = "";
 	_userInfo.realname = "";
 	_userInfo.username = "";
-	_userInfo.buf = "*";
+	_userInfo.flag = 0;
 }
 User::~User() 
 {
@@ -84,22 +84,6 @@ Channel &User::FindChannel(std::string channel)
 	Channel *tmp = NULL;
 
 	return *tmp;
-}
-
-int	User::Getbuf_fd()
-{
-	if(_userInfo.nickname != "")
-		return _userInfo.fd;
-	return _userInfo.fd;
-}
-
-
-
-std::string User::Getbuf()
-{
-	if(_userInfo.nickname != "")
-		return _userInfo.nickname;
-	return _userInfo.buf;
 }
 
 void User::AllLeaveChannels()

@@ -389,58 +389,55 @@ void CommandHandler::MODE(User &user, std::vector<std::string> &params)
     int flag = ADD;
     int modes = 1; // [0] = 채널명, [1] = 설정할모드 플래그들, [2 ~] = 모드설정에 필요한 파라미터들
     int paramNum = 2;
+	bool errorFlag = false;
 
     std::string mode = params[1];
-    try
-    {
-        if (UserChannelController::Instance().isNick(channelName))
-        {
-            ERR_NOUSERMODE(user);
-            return ;
-        }
-            = UserChannelController::Instance().FindChannel(channelName);
-        for (size_t i = 0; i < params[modes].size(); i++)
-        {
-            if (params[modes][i] == '+')
-                flag = ADD;
-            else if (params[modes][i] == '-')
-                flag = REMOVE;
-            else
-            {
-                // 파라미터가 필요없는 모드들
-                if (params[modes][i] == 'i' || params[modes][i] == 't' || (params[modes][i] == 'l' && flag == REMOVE))
-                {
-                    if (params[modes][i] == 'i')
-                        channel.ModeInvite(user, flag);
-                    else if (params[modes][i] == 't')
-                        channel.ModeTopic(user, flag);
-                    else if (params[modes][i] == 'l')
-                        channel.ModeLimite(user, flag, -1);
-                }
-                // 파라미터가 필수인 모드들
-                else if (params[modes][i] == 'o' || params[modes][i] == 'k' || (params[modes][i] == 'l' && flag == ADD))
-                {
-                    std::stringstream ss(params[paramNum]);
+	if (UserChannelController::Instance().isNick(channelName))
+	{
+		ERR_NOUSERMODE(user);
+		return ;
+	}
+		Channel &channel = UserChannelController::Instance().FindChannel(channelName);
+	for (size_t i = 0; i < params[modes].size(); i++)
+	{
+		if (params[modes][i] == '+')
+			flag = ADD;
+		else if (params[modes][i] == '-')
+			flag = REMOVE;
+		else
+		{
+			// 파라미터가 필요없는 모드들
+			if (params[modes][i] == 'i' || params[modes][i] == 't' || (params[modes][i] == 'l' && flag == REMOVE))
+			{
+				if (params[modes][i] == 'i')
+					channel.ModeInvite(user, flag);
+				else if (params[modes][i] == 't')
+					channel.ModeTopic(user, flag);
+				else if (params[modes][i] == 'l')
+					channel.ModeLimite(user, flag, -1);
+			}
+			// 파라미터가 필수인 모드들
+			else if (params[modes][i] == 'o' || params[modes][i] == 'k' || (params[modes][i] == 'l' && flag == ADD))
+			{
+				std::stringstream ss(params[paramNum]);
 
-                    if (params[modes][i] == 'o')
-                        channel.ModeOperator(user, flag, params[paramNum]);
-                    else if (params[modes][i] == 'k')
-                        channel.ModeKey(user, flag, params[paramNum]);
-                    else if (params[modes][i] == 'l')
-                        channel.ModeOperator(user, flag, params[paramNum]);
-                    paramNum++;
-                }
-                else
-                {
-                    ERR_UNKNOWNMODE(user, params[modes][i]);
-                }
-            }
-        } 
-    }
-    catch(const std::string str)
-    {
-        std::cerr << str << std::endl;
-    }
+				if (params[modes][i] == 'o')
+					channel.ModeOperator(user, flag, params[paramNum]);
+				else if (params[modes][i] == 'k')
+					channel.ModeKey(user, flag, params[paramNum]);
+				else if (params[modes][i] == 'l')
+					channel.ModeOperator(user, flag, params[paramNum]);
+				paramNum++;
+			}
+			else
+			{
+				ERR_UNKNOWNMODE(user, params[modes][i]);
+				errorFlag = true;
+			}
+		}
+	} 
+	if (errorFlag == true)
+		throw "";
 }
 
 void CommandHandler::TOPIC(User &user, std::vector<std::string> &params)

@@ -38,14 +38,13 @@ class User
 		void Setrealname(std::string realname) { _userInfo.realname = realname; };
 		std::string Getrealname() const { return _userInfo.realname; };
 		void SetInvitedChannel(std::string invitedChannel) { _userInfo.invitedChannels.push_back(invitedChannel); };
-		std::vector<std::string> GetInvitedChannels() const { return _userInfo.invitedChannels; };
+		std::vector<std::string> &GetInvitedChannels() { return _userInfo.invitedChannels; };
 		int GetFlag() { return _userInfo.flag; };
 		void SetFlag(int i) { _userInfo.flag = i; }; 
 		std::string GetNickHostmask();
 
 		void JoinChannel(Channel *channel, std::string password);
-		void leaveChannel(int id);
-		void leaveChannel(std::string &str);
+		void leaveChannel(std::string str);
 		void AllLeaveChannels();
 		Channel &FindChannel(std::string channel);
 

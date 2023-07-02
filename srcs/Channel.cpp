@@ -43,7 +43,7 @@ int Channel::EnterUser(User *user, std::string password)
 		throw "";
 	}	
 	_users.push_back(user);
-	std::string str = user->GetNickHostmask() + " JOIN :" + GetName();
+	std::string str = ":" + user->GetNickHostmask() + " JOIN :" + GetName();
 	SendUsers(str);
 	return 1;
 }
@@ -81,14 +81,10 @@ void Channel::KickUser(User &user, std::string username)
 
 void Channel::SendUsers(std::string &message, User &user)
 {
-	std::cout << _users.size() << std::endl;
 	for(std::size_t i = 0; i < this->_users.size(); i++)
 	{
 		if (_users[i]->GetNickname().compare(user.GetNickname()))
-		{
-			std::cout << "send" << std::endl;
 			Send(_users[i]->GetFd(), message);
-		}
 	}
 }
 
@@ -223,7 +219,7 @@ void Channel::InviteUser(User &inviter, std::string invitee)
 	}
 	if (_mode.OperUserCheck(inviter.GetNickname()))
 	{
-		User user = UserChannelController::Instance().FindUser(invitee);
+		User &user = UserChannelController::Instance().FindUser(invitee);
 		std::vector<std::string>::iterator find = std::find(user.GetInvitedChannels().begin(),user.GetInvitedChannels().end(), _channelName);
 		if (isUser(user.GetNickname())) //(이미 채널에 들어와 있을떄)
 		{
@@ -232,7 +228,6 @@ void Channel::InviteUser(User &inviter, std::string invitee)
 		}
 		else if (find == user.GetInvitedChannels().end())
 			UserChannelController::Instance().FindUser(invitee).SetInvitedChannel(_channelName);
-		
 	}
 	else
 	{

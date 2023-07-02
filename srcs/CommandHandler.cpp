@@ -450,7 +450,10 @@ void CommandHandler::MODE(User &user, std::vector<std::string> &params)
     }
     if (!UserChannelController::Instance().isChannel(params[0]))
     {
-        ERR_NOSUCHCHANNEL(user, params[0]);
+        if (UserChannelController::Instance().isNick(params[0]))
+            ERR_NOUSERMODE(user);
+        else
+            ERR_NOSUCHCHANNEL(user, params[0]);
         throw "";
     }
     if (params.size() == 1)
@@ -465,12 +468,7 @@ void CommandHandler::MODE(User &user, std::vector<std::string> &params)
 	bool errorFlag = false;
 
     std::string mode = params[1];
-	if (UserChannelController::Instance().isNick(channelName))
-	{
-		ERR_NOUSERMODE(user);
-		return ;
-	}
-		Channel &channel = UserChannelController::Instance().FindChannel(channelName);
+    Channel &channel = UserChannelController::Instance().FindChannel(channelName);
 	for (size_t i = 0; i < params[modes].size(); i++)
 	{
 		if (params[modes][i] == '+')

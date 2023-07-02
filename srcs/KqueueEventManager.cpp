@@ -90,8 +90,6 @@ void AcceptUser(int connectSocket, std::vector<struct kevent> &changeList, std::
         changeList.push_back(temp_event);
         clients.insert(std::pair<int, t_MandatoryClientInit>(clientSocket, t_MandatoryClientInit()));
         clients[clientSocket].hostname = inet_ntoa(clientAddr.sin_addr);
-        std::cout << clients[clientSocket].hostname << std::endl;
-        std::cout << inet_ntoa(clientAddr.sin_addr) << std::endl;
     }
 }
 

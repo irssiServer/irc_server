@@ -48,20 +48,7 @@ void User::JoinChannel(Channel *channel, std::string password)
 	}
 }
 
-void User::leaveChannel(int id)
-{
-	for (std::vector<Channel *>::iterator iter = _channels.begin(); iter != _channels.end(); iter++)
-	{
-		if ((*iter)->GetId() == id)
-		{
-			(*iter)->LeaveUser(GetFd());
-			_channels.erase(iter);
-			return ;
-		}
-	}
-}
-
-void User::leaveChannel(std::string &str)
+void User::leaveChannel(std::string str)
 {
 	int id;
 	for (std::vector<Channel *>::iterator iter = _channels.begin(); iter != _channels.end(); iter++)
@@ -94,7 +81,7 @@ void User::AllLeaveChannels()
 {
 	for (size_t i = 0; i < _channels.size(); i++)
 	{
-		leaveChannel(_channels[i]->GetId());
+		leaveChannel(_channels[i]->GetName());
 	}
 }
 

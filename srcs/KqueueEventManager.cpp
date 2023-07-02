@@ -90,6 +90,8 @@ void AcceptUser(int connectSocket, std::vector<struct kevent> &changeList, std::
         changeList.push_back(temp_event);
         clients.insert(std::pair<int, t_MandatoryClientInit>(clientSocket, t_MandatoryClientInit()));
         clients[clientSocket].hostname = inet_ntoa(clientAddr.sin_addr);
+        std::cout << clients[clientSocket].hostname << std::endl;
+        std::cout << inet_ntoa(clientAddr.sin_addr) << std::endl;
     }
 }
 
@@ -154,7 +156,9 @@ void AuthenticateUserAccess(int fd, std::map<int, t_MandatoryClientInit> &client
             if (UserChannelController::Instance().isNick(clients[fd].nickname))
             {
                 //:irc.local 433 *(운영자) a(닉네임) :Nickname is already in use.
-                ERR_NICKNAMEINUSE(test,clients[fd].nickname);
+                clients[fd].nickFlag = false;
+                test.SetNickname("*");  
+                ERR_NICKNAMEINUSE(test, clients[fd].nickname);
                 throw "Nickname is already in use";
             }
             if (!clients[fd].pass)

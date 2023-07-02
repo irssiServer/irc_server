@@ -181,6 +181,11 @@ void CommandHandler::JOIN(User &user, std::vector<std::string> &params)
         {
             if (!UserChannelController::Instance().isChannel(iter->first)) // 채널이 없을때는 채널 생성 및 권한 부여 
             {
+                if (iter->first[0] != '#')
+                {
+                    ERR_BADCHANMASK(user, iter->first);
+                    throw "";
+                }
                 UserChannelController::Instance().AddChannel(iter->first, t_ChannelMode());
                 user.JoinChannel(&UserChannelController::Instance().FindChannel(iter->first), iter->second);
                 UserChannelController::Instance().FindChannel(iter->first).SetOper(user);

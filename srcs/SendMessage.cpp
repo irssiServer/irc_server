@@ -197,6 +197,7 @@ void ERR_CHANNELISFULL(User &user, std::string channel) // 471
 	std::string str;
 
 	str = ":" + UserChannelController::Instance().GetServerName() + " 471 " + user.GetNickname() + " " + channel + " :Cannot join channel (+l)";
+	Send(user.GetFd(), str);
 }
 
 void ERR_INVITEONLYCHAN(User &user, std::string channel) // 473
@@ -204,7 +205,7 @@ void ERR_INVITEONLYCHAN(User &user, std::string channel) // 473
 	std::string str;
 
 	str = ":" + UserChannelController::Instance().GetServerName() + " 473 " + user.GetNickname() + " " + channel + " :Cannot join channel (+i)";
-
+	Send(user.GetFd(), str);
 }
 
 void ERR_BADCHANNELKEY(User &user, std::string channel) // 475
@@ -212,8 +213,16 @@ void ERR_BADCHANNELKEY(User &user, std::string channel) // 475
 	std::string str;
 
 	str = ":" + UserChannelController::Instance().GetServerName() + " 471 " + user.GetNickname() + " " + channel + " :Cannot join channel (+k)";
-
+	Send(user.GetFd(), str);
 }
+
+void ERR_BADCHANMASK(User &user, std::string channel) // 476
+{
+	std::string str;
+	str = ":" + UserChannelController::Instance().GetServerName() + " 476 " + user.GetNickname() + " " + channel + " :Bad Channel Mask";
+	Send(user.GetFd(), str);
+}
+
 
 
 

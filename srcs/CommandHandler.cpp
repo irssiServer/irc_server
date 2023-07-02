@@ -74,6 +74,7 @@ int CommandHandler::CommandRun(User &user, std::string str)
         throw "";
     if (_commandMap[command] == NULL)
     {
+        // :irc.local 421 asdf ASDF :Unknown command
         throw "command not found";
     }
     try
@@ -419,8 +420,6 @@ void CommandHandler::MODE(User &user, std::vector<std::string> &params)
 			// 파라미터가 필수인 모드들
 			else if (params[modes][i] == 'o' || params[modes][i] == 'k' || (params[modes][i] == 'l' && flag == ADD))
 			{
-				std::stringstream ss(params[paramNum]);
-
 				if (params[modes][i] == 'o')
 					channel.ModeOperator(user, flag, params[paramNum]);
 				else if (params[modes][i] == 'k')

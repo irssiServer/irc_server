@@ -35,6 +35,8 @@ class CommandHandler
 		static void PING(User &user, std::vector<std::string> &params);
 		static void QUIT(User &user, std::vector<std::string> &params);
 		static void INVITE(User &user, std::vector<std::string> &params);
+		static void NOTICE(User &user, std::vector<std::string> &params);
+		static void CAP(User &user, std::vector<std::string> &params);
 		// excute
 		static int CommandRun(User &user, std::string str);
 

@@ -98,6 +98,7 @@ void AuthenticateUserAccess(int fd, std::map<int, t_MandatoryClientInit> &client
     User test;
     test.SetNickname(clients[fd].nickname);
     test.SetFd(fd);
+    test.SetHostname(clients[fd].hostname);
     test.SetFlag(1);
 
     std::stringstream ss(message);
@@ -153,11 +154,16 @@ void AuthenticateUserAccess(int fd, std::map<int, t_MandatoryClientInit> &client
             if (UserChannelController::Instance().isNick(clients[fd].nickname))
             {
                 //:irc.local 433 *(운영자) a(닉네임) :Nickname is already in use.
+                ERR_NICKNAMEINUSE(test,clients[fd].nickname);
                 throw "Nickname is already in use";
             }
             if (!clients[fd].pass)
             {  
                 //ERROR :Closing link: (username(만들어진 닉)@127.0.0.1) [Access denied by configuration]
+                Send(fd, "ERROR :Closing link: (" + test.GetNickname() + "@" + test.GetHostname() + ")"+ "[Access denied by configuration]");
+                clients.erase(fd);
+                close (fd);
+
                 throw "ERROR :Closing link: (a@127.0.0.1) [Access denied by configuration]";
             }
             UserChannelController::Instance().AddUser(fd, clients[fd].nickname,

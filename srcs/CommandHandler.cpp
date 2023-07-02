@@ -181,17 +181,19 @@ void CommandHandler::JOIN(User &user, std::vector<std::string> &params)
         {
             if (!UserChannelController::Instance().isChannel(iter->first)) // 채널이 없을때는 채널 생성 및 권한 부여 
             {
-                std::cout << "create" << std::endl;
+                if (iter->first[0] != '#')
+                {
+                    ERR_BADCHANMASK(user, iter->first);
+                    throw "";
+                }
                 UserChannelController::Instance().AddChannel(iter->first, t_ChannelMode());
                 user.JoinChannel(&UserChannelController::Instance().FindChannel(iter->first), iter->second);
                 UserChannelController::Instance().FindChannel(iter->first).SetOper(user);
             }
             else
             {
-                std::cout << "no create" << std::endl;
                 user.JoinChannel(&UserChannelController::Instance().FindChannel(iter->first), iter->second);
             }
-            // 채널 유저들에게 send
         }
         catch(const std::string str)
         {
@@ -367,7 +369,6 @@ void CommandHandler::PART(User &user, std::vector<std::string> &params)
             ERR_NOTONCHANNEL(user, *iter);
             throw "";
         }
-        //:gyyu!root@127.0.0.1 PART :#1
         std::string str = ":" + user.GetNickHostmask() + " PART :" + *iter;
         UserChannelController::Instance().FindChannel(*iter).SendUsers(str);
         user.leaveChannel(*iter);

@@ -28,11 +28,20 @@ int Channel::EnterUser(User *user, std::string password)
 			return 0;
 	}
 	if (!InviteCheck(*user))
-		throw "irc.local 473 asdf #1 :Cannot join channel (invite only)";
+	{
+		ERR_INVITEONLYCHAN(*user, _channelName);
+		throw "";
+	}
 	else if (!_mode.KeyCheck(password))
-		throw ":irc.local 475 asdf #1 :Cannot join channel (incorrect channel key)";
+	{
+		ERR_BADCHANNELKEY(*user, _channelName);
+		throw "";
+	}
 	else if (!_mode.LimiteCheck(_users.size()))
-		throw ":irc.local 471 asdf #1 :Cannot join channel (channel is full)";
+	{
+		ERR_CHANNELISFULL(*user, _channelName);
+		throw "";
+	}	
 	_users.push_back(user);
 	std::string str = user->GetNickHostmask() + " JOIN :" + GetName();
 	SendUsers(str);
@@ -114,7 +123,10 @@ bool Channel::isUser(std::string nickName)
 int Channel::ModeInvite(User &user, bool flag)
 {
 	if (!_mode.OperUserCheck(user.GetNickname()))
-		throw "You must have channel op access or above to set channel mode i";
+	{
+		ERR_CHANOPRIVSNEEDED(user, _channelName);
+		throw "";
+	}
 	_mode.inviteFlag = flag;
 	return 0;
 }
@@ -122,7 +134,10 @@ int Channel::ModeInvite(User &user, bool flag)
 int Channel::ModeTopic(User &user, bool flag)
 {
 	if (!_mode.OperUserCheck(user.GetNickname()))
-		throw "You must have channel op access or above to set channel mode t";
+	{
+		ERR_CHANOPRIVSNEEDED(user, _channelName);
+		throw "";
+	}
 	_mode.topicSetFlag = flag;
 	return 0;
 }
@@ -130,7 +145,10 @@ int Channel::ModeTopic(User &user, bool flag)
 int Channel::ModeLimite(User &user, bool flag, int limiteNum)
 {
 	if (!_mode.OperUserCheck(user.GetNickname()))
-		throw "You must have channel op access or above to set channel mode l";
+	{
+		ERR_CHANOPRIVSNEEDED(user, _channelName);
+		throw "";
+	}
 	_mode.limiteFlag = flag;
 	if (flag == ADD && limiteNum > 0)
 		_mode.limite = limiteNum;
@@ -139,8 +157,11 @@ int Channel::ModeLimite(User &user, bool flag, int limiteNum)
 
 int Channel::ModeKey(User &user, bool flag, std::string key)
 {
-	if (_mode.OperUserCheck(user.GetNickname()))
-		throw "You must have channel op access or above to set channel mode k";
+	if (!_mode.OperUserCheck(user.GetNickname()))
+	{
+		ERR_CHANOPRIVSNEEDED(user, _channelName);
+		throw "";
+	}
 	if (_mode.keyFlag == false || _mode.KeyCheck(key))
 	{
 		_mode.keyFlag = flag;
@@ -154,8 +175,11 @@ int Channel::ModeKey(User &user, bool flag, std::string key)
 int Channel::ModeOperator(User &user, bool flag, std::string userName)
 {
 
-	if (_mode.OperUserCheck(user.GetNickname()))
-		throw "You must have channel op access or above to set channel mode t";
+	if (!_mode.OperUserCheck(user.GetNickname()))
+	{
+		ERR_CHANOPRIVSNEEDED(user, _channelName);
+		throw "";
+	}
 
 	if (isUser(userName))
 	{
@@ -173,7 +197,10 @@ int Channel::ModeOperator(User &user, bool flag, std::string userName)
 		return 0;
 	}
 	else
-		throw "401 gyyu vd :No such nick";
+	{
+		ERR_NOSUCHNICK(user, userName);
+		throw "";
+	}
 }
 
 bool Channel::InviteCheck(User &user)
@@ -210,7 +237,7 @@ void Channel::InviteUser(User &inviter, std::string invitee)
 	else
 	{
 		ERR_CHANOPRIVSNEEDED(inviter, _channelName);
-		throw ("No operator permissions");
+		throw ("");
 	}
 }
 
@@ -233,10 +260,7 @@ void Channel::SetTopic(std::string topic, User &user)
 		}
 	}
 	else
-	{
 		_mode.topic = topic;
-	}
-
 }
 
 std::string Channel::GetModeFlags()
@@ -254,9 +278,6 @@ std::string Channel::GetModeFlags()
 		return str;
 	return '+' + str;
 }
-
-
-
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

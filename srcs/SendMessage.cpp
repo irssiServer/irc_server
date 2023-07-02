@@ -179,7 +179,6 @@ void RPL_INVITELIST(User &user)
 
 void RPL_ENDOFINVITELIST(User &user)
 {
-	//<client> :End of /INVITE list
 	std::string str;
 
 	str = ":" + UserChannelController::Instance().GetServerName() + " 337 " + user.GetNickname() + " :" + "End of INVITE list";
@@ -192,6 +191,40 @@ void ERR_UNKNOWNCOMMAND(User &user, std::string command)
 	str = ":" + UserChannelController::Instance().GetServerName() + " 421 " + user.GetNickname() + " " + command + " :Unknown command";
 	Send(user.GetFd(), str);
 }
+
+void ERR_CHANNELISFULL(User &user, std::string channel) // 471
+{
+	std::string str;
+
+	str = ":" + UserChannelController::Instance().GetServerName() + " 471 " + user.GetNickname() + " " + channel + " :Cannot join channel (+l)";
+	Send(user.GetFd(), str);
+}
+
+void ERR_INVITEONLYCHAN(User &user, std::string channel) // 473
+{
+	std::string str;
+
+	str = ":" + UserChannelController::Instance().GetServerName() + " 473 " + user.GetNickname() + " " + channel + " :Cannot join channel (+i)";
+	Send(user.GetFd(), str);
+}
+
+void ERR_BADCHANNELKEY(User &user, std::string channel) // 475
+{
+	std::string str;
+
+	str = ":" + UserChannelController::Instance().GetServerName() + " 471 " + user.GetNickname() + " " + channel + " :Cannot join channel (+k)";
+	Send(user.GetFd(), str);
+}
+
+void ERR_BADCHANMASK(User &user, std::string channel) // 476
+{
+	std::string str;
+	str = ":" + UserChannelController::Instance().GetServerName() + " 476 " + user.GetNickname() + " " + channel + " :Bad Channel Mask";
+	Send(user.GetFd(), str);
+}
+
+
+
 
 /*
 ** --------------------------------- ACCESSOR ---------------------------------

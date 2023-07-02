@@ -367,7 +367,6 @@ void CommandHandler::PART(User &user, std::vector<std::string> &params)
             ERR_NOTONCHANNEL(user, *iter);
             throw "";
         }
-        //:gyyu!root@127.0.0.1 PART :#1
         std::string str = ":" + user.GetNickHostmask() + " PART :" + *iter;
         UserChannelController::Instance().FindChannel(*iter).SendUsers(str);
         user.leaveChannel(*iter);

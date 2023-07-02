@@ -21,9 +21,9 @@ void ERR_NOUSERMODE(User &user);
 void ERR_UNKNOWNMODE(User &user, char mode);
 void RPL_INVITELIST(User &user); // 336
 void RPL_ENDOFINVITELIST(User &user); // 337
-// void ERR_CHANNELISFULL(User &user);
-// void ERR_INVITEONLYCHAN(User &user);
-// void ERR_BADCHANNELKEY(User &user);
+void ERR_CHANNELISFULL(User &user, std::string channel); // 471
+void ERR_INVITEONLYCHAN(User &user, std::string channel); // 473
+void ERR_BADCHANNELKEY(User &user, std::string channel); // 475
 void ERR_NEEDMOREPARAMS(User &user, std::string command); //461
 void ERR_ALREADYREGISTERED(User &user); //462
 void ERR_NICKNAMEINUSE(User &user, std::string nick); //433
@@ -37,5 +37,6 @@ void ERR_NOTONCHANNEL(User &user, std::string channel); //442
 void ERR_NOORIGIN(User &user); //409
 void ERR_USERONCHANNEL(User &user, std::string nick, std::string channel); //443
 void ERR_UNKNOWNCOMMAND(User &user, std::string command); //421
+
 
 #endif /* ***************************************************** SENDMESSAGE_H */

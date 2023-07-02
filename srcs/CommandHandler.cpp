@@ -359,7 +359,7 @@ void CommandHandler::PART(User &user, std::vector<std::string> &params)
     {
         if (!UserChannelController::Instance().isChannel(*iter))
         {
-            ERR_CANNOTSENDTOCHAN(user, *iter);
+            ERR_NOSUCHCHANNEL(user, *iter);
             throw "";
         }
         if (!UserChannelController::Instance().FindChannel(*iter).isUser(user))
@@ -415,12 +415,12 @@ void CommandHandler::KICK(User &user, std::vector<std::string> &params)
                 {
                     std::string tmp;
                     tmp = ":" + user.GetNickHostmask() + " KICK " + params[0] + " " + recv[i] + " :";
-                    user.FindChannel(params[0]).KickUser(user, recv[i]);
                     if (params.size() == 2)
                         tmp = tmp + user.GetNickname();
                     else
                         tmp = tmp + params[2];
                     UserChannelController::Instance().FindChannel(params[0]).SendUsers(tmp);
+                    user.FindChannel(params[0]).KickUser(user, recv[i]);
                 }
             }
         }
@@ -540,7 +540,7 @@ void CommandHandler::TOPIC(User &user, std::vector<std::string> &params)
         else
         {
             tmp = ":"+ UserChannelController::Instance().GetServerName() + " "
-            + user.GetNickname() + " " + params[0] + " "
+            + user.GetNickname() + " " + params[0] + " :"
             + UserChannelController::Instance().FindChannel(params[0]).GetTopic();
             Send(user.GetFd(), tmp);
         }

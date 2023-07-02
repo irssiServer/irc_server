@@ -7,7 +7,7 @@
 void Send(int fd, std::string str)
 {
 	send(fd, str.c_str(), str.size(), 0);	
-	send(fd, "\n", 1, 0);	
+	send(fd, "\n", 1, 0);
 }
 
 void RPL_WELCOME(User &user)
@@ -189,8 +189,7 @@ void RPL_ENDOFINVITELIST(User &user)
 void ERR_UNKNOWNCOMMAND(User &user, std::string command)
 {
 	std::string str;
-
-	str = ":" + UserChannelController::Instance().GetServerName() + " 421 " + user.GetNickname() + " " + command + " :" + ":Unknown command";
+	str = ":" + UserChannelController::Instance().GetServerName() + " 421 " + user.GetNickname() + " " + command + " :Unknown command";
 	Send(user.GetFd(), str);
 }
 

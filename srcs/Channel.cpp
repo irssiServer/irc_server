@@ -199,7 +199,10 @@ void Channel::InviteUser(User &inviter, std::string invitee)
 		User user = UserChannelController::Instance().FindUser(invitee);
 		std::vector<std::string>::iterator find = std::find(user.GetInvitedChannels().begin(),user.GetInvitedChannels().end(), _channelName);
 		if (isUser(user.GetNickname())) //(이미 채널에 들어와 있을떄)
+		{
 			ERR_USERONCHANNEL(inviter, invitee, _channelName);
+			throw ("");
+		}
 		else if (find == user.GetInvitedChannels().end())
 			UserChannelController::Instance().FindUser(invitee).SetInvitedChannel(_channelName);
 		

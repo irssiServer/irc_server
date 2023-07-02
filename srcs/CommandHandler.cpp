@@ -49,10 +49,12 @@ void CommandHandler::CommandInit(std::map<std::string, void(*)(User &user, std::
     commandMap["PRIVMSG"] = CommandHandler::PRIVMSG;
     commandMap["KICK"] = CommandHandler::KICK;
     commandMap["MODE"] = CommandHandler::MODE;
+    commandMap["NOTICE"] =CommandHandler::NOTICE;
     commandMap["INVITE"] = CommandHandler::INVITE;
     commandMap["TOPIC"] = CommandHandler::TOPIC;
     commandMap["QUIT"] = CommandHandler::QUIT;
     commandMap["PING"] = CommandHandler::PING;
+    commandMap["CAP"] = CommandHandler::CAP;
     // commandMap["PONG"] = CommandHandler::PONG;
     // commandMap["WHO"] = CommandHandler::WHO;
     // commandMap["LIST"] = CommandHandler::LIST;
@@ -74,8 +76,9 @@ int CommandHandler::CommandRun(User &user, std::string str)
         throw "";
     if (_commandMap[command] == NULL)
     {
-        ERR_UNKNOWNCOMMAND(user, command);
-        throw "";
+        if (user.GetFlag() != 1)
+            ERR_UNKNOWNCOMMAND(user, command);
+        throw "command not found";
     }
     try
     {
@@ -274,6 +277,69 @@ void CommandHandler::PRIVMSG(User &user, std::vector<std::string> &params)
         throw "";
 }
 
+void CommandHandler::NOTICE(User &user, std::vector<std::string> &params)
+{
+    std::vector<std::string> recv;
+    std::string buf;
+    int flag = 0;
+    if (params.size() < 2)
+    {
+        ERR_NEEDMOREPARAMS(user, "NOTICE");
+        throw "";
+    }
+    if (user.GetFlag() == 1)
+    {
+        ERR_NOTREGISTERED(user);
+        throw "";
+    }
+    
+    recv = Split(params[0], ',');
+    params[1] = ":" + params[1];
+    std::string tmp1;
+    tmp1 =":" + user.GetNickHostmask() + " NOTICE ";
+    for (std::size_t i = 0; i < recv.size(); i++)
+    {
+        try
+        {
+            tmp1 = tmp1 + recv[i] + " " + params[1];
+            if (recv[i][0] == '#')
+            {
+                if (UserChannelController::Instance().isChannel(recv[i]))
+                {
+                    if (UserChannelController::Instance().FindChannel(recv[i]).isUser(user))
+                        UserChannelController::Instance().FindChannel(recv[i]).SendUsers(tmp1, user);
+                    else
+                    {
+                        ERR_CANNOTSENDTOCHAN(user, recv[i]);
+                        throw "";
+                    }
+                }
+                else
+                {
+                    ERR_NOSUCHCHANNEL(user, recv[i]);
+                    throw "";
+                }
+            }
+            else
+            {
+                if (UserChannelController::Instance().isNick(recv[i]))
+                    Send(UserChannelController::Instance().FindUser(recv[i]).GetFd(), tmp1);
+                else
+                {
+                    ERR_NOSUCHNICK(user, recv[i]);
+                    throw "";
+                }
+            }
+        }
+        catch(const std::string str)
+        {
+            flag = 1;
+        }
+    }
+    if (flag == 1)
+        throw "";
+}
+
 
 void CommandHandler::PART(User &user, std::vector<std::string> &params)
 {
@@ -302,7 +368,7 @@ void CommandHandler::PART(User &user, std::vector<std::string> &params)
             throw "";
         }
         //:gyyu!root@127.0.0.1 PART :#1
-        std::string str = ":gyyu!root@127.0.0.1 PART :#1";
+        std::string str = ":" + user.GetNickHostmask() + " PART :" + *iter;
         UserChannelController::Instance().FindChannel(*iter).SendUsers(str);
         user.leaveChannel(*iter);
         return;
@@ -348,7 +414,7 @@ void CommandHandler::KICK(User &user, std::vector<std::string> &params)
                 else
                 {
                     std::string tmp;
-                    tmp = user.GetNickHostmask() + " KICK " + params[0] + " " + recv[i] + " :";
+                    tmp = ":" + user.GetNickHostmask() + " KICK " + params[0] + " " + recv[i] + " :";
                     user.FindChannel(params[0]).KickUser(user, recv[i]);
                     if (params.size() == 2)
                         tmp = tmp + user.GetNickname();
@@ -486,7 +552,7 @@ void CommandHandler::TOPIC(User &user, std::vector<std::string> &params)
             UserChannelController::Instance().FindChannel(params[0]).SetTopic(params[1], user);
             if (params[1][0] != ':')
                 params[1] = ":" + params[1];
-            tmp = user.GetNickHostmask() + " TOPIC " + params[0] + " " + params[1];
+            tmp = ":" + user.GetNickHostmask() + " TOPIC " + params[0] + " " + params[1];
             UserChannelController::Instance().FindChannel(params[0]).SendUsers(tmp);
         }
         else
@@ -526,6 +592,12 @@ void CommandHandler::QUIT(User &user, std::vector<std::string> &params)
     UserChannelController::Instance().RemoveUser(user.GetFd());
 }
 
+void CommandHandler::CAP(User &user, std::vector<std::string> &params)
+{
+    (void)params;
+    (void)user;
+}
+
 void CommandHandler::INVITE(User &user, std::vector<std::string> &params)
 {
     if (user.GetFlag() == 1)
@@ -562,6 +634,8 @@ void CommandHandler::INVITE(User &user, std::vector<std::string> &params)
     try
     {
         UserChannelController::Instance().FindChannel(params[1]).InviteUser(user, params[0]);
+        std::string tmp(":" + UserChannelController::Instance().GetServerName() + " NOTICE " + params[1] + " :"+ user.GetNickname() + " invited " + params[0] + " into the channel");
+        UserChannelController::Instance().FindChannel(params[1]).SendUsers(tmp , user);
         RPL_INVITING(user, params[0], params[1]);
         Send(UserChannelController::Instance().FindUser(params[0]).GetFd(),":" + user.GetNickHostmask() + " INVITE " + params[0] + " :" + params[1]);
     }
@@ -569,8 +643,6 @@ void CommandHandler::INVITE(User &user, std::vector<std::string> &params)
     {
         throw "";
     }
-    
-    //서버에 있던사람 :irc.local NOTICE #1 :*** b invited c into the channel
 }
 
 /*

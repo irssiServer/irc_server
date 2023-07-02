@@ -146,8 +146,6 @@ void ERR_CHANOPRIVSNEEDED(User &user, std::string channel)
 	std::string str;
 
 	str = ":" + UserChannelController::Instance().GetServerName() + " 482 " + user.GetNickname() + " " + channel +  " :You're not channel operator";
-	//:irc.local 482 gyyu #1 :You must have channel op access or above to unset channel mode i
-	// :ircserv 482 asdf #1 :You're not channel operator
 	Send(user.GetFd(), str);
 }
 

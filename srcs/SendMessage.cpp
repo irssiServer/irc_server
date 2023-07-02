@@ -186,6 +186,14 @@ void RPL_ENDOFINVITELIST(User &user)
 	Send(user.GetFd(), str);
 }
 
+void ERR_UNKNOWNCOMMAND(User &user, std::string command)
+{
+	std::string str;
+
+	str = ":" + UserChannelController::Instance().GetServerName() + " 421 " + user.GetNickname() + " " + command + " :" + ":Unknown command";
+	Send(user.GetFd(), str);
+}
+
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */

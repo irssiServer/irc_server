@@ -45,6 +45,8 @@ void Channel::LeaveUser(int fd)
 	{
 		if ((*iter)->GetFd() == fd)
 		{
+			if (_mode.OperUserCheck((*iter)->GetNickname()))
+				_mode.operatorUser.erase(std::find(_mode.operatorUser.begin(), _mode.operatorUser.end(), (*iter)->GetNickname()));
 			_users.erase(iter);
 			return;
 		}
@@ -70,10 +72,14 @@ void Channel::KickUser(User &user, std::string username)
 
 void Channel::SendUsers(std::string &message, User &user)
 {
+	std::cout << _users.size() << std::endl;
 	for(std::size_t i = 0; i < this->_users.size(); i++)
 	{
 		if (_users[i]->GetNickname().compare(user.GetNickname()))
+		{
+			std::cout << "send" << std::endl;
 			Send(_users[i]->GetFd(), message);
+		}
 	}
 }
 

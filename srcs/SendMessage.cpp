@@ -188,9 +188,7 @@ void RPL_ENDOFINVITELIST(User &user)
 
 void ERR_UNKNOWNCOMMAND(User &user, std::string command)
 {
-	// :irc.local 421 asdf ASDF :Unknown command
 	std::string str;
-
 	str = ":" + UserChannelController::Instance().GetServerName() + " 421 " + user.GetNickname() + " " + command + " :Unknown command";
 	Send(user.GetFd(), str);
 }

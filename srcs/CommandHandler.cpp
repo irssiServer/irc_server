@@ -181,12 +181,17 @@ void CommandHandler::JOIN(User &user, std::vector<std::string> &params)
         {
             if (!UserChannelController::Instance().isChannel(iter->first)) // 채널이 없을때는 채널 생성 및 권한 부여 
             {
+                std::cout << "create" << std::endl;
                 UserChannelController::Instance().AddChannel(iter->first, t_ChannelMode());
                 user.JoinChannel(&UserChannelController::Instance().FindChannel(iter->first), iter->second);
                 UserChannelController::Instance().FindChannel(iter->first).SetOper(user);
             }
             else
+            {
+                std::cout << "no create" << std::endl;
                 user.JoinChannel(&UserChannelController::Instance().FindChannel(iter->first), iter->second);
+            }
+            // 채널 유저들에게 send
         }
         catch(const std::string str)
         {
@@ -228,7 +233,7 @@ void CommandHandler::PRIVMSG(User &user, std::vector<std::string> &params)
     recv = Split(params[0], ',');
     params[1] = ":" + params[1];
     std::string tmp1;
-    tmp1 = user.GetNickHostmask() + " PRIVMSG ";
+    tmp1 = ":" + user.GetNickHostmask() + " PRIVMSG ";
     for (std::size_t i = 0; i < recv.size(); i++)
     {
         try
@@ -582,7 +587,8 @@ void CommandHandler::PING(User &user, std::vector<std::string> &params)
 
 void CommandHandler::QUIT(User &user, std::vector<std::string> &params)
 {
-    (void)params;
+    if (params.size() > 0)
+        Send(user.GetFd(), params[0]);
     UserChannelController::Instance().RemoveUser(user.GetFd());
 }
 
@@ -631,8 +637,7 @@ void CommandHandler::INVITE(User &user, std::vector<std::string> &params)
         std::string tmp(":" + UserChannelController::Instance().GetServerName() + " NOTICE " + params[1] + " :"+ user.GetNickname() + " invited " + params[0] + " into the channel");
         UserChannelController::Instance().FindChannel(params[1]).SendUsers(tmp , user);
         RPL_INVITING(user, params[0], params[1]);
-        Send(UserChannelController::Instance().FindUser(params[0]).GetFd(), user.GetNickHostmask() + " INVITE " + params[0] + " :" + params[1]);
-        
+        Send(UserChannelController::Instance().FindUser(params[0]).GetFd(),":" + user.GetNickHostmask() + " INVITE " + params[0] + " :" + params[1]);
     }
     catch(const std::string str)
     {

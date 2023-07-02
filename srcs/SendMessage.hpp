@@ -36,6 +36,6 @@ void RPL_NOTOPIC(User &user, std::string channel); // 331
 void ERR_NOTONCHANNEL(User &user, std::string channel); //442
 void ERR_NOORIGIN(User &user); //409
 void ERR_USERONCHANNEL(User &user, std::string nick, std::string channel); //443
-void ERR_UNKNOWNCOMMAND(User &user, std::string command); // 421
+void ERR_UNKNOWNCOMMAND(User &user, std::string command); //421
 
 #endif /* ***************************************************** SENDMESSAGE_H */

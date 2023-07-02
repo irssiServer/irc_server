@@ -581,7 +581,7 @@ void CommandHandler::PING(User &user, std::vector<std::string> &params)
         ERR_NOORIGIN(user);
         throw "";
     }
-    tmp = ":" + UserChannelController::Instance().GetServerName() + " PONG " + params[0];
+    tmp = ":" + UserChannelController::Instance().GetServerName() + " PONG " + UserChannelController::Instance().GetServerName() + " :" + params[0];
     Send(user.GetFd(), tmp);
 }
 

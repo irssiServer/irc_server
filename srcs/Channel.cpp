@@ -86,7 +86,6 @@ void Channel::SendUsers(std::string &message, User &user)
 	{
 		if (_users[i]->GetNickname().compare(user.GetNickname()))
 		{
-			std::cout << "send" << std::endl;
 			Send(_users[i]->GetFd(), message);
 		}
 	}

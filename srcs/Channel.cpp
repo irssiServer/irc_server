@@ -27,7 +27,7 @@ int Channel::EnterUser(User *user, std::string password)
 		if ((*iter)->GetNickname() == user->GetNickname()) // 이미 채널에 유저가 있을경우
 			return 0;
 	}
-	if (!_mode.InviteCheck(user->GetNickname()))
+	if (!InviteCheck(*user))
 		throw "irc.local 473 asdf #1 :Cannot join channel (invite only)";
 	else if (!_mode.KeyCheck(password))
 		throw ":irc.local 475 asdf #1 :Cannot join channel (incorrect channel key)";
@@ -107,7 +107,7 @@ bool Channel::isUser(std::string nickName)
 
 int Channel::ModeInvite(User &user, bool flag)
 {
-	if (_mode.OperUserCheck(user.GetNickname()))
+	if (!_mode.OperUserCheck(user.GetNickname()))
 		throw "You must have channel op access or above to set channel mode i";
 	_mode.inviteFlag = flag;
 	return 0;
@@ -115,7 +115,7 @@ int Channel::ModeInvite(User &user, bool flag)
 
 int Channel::ModeTopic(User &user, bool flag)
 {
-	if (_mode.OperUserCheck(user.GetNickname()))
+	if (!_mode.OperUserCheck(user.GetNickname()))
 		throw "You must have channel op access or above to set channel mode t";
 	_mode.topicSetFlag = flag;
 	return 0;
@@ -123,7 +123,7 @@ int Channel::ModeTopic(User &user, bool flag)
 
 int Channel::ModeLimite(User &user, bool flag, int limiteNum)
 {
-	if (_mode.OperUserCheck(user.GetNickname()))
+	if (!_mode.OperUserCheck(user.GetNickname()))
 		throw "You must have channel op access or above to set channel mode l";
 	_mode.limiteFlag = flag;
 	if (flag == ADD && limiteNum > 0)
@@ -170,20 +170,39 @@ int Channel::ModeOperator(User &user, bool flag, std::string userName)
 		throw "401 gyyu vd :No such nick";
 }
 
+bool Channel::InviteCheck(User &user)
+{
+	if (!_mode.inviteFlag)
+		return true;
+	
+	std::vector<std::string> invited = user.GetInvitedChannels();
+	// 해당 유저의 당위성 체크는 좀 더 고민해야 될듯(nickname으로 체크하면 로그아웃하고 나서 같은 이름의 유저도 처리될듯)
+	std::vector<std::string>::iterator iter = std::find(invited.begin(), invited.end(), _channelName);
+	return iter != invited.end();
+}
+
 void Channel::InviteUser(User &inviter, std::string invitee)
 {
 	if (!UserChannelController::Instance().isNick(invitee))
-		throw ("401 gyyu vd :No such nick");
+	{
+		ERR_NOSUCHNICK(inviter, invitee);
+		throw ("");
+	}
 	if (_mode.OperUserCheck(inviter.GetNickname()))
 	{
-		if (!_mode.InviteCheck(invitee))
-			SetInvitedUser(invitee);
+		User user = UserChannelController::Instance().FindUser(invitee);
+		std::vector<std::string>::iterator find = std::find(user.GetInvitedChannels().begin(),user.GetInvitedChannels().end(), _channelName);
+		if (isUser(user.GetNickname())) //(이미 채널에 들어와 있을떄)
+			ERR_USERONCHANNEL(inviter, invitee, _channelName);
+		else if (find == user.GetInvitedChannels().end())
+			UserChannelController::Instance().FindUser(invitee).SetInvitedChannel(_channelName);
+		
 	}
 	else
 	{
 		ERR_CHANOPRIVSNEEDED(inviter, _channelName);
-	}
 		throw ("No operator permissions");
+	}
 }
 
 void Channel::SetOper(User &user)
@@ -210,6 +229,26 @@ void Channel::SetTopic(std::string topic, User &user)
 	}
 
 }
+
+std::string Channel::GetModeFlags()
+{
+	std::string str("");
+	if (_mode.keyFlag)
+		str = 'k';
+	if (_mode.inviteFlag)
+		str += 'i';
+	if (_mode.limiteFlag)
+		str += 'l';
+	if (_mode.topicSetFlag)
+		str += 't';
+	if (str.empty())
+		return str;
+	return '+' + str;
+}
+
+
+
+
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */

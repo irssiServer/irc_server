@@ -100,7 +100,6 @@ void AuthenticateUserAccess(int fd, std::map<int, t_MandatoryClientInit> &client
     test.SetFd(fd);
     test.SetFlag(1);
 
-    // std::cout << "client " << fd << " : |"  << message <<"|"<< std::endl;
     std::stringstream ss(message);
     std::string tmp;
     try

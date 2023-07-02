@@ -63,12 +63,16 @@ void User::leaveChannel(int id)
 
 void User::leaveChannel(std::string &str)
 {
+	int id;
 	for (std::vector<Channel *>::iterator iter = _channels.begin(); iter != _channels.end(); iter++)
 	{
 		if ((*iter)->GetName() == str)
 		{
+			id = (*iter)->GetId();
 			(*iter)->LeaveUser(GetFd());
 			_channels.erase(iter);
+			if (UserChannelController::Instance().FindChannel(str).GetUserSize() == 0)
+				UserChannelController::Instance().RemoveChannel(id);
 			return ;
 		}
 	}

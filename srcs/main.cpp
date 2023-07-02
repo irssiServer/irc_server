@@ -78,7 +78,7 @@ int main(int argc, char **argv)
                     ErrorPrintExit("Error: Server socket");
                 else
                 {
-                    std::cout << "1111client disconnected: " << currEvent->ident << std::endl;
+                    std::cout << "client disconnected: " << currEvent->ident << std::endl;
                     UserChannelController::Instance().RemoveUser(currEvent->ident);
                     clients.erase(currEvent->ident);
                     // 클라이언트와 연결이 끊겼을때의 처리

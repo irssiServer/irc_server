@@ -22,8 +22,8 @@ void RPL_WELCOME(User &user)
 void RPL_CHANNELMODEIS(User &user, Channel &channel)
 {
 	std::string str;
-	//:irc.local 324 b #1 :+nt
-	str = ":" + UserChannelController::Instance().GetServerName() + " 324 " + user.GetNickname() + " " + channel.GetName() + " :"; //+nt;
+
+	str = ":" + UserChannelController::Instance().GetServerName() + " 324 " + user.GetNickname() + " " + channel.GetName() + " :" + channel.GetModeFlags(); //+nt;
 	Send(user.GetFd(), str);
 }
 
@@ -133,6 +133,14 @@ void ERR_NOUSERMODE(User &user)
 	Send(user.GetFd(), str);
 }
 
+void ERR_UNKNOWNMODE(User &user, char mode)
+{
+	std::string str;
+	
+	str = ":" + UserChannelController::Instance().GetServerName() + " 472 " + user.GetNickname() + " " + mode + " :is not a recognised channel mode.";
+	Send(user.GetFd(), str);
+}
+
 void ERR_CHANOPRIVSNEEDED(User &user, std::string channel)
 {
 	std::string str;
@@ -154,6 +162,27 @@ void RPL_INVITING(User &user, std::string nick, std::string channel)
 	std::string str;
 
 	str = ":" + UserChannelController::Instance().GetServerName() + " 341 " + user.GetNickname() + " " + nick + " :" + channel;
+	Send(user.GetFd(), str);
+}
+
+void RPL_INVITELIST(User &user)
+{
+	std::string str;
+
+	str = ":" + UserChannelController::Instance().GetServerName() + " 336 " + user.GetNickname() + " :";
+	std::vector<std::string> channels = user.GetInvitedChannels();
+	for (size_t i = 0; i < channels.size(); i++)
+	{
+		Send(user.GetFd(), str + channels[i]);
+	}
+}
+
+void RPL_ENDOFINVITELIST(User &user)
+{
+	//<client> :End of /INVITE list
+	std::string str;
+
+	str = ":" + UserChannelController::Instance().GetServerName() + " 337 " + user.GetNickname() + " :" + "End of INVITE list";
 	Send(user.GetFd(), str);
 }
 

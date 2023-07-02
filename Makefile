@@ -1,7 +1,7 @@
 NAME= ircserv
 
 CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address
 RM= rm -f
 
 SOURCE=	main.cpp Channel.cpp User.cpp UserChannelController.cpp CommandHandler.cpp KqueueEventManager.cpp Utility.cpp SendMessage.cpp
@@ -25,5 +25,6 @@ re : fclean all
 up : all
 	./ircserv 6667 123
 rup : re
+	make clean
 	./ircserv 6667 123
 .PHONY: clean fclean all re

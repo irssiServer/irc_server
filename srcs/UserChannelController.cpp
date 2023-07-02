@@ -76,7 +76,8 @@ User &UserChannelController::FindUser(std::string nick)
 		if (!iter->second.GetNickname().compare(nick))
 			return iter->second;
 	}
-	throw "not find user";
+	User *tmp = NULL;
+	return (*tmp);
 }
 
 Channel &UserChannelController::FindChannel(std::string channel)
@@ -86,7 +87,8 @@ Channel &UserChannelController::FindChannel(std::string channel)
 		if (!iter->second.GetName().compare(channel))
 			return iter->second;
 	}
-	throw "not find channel";
+	Channel *tmp = NULL;
+	return (*tmp);
 }
 
 

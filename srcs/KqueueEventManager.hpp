@@ -33,7 +33,6 @@ struct s_MandatoryClientInit
         data = data + str;
     }
 
-
     std::string Get_command()
     {
         std::size_t len = data.find("\r\n");

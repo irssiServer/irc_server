@@ -27,16 +27,6 @@ void RPL_CHANNELMODEIS(User &user, Channel &channel)
 	Send(user.GetFd(), str);
 }
 
-
-
-
-
-
-
-
-
-
-
 void ERR_NEEDMOREPARAMS(User &user, std::string command)
 {
 	std::string str;
@@ -212,7 +202,7 @@ void ERR_BADCHANNELKEY(User &user, std::string channel) // 475
 {
 	std::string str;
 
-	str = ":" + UserChannelController::Instance().GetServerName() + " 471 " + user.GetNickname() + " " + channel + " :Cannot join channel (+k)";
+	str = ":" + UserChannelController::Instance().GetServerName() + " 475 " + user.GetNickname() + " " + channel + " :Cannot join channel (+k)";
 	Send(user.GetFd(), str);
 }
 
@@ -220,6 +210,25 @@ void ERR_BADCHANMASK(User &user, std::string channel) // 476
 {
 	std::string str;
 	str = ":" + UserChannelController::Instance().GetServerName() + " 476 " + user.GetNickname() + " " + channel + " :Bad Channel Mask";
+	Send(user.GetFd(), str);
+}
+
+void RPL_TOPIC(User &user, std::string channel)
+{
+	std::string str;
+	if (!UserChannelController::Instance().isChannel(channel))
+	{
+		ERR_NOSUCHCHANNEL(user, channel);
+		throw "";
+	}
+	str = ":" + UserChannelController::Instance().GetServerName() + " 332 " + user.GetNickname() + " " + channel + " :" + UserChannelController::Instance().FindChannel(channel).GetTopic();
+	Send(user.GetFd(), str);
+}
+
+void ERR_INVALIDMODEPARAM(User &user, std::string channel, char mode)
+{
+	std::string str;
+	str = ":" + UserChannelController::Instance().GetServerName() + " 696 " + user.GetNickname() + " " + channel + " " + mode + " *" + " :You must specify a parameter";
 	Send(user.GetFd(), str);
 }
 

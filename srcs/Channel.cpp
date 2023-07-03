@@ -45,6 +45,7 @@ int Channel::EnterUser(User *user, std::string password)
 	_users.push_back(user);
 	std::string str = ":" + user->GetNickHostmask() + " JOIN :" + GetName();
 	SendUsers(str);
+
 	return 1;
 }
 
@@ -138,16 +139,27 @@ int Channel::ModeTopic(User &user, bool flag)
 	return 0;
 }
 
-int Channel::ModeLimite(User &user, bool flag, int limiteNum)
+int Channel::ModeLimite(User &user, bool flag, std::string limiteNum)
 {
 	if (!_mode.OperUserCheck(user.GetNickname()))
 	{
 		ERR_CHANOPRIVSNEEDED(user, _channelName);
 		throw "";
 	}
+	std::stringstream ss(limiteNum);
+
+	int num;
+	ss >> num;
 	_mode.limiteFlag = flag;
-	if (flag == ADD && limiteNum > 0)
-		_mode.limite = limiteNum;
+	if (flag == ADD && num > 0)
+	{
+		if (ss.fail() || !ss.eof())
+		{
+			ERR_NEEDMOREPARAMS(user, "Parameter is not a number");
+			throw "";
+		}
+		_mode.limite = num;
+	}
 	return 0;
 }
 
@@ -155,22 +167,21 @@ int Channel::ModeKey(User &user, bool flag, std::string key)
 {
 	if (!_mode.OperUserCheck(user.GetNickname()))
 	{
-		ERR_CHANOPRIVSNEEDED(user, _channelName);
+		ERR_BADCHANNELKEY(user, _channelName);
 		throw "";
 	}
-	if (_mode.keyFlag == false || _mode.KeyCheck(key))
+	if (_mode.keyFlag == false || _mode.KeyCheck(key) || !key.empty() || key.compare(""))
 	{
 		_mode.keyFlag = flag;
 		_mode.key = key;
 	}
 	else
-		throw "467 gyyu #1 :Channel key already set";
+		throw "";
 	return 0;
 }
 
 int Channel::ModeOperator(User &user, bool flag, std::string userName)
 {
-
 	if (!_mode.OperUserCheck(user.GetNickname()))
 	{
 		ERR_CHANOPRIVSNEEDED(user, _channelName);
@@ -179,11 +190,11 @@ int Channel::ModeOperator(User &user, bool flag, std::string userName)
 
 	if (isUser(userName))
 	{
-		std::vector<std::string>::iterator find = std::find(_mode.operatorUser.begin(),_mode.operatorUser.end(), userName);
+		std::vector<std::string>::iterator find = std::find(_mode.operatorUser.begin(), _mode.operatorUser.end(), userName);
 		if (find == _mode.operatorUser.end())
 		{
 			if (flag == ADD)
-				_mode.operatorUser.push_back(*find);
+				_mode.operatorUser.push_back(userName);
 		}
 		else
 		{
@@ -205,7 +216,6 @@ bool Channel::InviteCheck(User &user)
 		return true;
 	
 	std::vector<std::string> invited = user.GetInvitedChannels();
-	// 해당 유저의 당위성 체크는 좀 더 고민해야 될듯(nickname으로 체크하면 로그아웃하고 나서 같은 이름의 유저도 처리될듯)
 	std::vector<std::string>::iterator iter = std::find(invited.begin(), invited.end(), _channelName);
 	return iter != invited.end();
 }

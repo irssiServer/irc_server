@@ -55,13 +55,6 @@ void CommandHandler::CommandInit(std::map<std::string, void(*)(User &user, std::
     commandMap["QUIT"] = CommandHandler::QUIT;
     commandMap["PING"] = CommandHandler::PING;
     commandMap["CAP"] = CommandHandler::CAP;
-    // commandMap["PONG"] = CommandHandler::PONG;
-    // commandMap["WHO"] = CommandHandler::WHO;
-    // commandMap["LIST"] = CommandHandler::LIST;
-    // commandMap["ERROR"] = CommandHandler::ERROR; 구현하기 애매 서버->클라 로  메세지를 보내는 경우가 크게 없음
-
-    /////:irc.local 451 * PART :You have not registered. error 451 -> 계정 생성전 NICK PASS USER 를 제외한 명령어 사용때 발생 NICK 명령 후에는 * -> 입력한 NICK
-    /////:irc.local 461 a PART :Not enough parameters. error 461 -> 파라미터 부족할때 무조건 우선순위인 에러코드 451보다 우선시됨
 }
 
 
@@ -193,6 +186,7 @@ void CommandHandler::JOIN(User &user, std::vector<std::string> &params)
             else
             {
                 user.JoinChannel(&UserChannelController::Instance().FindChannel(iter->first), iter->second);
+            	RPL_TOPIC(user, iter->first);
             }
         }
         catch(const std::string str)
@@ -432,7 +426,6 @@ void CommandHandler::KICK(User &user, std::vector<std::string> &params)
     }
     if (flag == 1)
         throw "";
-    
 }
 
 
@@ -464,7 +457,7 @@ void CommandHandler::MODE(User &user, std::vector<std::string> &params)
     std::string channelName = params[0];
     int flag = ADD;
     int modes = 1; // [0] = 채널명, [1] = 설정할모드 플래그들, [2 ~] = 모드설정에 필요한 파라미터들
-    int paramNum = 2;
+    size_t paramNum = 2;
 	bool errorFlag = false;
 
     std::string mode = params[1];
@@ -485,17 +478,22 @@ void CommandHandler::MODE(User &user, std::vector<std::string> &params)
 				else if (params[modes][i] == 't')
 					channel.ModeTopic(user, flag);
 				else if (params[modes][i] == 'l')
-					channel.ModeLimite(user, flag, -1);
+					channel.ModeLimite(user, flag, params[paramNum]);
 			}
 			// 파라미터가 필수인 모드들
 			else if (params[modes][i] == 'o' || params[modes][i] == 'k' || (params[modes][i] == 'l' && flag == ADD))
 			{
-				if (params[modes][i] == 'o')
+                if (paramNum >= params.size())
+                {
+                    ERR_INVALIDMODEPARAM(user, channel.GetName(), params[modes][i]);
+                    errorFlag = true;
+                }
+				else if (params[modes][i] == 'o')
 					channel.ModeOperator(user, flag, params[paramNum]);
 				else if (params[modes][i] == 'k')
 					channel.ModeKey(user, flag, params[paramNum]);
 				else if (params[modes][i] == 'l')
-					channel.ModeOperator(user, flag, params[paramNum]);
+					channel.ModeLimite(user, flag, params[paramNum]);
 				paramNum++;
 			}
 			else

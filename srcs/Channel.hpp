@@ -27,14 +27,14 @@ struct s_ChannelMode
 		if (!keyFlag)
 			return true;
 
-		return password.compare(key);
+		return !password.compare(key);
 	}
 
 	bool LimiteCheck(int userNum)
 	{
 		if (!limiteFlag)
 			return true;
-			
+		
 		return userNum < limite;
 	}
 
@@ -79,7 +79,7 @@ class Channel
 		// mode change function
 		int ModeInvite(User &user, bool flag);
 		int ModeTopic(User &user, bool flag);
-		int ModeLimite(User &user, bool flag, int limiteNum);
+		int ModeLimite(User &user, bool flag, std::string limiteNum);
 		int ModeKey(User &user, bool flag, std::string key);
 		int ModeOperator(User &user, bool flag, std::string userName);
 		

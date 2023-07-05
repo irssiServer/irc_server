@@ -9,8 +9,12 @@ int Check_nick(std::string nick)
         return (0);
     for (std::size_t i = 0; i < nick.size(); i++)
     {
-        if (!isalpha(nick[i]) && !isdigit(nick[i]))
-            return (0);
+        std::string tmp = " ,*?!@.";
+        for (std::size_t j = 0; j < tmp.size(); j++)
+        {
+            if (nick[i] == tmp[j])
+                return (0);
+        }
     }
     return (1);
 }
@@ -82,6 +86,11 @@ int CommandHandler::CommandRun(User &user, std::string str)
             ss >> tmp;
             if (tmp[0] == ':')
             {
+                if (!command.compare("NICK"))
+                {
+                    ERR_ERRONEUSNICKNAME(user, tmp);
+                    throw "";
+                }
                 std::size_t len = str.find(':');
                 std::string param;
                 param.resize(str.size() - len - 1);

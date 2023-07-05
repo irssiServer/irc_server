@@ -1,7 +1,7 @@
 NAME= ircserv
 
 CXX = c++
-CXXFLAGS = -Wall -Wextra -Werror -std=c++98 #-fsanitize=address
+CXXFLAGS = -Wall -Wextra -Werror -std=c++98
 RM= rm -f
 
 SOURCE=	main.cpp Channel.cpp User.cpp UserChannelController.cpp CommandHandler.cpp KqueueEventManager.cpp Utility.cpp SendMessage.cpp
@@ -11,7 +11,7 @@ SOURCES = $(addprefix $(SRCDIR)/,$(SOURCE))
 OBJECTS = $(SOURCES:.cpp=.o)
 
 $(NAME) : $(OBJECTS)
-	$(CXX) $(CXXFLAGS) -o $(NAME) $(OBJECTS)
+	$(CXX) $(CXXFLAGS) -o $(NAME) $(OBJECTS) -g
 
 %.o : %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@

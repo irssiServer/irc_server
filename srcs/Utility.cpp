@@ -1,7 +1,11 @@
 #include "Utility.hpp"
+#include <iostream>
 
 std::vector<std::string> Split(const std::string &str, const char &delimiter)
 {
+    std::cout << &str << std::endl;
+    if (str.empty() || !str.compare(""))
+        return (std::vector<std::string>());
     std::vector<std::string> ret;
     std::stringstream ss(str);
     std::string token;

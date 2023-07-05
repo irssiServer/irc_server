@@ -105,7 +105,6 @@ int CommandHandler::CommandRun(User &user, std::string str)
         std::cout << str << std::endl;
         return -2;
     }
-
     return (0);
 }
 
@@ -157,7 +156,9 @@ void CommandHandler::JOIN(User &user, std::vector<std::string> &params)
         throw "";
     }
     std::vector<std::string> channelName = Split(params[0], ',');
-    std::vector<std::string> channelPass = Split(params[1], ',');
+    std::vector<std::string> channelPass; 
+    if (params.size() > 1)
+        channelPass = Split(params[1], ','); // error
     std::map<std::string, std::string> channelMap; // first = 채널이름, second = 채널 비밀번호
 
     std::vector<std::string>::iterator passIter = channelPass.begin();

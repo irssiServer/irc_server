@@ -9,8 +9,6 @@ Channel::~Channel() {}
 Channel::Channel(int id, std::string channelName) : _id(id), _channelName(channelName), _mode(t_ChannelMode()) {}
 Channel::Channel(int id, std::string channelName, t_ChannelMode mode) : _id(id), _channelName(channelName), _mode(mode) {}
 
-
-
 bool Channel::operator==(const Channel& rhs) const
 {
 	return _id == rhs.GetId();

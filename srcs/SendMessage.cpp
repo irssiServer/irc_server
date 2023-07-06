@@ -8,7 +8,7 @@ void Send(int fd, std::string str)
 {
 	send(fd, str.c_str(), str.size(), 0);	
 	send(fd, "\n", 1, 0);
-	std::cout << "SERVER SEND ->" << str << std::endl;
+	std::cout << fd << ": SERVER SEND ->" << str << std::endl;
 }
 
 void RPL_WELCOME(User &user)

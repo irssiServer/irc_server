@@ -42,11 +42,15 @@ class User
 		int GetFlag() { return _userInfo.flag; };
 		void SetFlag(int i) { _userInfo.flag = i; }; 
 		std::string GetNickHostmask();
+		void NICKSend(std::string message);
+		
 
 		void JoinChannel(Channel *channel, std::string password);
 		void leaveChannel(std::string str);
 		void AllLeaveChannels();
+		void SendChannels(std::string message);
 		Channel &FindChannel(std::string channel);
+		//std::vector<Channel> GetChannel(User user);  
 
 	private:
 		t_UserInfo _userInfo;

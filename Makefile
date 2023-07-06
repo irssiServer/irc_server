@@ -11,7 +11,7 @@ SOURCES = $(addprefix $(SRCDIR)/,$(SOURCE))
 OBJECTS = $(SOURCES:.cpp=.o)
 
 $(NAME) : $(OBJECTS)
-	$(CXX) $(CXXFLAGS) -o $(NAME) $(OBJECTS) -g
+	$(CXX) $(CXXFLAGS) -o $(NAME) $(OBJECTS)
 
 %.o : %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@

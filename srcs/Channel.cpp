@@ -282,6 +282,17 @@ std::string Channel::GetModeFlags()
 	return '+' + str;
 }
 
+std::vector<int> Channel::GetFdlist()
+{
+	std::vector<int> tmp;
+	for (size_t i = 0; i < _users.size(); i++)
+	{
+		tmp.push_back(_users[i]->GetFd());
+	}
+	return (tmp);
+}
+
+
 /*
 ** --------------------------------- ACCESSOR ---------------------------------
 */

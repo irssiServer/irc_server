@@ -85,6 +85,8 @@ class Channel
 		
 		bool InviteCheck(User &user);
 		void InviteUser(User &inviter, std::string invitee);
+		std::vector<int> GetFdlist();
+
 
 
 	private:

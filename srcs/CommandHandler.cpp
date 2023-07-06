@@ -149,6 +149,11 @@ void CommandHandler::NICK(User &user, std::vector<std::string> &params)
         ERR_ERRONEUSNICKNAME(user, params[0]);
         throw "";
     }
+    if (user.GetFlag() != 1)
+    {
+        std::string tmp = ":" + user.GetNickHostmask() + " NICK :" + params[0];
+        user.NICKSend(tmp);
+    }
     user.SetNickname(params[0]);
 }
 

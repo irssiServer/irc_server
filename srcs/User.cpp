@@ -79,15 +79,45 @@ Channel &User::FindChannel(std::string channel)
 
 void User::AllLeaveChannels()
 {
+	int channelsize = _channels.size();
+	for (int i = 0; i < channelsize; i++)
+	{
+		leaveChannel(_channels[0]->GetName());
+	}
+}
+
+void User::SendChannels(std::string message)
+{
 	for (size_t i = 0; i < _channels.size(); i++)
 	{
-		leaveChannel(_channels[i]->GetName());
+		_channels[i]->SendUsers(message);
 	}
 }
 
 std::string User::GetNickHostmask()
 {
 	return GetNickname() + "!" + GetUsername() + "@" + GetHostname();
+}
+
+void User::NICKSend(std::string message)
+{
+	std::vector<int> tmp;
+	std::vector<int> user_list;
+	for (std::size_t i = 0; i < _channels.size(); i++)
+	{
+		tmp = _channels[i]->GetFdlist();
+		for (std::size_t j = 0; j < tmp.size(); j++)
+		{
+			std::vector<int>::iterator find = std::find(user_list.begin(), user_list.end(), tmp[j]);
+			if (find == user_list.end())
+				user_list.push_back(tmp[j]);
+		}
+	}
+	for (std::size_t i = 0; i < user_list.size(); i++)
+	{
+		Send(user_list[i], message);
+	}
+	
 }
 
 

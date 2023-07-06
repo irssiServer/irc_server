@@ -71,7 +71,7 @@ class Channel
 		void SendUsers(std::string &message);
 		int EnterUser(User *user, std::string password);
 		void LeaveUser(int fd);
-		void KickUser(User &user, std::string username);
+		void KickUser(User &user, std::string username, std::string message);
 		bool isUser(User user);
 		bool isUser(std::string nickName);
 		std::string GetModeFlags();

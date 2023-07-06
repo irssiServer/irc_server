@@ -61,13 +61,14 @@ void Channel::LeaveUser(int fd)
 	}
 }
 
-void Channel::KickUser(User &user, std::string username)
+void Channel::KickUser(User &user, std::string username, std::string message)
 {
 	if (!_mode.OperUserCheck(user.GetNickname()))
 	{
 		ERR_CHANOPRIVSNEEDED(user, _channelName);
 		throw "";
 	}
+	SendUsers(message);
 	for (std::vector<User *>::iterator iter = _users.begin(); iter != _users.end(); iter++)
 	{
 		if (!(*iter)->GetNickname().compare(username))
@@ -217,6 +218,8 @@ bool Channel::InviteCheck(User &user)
 	std::vector<std::string>::iterator iter = std::find(invited.begin(), invited.end(), _channelName);
 	return iter != invited.end();
 }
+
+
 
 void Channel::InviteUser(User &inviter, std::string invitee)
 {

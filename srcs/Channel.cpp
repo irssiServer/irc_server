@@ -124,6 +124,11 @@ int Channel::ModeInvite(User &user, bool flag)
 		throw "";
 	}
 	_mode.inviteFlag = flag;
+	std::string str;
+	str = ":" + user.GetNickHostmask() + " MODE " + _channelName + " :";
+	str += '+' + (flag - 1) * -2;
+	str += "i";
+	SendUsers(str);
 	return 0;
 }
 
@@ -135,6 +140,11 @@ int Channel::ModeTopic(User &user, bool flag)
 		throw "";
 	}
 	_mode.topicSetFlag = flag;
+	std::string str;
+	str = ":" + user.GetNickHostmask() + " MODE " + _channelName + " :";
+	str += '+' + (flag - 1) * -2;
+	str += "t";
+	SendUsers(str);
 	return 0;
 }
 
@@ -158,6 +168,12 @@ int Channel::ModeLimite(User &user, bool flag, std::string limiteNum)
 			throw "";
 		}
 		_mode.limite = num;
+		std::string str;
+		str = ":" + user.GetNickHostmask() + " MODE " + _channelName + " ";
+		str += '+' + (flag - 1) * -2;
+		str += "l";
+		str += " :" + limiteNum;
+		SendUsers(str);
 	}
 	return 0;
 }
@@ -173,6 +189,12 @@ int Channel::ModeKey(User &user, bool flag, std::string key)
 	{
 		_mode.keyFlag = flag;
 		_mode.key = key;
+		std::string str;
+		str = ":" + user.GetNickHostmask() + " MODE " + _channelName + " ";
+		str += '+' + (flag - 1) * -2;
+		str += "k";
+		str += " :" + key;
+		SendUsers(str);
 	}
 	else
 		throw "";
@@ -186,27 +208,28 @@ int Channel::ModeOperator(User &user, bool flag, std::string userName)
 		ERR_CHANOPRIVSNEEDED(user, _channelName);
 		throw "";
 	}
-
-	if (isUser(userName))
-	{
-		std::vector<std::string>::iterator find = std::find(_mode.operatorUser.begin(), _mode.operatorUser.end(), userName);
-		if (find == _mode.operatorUser.end())
-		{
-			if (flag == ADD)
-				_mode.operatorUser.push_back(userName);
-		}
-		else
-		{
-			if (flag == REMOVE)
-				_mode.operatorUser.erase(find);
-		}
-		return 0;
-	}
-	else
+	if (!isUser(userName))
 	{
 		ERR_NOSUCHNICK(user, userName);
 		throw "";
 	}
+	std::vector<std::string>::iterator find = std::find(_mode.operatorUser.begin(), _mode.operatorUser.end(), userName);
+	if (find == _mode.operatorUser.end())
+	{
+		if (flag == ADD)
+			_mode.operatorUser.push_back(userName);
+	}
+	else
+	{
+		if (flag == REMOVE)
+			_mode.operatorUser.erase(find);
+	}
+	std::string str;
+	str = ":" + user.GetNickHostmask() + " MODE " + _channelName + " :";
+	str += '+' + (flag - 1) * -2;
+	str += "o";
+	SendUsers(str);
+	return 0;
 }
 
 bool Channel::InviteCheck(User &user)

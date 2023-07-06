@@ -418,14 +418,13 @@ void CommandHandler::KICK(User &user, std::vector<std::string> &params)
                 }
                 else
                 {
-                    std::string tmp;
-                    tmp = ":" + user.GetNickHostmask() + " KICK " + params[0] + " " + recv[i] + " :";
+                    std::string message;
+                    message = ":" + user.GetNickHostmask() + " KICK " + params[0] + " " + recv[i] + " :";
                     if (params.size() == 2)
-                        tmp = tmp + user.GetNickname();
+                        message = message + user.GetNickname();
                     else
-                        tmp = tmp + params[2];
-                    UserChannelController::Instance().FindChannel(params[0]).SendUsers(tmp);
-                    user.FindChannel(params[0]).KickUser(user, recv[i]);
+                        message = message + params[2];
+                    user.FindChannel(params[0]).KickUser(user, recv[i], message);
                 }
             }
         }

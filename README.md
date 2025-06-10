@@ -100,47 +100,57 @@ make up
 ```bash
 # irssi 사용
 irssi -c localhost -p 6667 -w mypassword
-
-# nc 사용 (테스트용)
-nc localhost 6667
 ```
 
 ## 🎮 사용법
 
 ### 기본 IRC 명령어
 
-#### 서버 연결
-
-```
-PASS mypassword
-NICK mynickname
-USER myuser 0 * :My Real Name
-```
-
 #### 채널 관리
 
 ```
 JOIN #general          # 채널 입장
 PART #general          # 채널 퇴장
-LIST                   # 채널 목록 보기
-NAMES #general         # 채널 사용자 목록
 ```
 
 #### 메시지
 
 ```
-PRIVMSG #general :Hello everyone!    # 채널 메시지
-PRIVMSG user123 :Hi there!           # 개인 메시지
+PRIVMSG #general :Hello everyone!     # 채널 메시지
+PRIVMSG user123 :Hi there!            # 개인 메시지
+
+NOTICE #general :모두들 안녕!            # 공지 메시지
+
+TOPIC #general                        # 현재 주제 확인
+TOPIC #general :채팅 서버               # 주제 설정
+
 ```
 
 #### 운영자 명령어
 
 ```
-MODE #general +o user123    # 사용자에게 op 권한 부여
-MODE #general +i            # invite-only 모드 설정
-MODE #general +k secret     # 채널 키 설정
-KICK #general user123       # 사용자 강퇴
+MODE #general +o user123         # 사용자에게 op 권한 부여
+MODE #general +i                 # invite-only 모드 설정
+MODE #general +k secret          # 채널 키 설정
+
+KICK #general user123            # 사용자 강퇴
+KICK #general alice :시끄러워요     # 강퇴 이유 선언
+KICK #general alice,bob :다나가!   # 여러 사용자 동시 강퇴
+
+
+MODE #general                    # 현재 모드 확인
+MODE #general +o alice           # 사용자에게 op 권한 부여
+MODE #general +ik secretkey      # 여러 모드 동시 설정
+MODE #general -i                 # 모드 해제
+MODE #general -k secretkey       # 모드 해제
 ```
+
+#### 초대
+```
+INVITE alice #private  # 사용자를 채널로 초대
+INVITE bob #vip-lounge # 사용자를 채널로 초대
+```
+
 
 ### 연결 스트레스 테스트
 

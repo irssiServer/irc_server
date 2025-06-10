@@ -80,7 +80,7 @@
 ```bash
 git clone https://github.com/your-username/irc_server.git
 cd irc_server
-make
+make up
 ```
 
 ### 실행
